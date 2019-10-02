@@ -1,0 +1,3739 @@
+<?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+require_once "./application/modules/accounts/controllers/accounts.php";
+ini_set('MAX_EXECUTION_TIME', -1);
+ini_set('max_execution_time',0);
+set_time_limit(0);
+
+class Payroll extends accounts 
+{
+	var $csv_path;
+	var $payslip_path;
+	var $payroll_file_location;
+	function __construct()
+	{
+		parent:: __construct();
+		$this->csv_path = realpath(APPPATH . '../assets/csv');
+		$this->payslip_path = realpath(APPPATH . '../');
+		$this->payroll_file_location = base_url().'assets/payroll/';
+		ini_set('MAX_EXECUTION_TIME', -1);
+		ini_set('max_execution_time',0);
+		set_time_limit(0);
+	}
+    
+	/*
+	*
+	*	Default action is to show all the personnel
+	*
+	*/
+	public function payrolls($order = 'payroll.created', $order_method = 'DESC') 
+	{
+		$branch_id = $this->session->userdata('branch_id2');
+		$branch_name = $this->session->userdata('branch_name2');
+		$branches = $this->branches_model->all_branches();
+		$where = 'month.month_id = payroll.month_id AND payroll.payroll_status = 1 AND payroll.branch_id = branch.branch_id';
+		$title = $branch_name.' Payroll history';
+		
+		if(($branch_id == FALSE) || (empty($branch_id)))
+		{
+			
+		}
+		
+		else
+		{
+			$where .= ' AND payroll.branch_id = '.$branch_id;
+		}
+		
+		//search items
+		$search = $this->session->userdata('payroll_search');
+		
+		if(!empty($search))
+		{
+			$where .= $search;
+			$title = $branch_name.' '.$this->session->userdata('payroll_search_title');
+		}
+		$table = 'payroll, month, branch';
+		//pagination
+		$segment = 5;
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'payroll/payroll/'.$order.'/'.$order_method;
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active">';
+		$config['cur_tag_close'] = '</li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->payroll_model->get_all_payrolls($table, $where, $config["per_page"], $page, $order, $order_method);
+		
+		//change of order method 
+		if($order_method == 'DESC')
+		{
+			$order_method = 'ASC';
+		}
+		
+		else
+		{
+			$order_method = 'DESC';
+		}
+		
+		$data['title'] = $v_data['title'] = $title;
+		
+		$v_data['order'] = $order;
+		$v_data['month'] = $this->payroll_model->get_months();
+		$v_data['order_method'] = $order_method;
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['branches'] = $branches;
+		
+		$data['content'] = $this->load->view('payroll/payroll/payroll_list', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+
+    
+	/*
+	*
+	*	Default action is to show all the personnel
+	*
+	*/
+	public function salaries($order = 'personnel_onames', $order_method = 'ASC') 
+	{
+		$personnel_search = $this->session->userdata('personnel_search');
+		$where = 'personnel.branch_id = branch.branch_id AND personnel.personnel_type_id = 1 AND personnel.personnel_status != 0';
+		$table = 'personnel, branch';
+		
+		if(!empty($personnel_search))
+		{
+			$where .= $personnel_search;
+		}
+		$branch_id = $this->session->userdata('branch_id');
+		$branch_name = $this->session->userdata('branch_name');
+		$branches = $this->branches_model->all_branches();
+		
+		//pagination
+		$segment = 5;
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'payroll/salary-data/'.$order.'/'.$order_method;
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->personnel_model->get_all_personnel($table, $where, $config["per_page"], $page, $order, $order_method);
+		
+		//change of order method 
+		if($order_method == 'DESC')
+		{
+			$order_method = 'ASC';
+		}
+		
+		else
+		{
+			$order_method = 'DESC';
+		}
+		
+		$data['title'] = $v_data['title'] = $branch_name.' personnel';
+		
+		$v_data['order'] = $order;
+		$v_data['month'] = $this->payroll_model->get_months();
+		$v_data['order_method'] = $order_method;
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['branches'] = $branches;
+		$data['content'] = $this->load->view('payroll/payroll/salaries', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function change_branch()
+	{
+		$branch_id = $this->input->post('branch_id');
+		
+		if(($branch_id != FALSE) && (!empty($branch_id)))
+		{
+			$query = $this->branches_model->get_branch($branch_id);
+			
+			if($query->num_rows() > 0)
+			{
+				$row = $query->row();
+				$branch_name = $row->branch_name;
+				$this->session->set_userdata('branch_id2', $branch_id);
+				$this->session->set_userdata('branch_name2', $branch_name);
+			}
+		}
+		
+		redirect('payroll/payroll');
+	}
+	public function create_payroll()
+	{
+		$this->form_validation->set_rules('year', 'Year', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('month', 'Month', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$year = $this->input->post("year");
+			$month = $this->input->post("month");
+			$branch_id = $this->session->userdata('branch_id2');
+			
+			if(($branch_id != FALSE) && (!empty($branch_id)))
+			{
+				//get all payrolls that are active for the most recent month for selected branch that are closed
+				$active_payroll_month = $this->payroll_model->get_most_recent_month_active_payroll($branch_id, $month, $year);
+				
+				//check month and year to be greater than most recent active payrolls
+				if($active_payroll_month == FALSE)
+				{
+					//var_dump($active_payroll_month,$active_payroll_year);die();
+					//create payroll
+					$payroll_id = $this->payroll_model->create_payroll($year, $month, $branch_id);
+					if($payroll_id > 0)
+					{
+						$branch_working_hours = $this->payroll_model->get_branch_working_hours($branch_id);
+						if($this->payroll_model->save_salary($payroll_id, $branch_id, $branch_working_hours))
+						{
+							$this->session->set_userdata('success_message', 'Payroll for '.$month.'/'.$year.' has been created successfully');
+						}
+						
+						else
+						{
+							$this->session->set_userdata('error_message', 'Unable to save salary details for '.$month.'/'.$year);
+						}
+					}
+				
+					else
+					{
+						$this->session->set_userdata('error_message', 'Unable to create payroll for '.$month.'/'.$year);
+					}
+				}
+				else
+				{
+					$this->session->set_userdata('error_message', 'The period '.$month.'/'.$year.' for this branch has already been closed');
+				}
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Branch not selected. Please try again');
+			}
+		}
+			
+		else
+		{
+			$this->session->set_userdata('error_message', validation_errors());
+		}
+		
+		redirect('payroll/payroll');
+	}
+	
+	public function payment_details($personnel_id)
+	{
+		$result = $this->personnel_model->get_personnel($personnel_id);
+		
+		if($result->num_rows() > 0)
+		{
+			$row2 = $result->row();
+			
+			$onames = $row2->personnel_onames;
+			$fname = $row2->personnel_fname;
+			$personnel_account_number = $row2->personnel_account_number;
+			$personnel_nssf_number = $row2->personnel_nssf_number;
+			$personnel_kra_pin = $row2->personnel_kra_pin;
+			$personnel_nhif_number = $row2->personnel_nhif_number;
+			$personnel_national_id_number = $row2->personnel_national_id_number;
+			
+			$v_data['personnel_name'] = $fname." ".$onames;
+			$v_data['personnel_id'] = $personnel_id;
+			$v_data['personnel_account_number'] = $personnel_account_number;
+			$v_data['personnel_nssf_number'] = $personnel_nssf_number;
+			$v_data['personnel_kra_pin'] = $personnel_kra_pin;
+			$v_data['personnel_national_id_number'] = $personnel_national_id_number;
+			$v_data['personnel_nhif_number'] = $personnel_nhif_number;
+			
+			$v_data['payments'] = $this->payroll_model->get_all_payments();
+			$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+			$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+			$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+			$v_data['savings'] = $this->payroll_model->get_all_savings();
+			$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+			$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+			$v_data['relief'] = $this->payroll_model->get_relief();
+			
+			$v_data['personel_payments'] = $this->payroll_model->get_personnel_payments($personnel_id);
+			$v_data['personnel_benefits'] = $this->payroll_model->get_personnel_benefits($personnel_id);
+			$v_data['personnel_allowances'] = $this->payroll_model->get_personnel_allowances($personnel_id);
+			$v_data['personnel_deductions'] = $this->payroll_model->get_personnel_deductions($personnel_id);
+			$v_data['personnel_other_deductions'] = $this->payroll_model->get_personnel_other_deductions($personnel_id);
+			$v_data['personnel_savings'] = $this->payroll_model->get_personnel_savings($personnel_id);
+			$v_data['personnel_loan_schemes'] = $this->payroll_model->get_personnel_scheme($personnel_id);
+			$v_data['personnel_relief'] = $this->payroll_model->get_personnel_relief($personnel_id);
+			
+			$data['title'] = $v_data['title'] = 'Payment details for '.$v_data['personnel_name'];
+			
+			$data['content'] = $this->load->view("payroll/payroll/payment_details", $v_data, TRUE);
+		}
+		
+		else
+		{
+			$data['title'] = 'Error';
+			$data['content'] = '<h3 class="center-align">Unable to find personnel.</h3>';
+		}
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function payroll_configuration()
+	{
+		$v_data['paye'] = $this->payroll_model->get_paye();
+		$v_data['nhif'] = $this->payroll_model->get_nhif();
+		$v_data['nssf'] = $this->payroll_model->get_nssf();
+		$v_data['payments'] = $this->payroll_model->get_all_payments();
+		$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+		$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+		$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+		$v_data['savings'] = $this->payroll_model->get_all_savings();
+		$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$v_data['relief'] = $this->payroll_model->get_relief();
+		$data['title'] = $v_data['title'] = 'Payroll configuration';
+		
+		$data['content'] = $this->load->view("payroll/payroll/configuration", $v_data, TRUE);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function payroll_configuration_old()
+	{
+		$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+		$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+		$v_data['savings'] = $this->payroll_model->get_all_savings();
+		$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['title'] = $v_data['title'] = 'Payroll configuration';
+		
+		$data['content'] = $this->load->view("payroll/configuration", $v_data, TRUE);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function print_payslips()
+	{
+		$this->payroll_model->save_salary();
+		$year = $this->input->post("year");
+		$month = $this->input->post("month");
+		?>
+			<script type="text/javascript">
+				window.open("<?php echo base_url()."data/payroll_list.php?year=".$year."&month=".$month?>","Popup","height=500,width=1000,,scrollbars=yes,"+"directories=yes,location=yes,menubar=yes,"+"resizable=no status=no,history=no top = 50 left = 100");
+				
+			</script>
+        <?php
+		$this->payslips($_SESSION['navigation_id'], $_SESSION['sub_navigation_id']);
+	}
+
+	public function print_payroll($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			//var_dump($data['payroll_data']);die();
+			$data['child_branch_name'] = $branch_name;
+			$data['branch_image_name'] = $branch_image_name;
+			$data['branch_id'] = $branch_id;
+			$data['branch_address'] = $branch_address;
+			$data['branch_post_code'] = $branch_post_code;
+			$data['branch_city'] = $branch_city;
+			$data['branch_phone'] = $branch_phone;
+			$data['branch_email'] = $branch_email;
+			$data['branch_location'] = $branch_location;
+		}
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings_rs'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		
+		$data['branches'] = $branches;
+	
+		$this->load->view('payroll/payroll/payroll', $data);
+		/*$this->load->library('pdf');
+		$this->pdf->load_view('payroll/payroll/payroll', $data);
+		$this->pdf->render();
+		$this->pdf->stream("Payroll for ".$data['month']." ".$data['year'].".pdf");*/
+	}
+	
+	public function print_paye_report($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+		}
+		
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		
+		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['other_allowances'] = $this->payroll_model->get_other_allowances();
+		$data['other_payments'] = $this->payroll_model->get_other_payments();
+		$data['other_non_cash_benefits'] = $this->payroll_model->get_other_benefits();
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		/*$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['other_non_cash_benefits'] = $this->payroll_model->get_other_benefits();
+		$data['other_allowances'] = $this->payroll_model->get_other_allowances();
+		$data['other_payments'] = $this->payroll_model->get_other_payments();
+		//var_dump($data['other_allowances']->num_rows());die();
+		$data['basic_pay_table']  = $this->payroll_model->get_table_id("basic_pay");
+		$data['payment_table'] = $this->payroll_model->get_table_id("payment");
+		$data['benefit_table'] =  $this->payroll_model->get_table_id("benefit");
+		$data['payment_table'] = $this->payroll_model->get_table_id("payment");
+		$data['other_deduction_table'] = $this->payroll_model->get_table_id("other_deduction");
+		$data['deduction_table'] = $this->payroll_model->get_table_id("deduction");
+		$data['allowance_table'] = $this->payroll_model->get_table_id("allowance");
+		$data['paye_table'] = $this->payroll_model->get_table_id("paye");
+		$data['relief_table'] = $this->payroll_model->get_table_id("relief");
+		$data['insurance_amount_table'] = $this->payroll_model->get_table_id("insurance_amount");
+		$data['insurance_relief_table'] = $this->payroll_model->get_table_id("insurance_relief");
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();*/
+	
+		$this->load->view('payroll/payroll/paye_report', $data);
+	}
+	
+	public function print_nssf_report($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+		}
+		$this->load->helper('file');
+		$payroll_path = realpath(APPPATH . '../assets/payroll/');
+		$file = $payroll_path.'/'.$file_data.'.txt';
+		$data['payroll_data'] = json_decode(read_file($file));
+		
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		
+		$data['payroll_id'] = $payroll_id;
+		
+		$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		$data['basic_pay_table']  = $this->payroll_model->get_table_id("basic_pay");
+		$data['nssf_table']  = $this->payroll_model->get_table_id("nssf");
+		$this->load->view('payroll/payroll/nssf_report', $data);
+	}
+	
+	public function print_nhif_report($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			$where .= ' AND branch_id = '.$branch_id;
+		}
+		
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		
+		$data['payroll_id'] = $payroll_id;
+		
+		$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		$data['basic_pay_table']  = $this->payroll_model->get_table_id("basic_pay");
+		$data['nhif_table']  = $this->payroll_model->get_table_id("nhif");
+		$this->load->view('payroll/payroll/nhif_report', $data);
+	}
+	
+	public function print_monthly_payslips_data($personnel_id)
+	{
+		$branch_name = 'Dental Clinic';//$this->input->post('branch_name');
+		$data['payroll_data'] = json_decode($this->input->post('payroll_data'));
+		$data['total_rows'] = json_decode($this->input->post('total_rows'));
+		$data['current_row'] = json_decode($this->input->post('current_row'));
+		$payroll_id = $this->input->post('payroll_id');
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id.' AND payroll_item.personnel_id = '.$personnel_id;
+		
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		
+		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings_rs'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		//$data['payroll_year'] = $payroll_year;
+		//$data['payroll_created_for'] = $payroll_created_for;
+	
+		$response['message'] = $this->load->view('payroll/payroll/monthly_payslips3', $data, TRUE);
+		//echo $response['message']; die();
+		echo json_encode($response);
+	}
+	
+	public function print_monthly_payslips($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		$table = 'personnel, payroll_item';
+		
+		$this->db->where('payroll.month_id = month.month_id AND payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch, month');
+
+
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_working_hours = $row[0]->branch_working_hours;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$payroll_year = $row[0]->payroll_year;
+			$month = $row[0]->month_id;
+			$month_name = $row[0]->month_name;
+			$payroll_created_for = $row[0]->payroll_created_for;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			//$v_data['payroll_data'] = json_decode(read_file($file));
+			$v_data['payroll_data'] = read_file($file);
+			//var_dump($v_data['payroll_data']); die();
+		}
+		
+		$v_data['branch_name'] = $branch_name;
+		$v_data['branch_image_name'] = $branch_image_name;
+		$v_data['branch_id'] = $branch_id;
+		$v_data['branch_address'] = $branch_address;
+		$v_data['branch_post_code'] = $branch_post_code;
+		$v_data['branch_city'] = $branch_city;
+		$v_data['branch_phone'] = $branch_phone;
+		$v_data['branch_email'] = $branch_email;
+		$v_data['branch_location'] = $branch_location;
+		$v_data['branch_working_hours'] = $branch_working_hours;
+		
+		$v_data['payroll_id'] = $payroll_id;
+		/*
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id)->result();
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		
+		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		$data['payroll_year'] = $payroll_year;
+		$data['month'] = $month;
+		$data['payroll_created_for'] = $payroll_created_for;*/
+		$personnel = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		$personnel_string = json_encode($personnel->result());
+		$v_data['personnel'] = str_replace("\\\'", "", $personnel_string);
+		$v_data['total_rows'] = $personnel->num_rows();
+		$v_data['current_row'] =  0;
+			// var_dump($payroll_id); die();
+		$this->load->view('payroll/payroll/monthly_payslips2', $v_data);
+	}
+	
+	public function print_monthly_payslips2($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_working_hours = $row[0]->branch_working_hours;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$payroll_created_for = $row[0]->payroll_created_for;
+			$payroll_year = $row[0]->payroll_year;
+			$month = $row[0]->month_id;
+			$branch_location = $row[0]->branch_location;
+			$payroll_created_for = $row[0]->payroll_created_for;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			var_dump($data['payroll_data']->overtime_hours);die();
+		}
+		
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['payroll_created_for'] = $payroll_created_for;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		$data['branch_working_hours'] = $branch_working_hours;
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		
+		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		$data['payroll_year'] = $payroll_year;
+		$data['payroll_created_for'] = $payroll_created_for;
+	
+		$this->load->view('payroll/payroll/monthly_payslips', $data);
+	}
+	public function add_new_nhif()
+	{
+		$this->form_validation->set_rules('nhif_from', 'From', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('nhif_to', 'To', 'numeric|xss_clean');
+		$this->form_validation->set_rules('nhif_amount', 'Amount', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$nhif_id = $this->payroll_model->add_new_nhif();
+			if($nhif_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Amount added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add amount. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_nhif($nhif_id)
+	{
+		$this->form_validation->set_rules('nhif_from'.$nhif_id, 'From', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('nhif_to'.$nhif_id, 'To', 'numeric|xss_clean');
+		$this->form_validation->set_rules('nhif_amount'.$nhif_id, 'Amount', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_nhif($nhif_id))
+			{
+				$this->session->set_userdata("success_message", "Amount edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit amount. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_nhif($nhif_id)
+	{
+		$table = "nhif";
+		$where = array(
+			"nhif_id" => $nhif_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Amount deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete amount. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_paye()
+	{
+		$this->form_validation->set_rules('paye_from', 'From', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('paye_to', 'To', 'numeric|xss_clean');
+		$this->form_validation->set_rules('paye_amount', 'Amount', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$paye_id = $this->payroll_model->add_new_paye();
+			if($paye_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Amount added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add amount. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_paye($paye_id)
+	{
+		$this->form_validation->set_rules('paye_from'.$paye_id, 'From', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('paye_to'.$paye_id, 'To', 'numeric|xss_clean');
+		$this->form_validation->set_rules('paye_amount'.$paye_id, 'Amount', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_paye($paye_id))
+			{
+				$this->session->set_userdata("success_message", "Amount edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit amount. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_paye($paye_id)
+	{
+		$table = "paye";
+		$where = array(
+			"paye_id" => $paye_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Amount deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete amount. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function edit_nssf($nssf_id)
+	{
+		$this->form_validation->set_rules('amount', 'Amount', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('percentage', 'NSSF type', 'required|numeric|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_nssf($nssf_id))
+			{
+				$this->session->set_userdata("success_message", "NSSF edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit NSSF. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function add_new_payment()
+	{
+		$this->form_validation->set_rules('payment_name', 'Payment name', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$payment_id = $this->payroll_model->add_new_payment();
+			if($payment_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Payment added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add payment. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_payment($payment_id)
+	{
+		$this->form_validation->set_rules('payment_name'.$payment_id, 'Payment name', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_payment($payment_id))
+			{
+				$this->session->set_userdata("success_message", "Payment edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit payment. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_payment($payment_id)
+	{
+		$table = "payment";
+		$where = array(
+			"payment_id" => $payment_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Payment deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete payment. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_benefit()
+	{
+		$this->form_validation->set_rules('benefit_name', 'Benefit name', 'required|xss_clean');
+		$this->form_validation->set_rules('benefit_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$benefit_id = $this->payroll_model->add_new_benefit();
+			if($benefit_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Benefit added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add benefit. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_benefit($benefit_id)
+	{
+		$this->form_validation->set_rules('benefit_name'.$benefit_id, 'Benefit name', 'required|xss_clean');
+		$this->form_validation->set_rules('benefit_taxable'.$benefit_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_benefit($benefit_id))
+			{
+				$this->session->set_userdata("success_message", "Benefit edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit benefit. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_benefit($benefit_id)
+	{
+		$table = "benefit";
+		$where = array(
+			"benefit_id" => $benefit_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Benefit deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete benefit. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_allowance()
+	{
+		$this->form_validation->set_rules('allowance_name', 'Allowance name', 'required|xss_clean');
+		$this->form_validation->set_rules('allowance_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$allowance_id = $this->payroll_model->add_new_allowance();
+			if($allowance_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Allowance added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add allowance. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_allowance($allowance_id)
+	{
+		$this->form_validation->set_rules('allowance_name'.$allowance_id, 'Allowance name', 'required|xss_clean');
+		$this->form_validation->set_rules('allowance_taxable'.$allowance_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_allowance($allowance_id))
+			{
+				$this->session->set_userdata("success_message", "Allowance edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit allowance. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_allowance($allowance_id)
+	{
+		$table = "allowance";
+		$where = array(
+			"allowance_id" => $allowance_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Allowance deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete allowance. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_deduction()
+	{
+		$this->form_validation->set_rules('deduction_name', 'Deduction name', 'required|xss_clean');
+		$this->form_validation->set_rules('deduction_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$deduction_id = $this->payroll_model->add_new_deduction();
+			if($deduction_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Deduction added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add deduction. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_deduction($deduction_id)
+	{
+		$this->form_validation->set_rules('deduction_name'.$deduction_id, 'Deduction name', 'required|xss_clean');
+		$this->form_validation->set_rules('deduction_taxable'.$deduction_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_deduction($deduction_id))
+			{
+				$this->session->set_userdata("success_message", "Deduction edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit deduction. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_deduction($deduction_id)
+	{
+		$table = "deduction";
+		$where = array(
+			"deduction_id" => $deduction_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Deduction deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete deduction. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_other_deduction()
+	{
+		$this->form_validation->set_rules('other_deduction_name', 'Deduction name', 'required|xss_clean');
+		$this->form_validation->set_rules('other_deduction_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$other_deduction_id = $this->payroll_model->add_new_other_deduction();
+			if($other_deduction_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Deduction added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add other_deduction. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_other_deduction($other_deduction_id)
+	{
+		$this->form_validation->set_rules('other_deduction_name'.$other_deduction_id, 'Deduction name', 'required|xss_clean');
+		$this->form_validation->set_rules('other_deduction_taxable'.$other_deduction_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_other_deduction($other_deduction_id))
+			{
+				$this->session->set_userdata("success_message", "Deduction edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit other_deduction. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_other_deduction($other_deduction_id)
+	{
+		$table = "other_deduction";
+		$where = array(
+			"other_deduction_id" => $other_deduction_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Deduction deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete other_deduction. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_saving()
+	{
+		$this->form_validation->set_rules('saving_name', 'Saving name', 'required|xss_clean');
+		//$this->form_validation->set_rules('saving_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$saving_id = $this->payroll_model->add_new_saving();
+			if($saving_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Saving added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add saving. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_saving($saving_id)
+	{
+		$this->form_validation->set_rules('saving_name'.$saving_id, 'Saving name', 'required|xss_clean');
+		//$this->form_validation->set_rules('saving_taxable'.$saving_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_saving($saving_id))
+			{
+				$this->session->set_userdata("success_message", "Saving edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit saving. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_saving($saving_id)
+	{
+		$table = "savings";
+		$where = array(
+			"savings_id" => $saving_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Saving deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete saving. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	public function add_new_loan_scheme()
+	{
+		$this->form_validation->set_rules('loan_scheme_name', 'Loan scheme name', 'required|xss_clean');
+		//$this->form_validation->set_rules('loan_scheme_taxable', 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			$loan_scheme_id = $this->payroll_model->add_new_loan_scheme();
+			if($loan_scheme_id != FALSE)
+			{
+				$this->session->set_userdata("success_message", "Loan scheme added successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not add loan_scheme. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_loan_scheme($loan_scheme_id)
+	{
+		$this->form_validation->set_rules('loan_scheme_name'.$loan_scheme_id, 'Loan scheme name', 'required|xss_clean');
+		//$this->form_validation->set_rules('loan_scheme_taxable'.$loan_scheme_id, 'Taxable', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_loan_scheme($loan_scheme_id))
+			{
+				$this->session->set_userdata("success_message", "Loan scheme edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit loan_scheme. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	function delete_loan_scheme($loan_scheme_id)
+	{
+		$table = "loan_scheme";
+		$where = array(
+			"loan_scheme_id" => $loan_scheme_id
+		);
+		$this->db->where($where);
+		
+		if($this->db->delete($table))
+		{
+			$this->session->set_userdata("success_message", "Loan scheme deleted successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not delete loan_scheme. Please try again");
+		}
+		
+		redirect('payroll/payroll-configuration');
+	}
+	
+	function edit_personnel_payments($personnel_id)
+	{
+		$table = "personnel_payment";
+		
+		//Update payments
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add payments
+		$payments = $this->payroll_model->get_all_payments();
+		if($payments->num_rows() > 0)
+		{
+			foreach($payments->result() as $row2)
+			{
+				$payment_id = $row2->payment_id;
+				$amount = $this->input->post("personnel_payment_amount".$payment_id);
+				
+				if(($amount >= 0) || ($amount < 0))
+				{
+					$items = array(
+						"payment_id" => $payment_id,
+						"personnel_id" => $personnel_id,
+						"personnel_payment_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		$this->session->set_userdata("success_message", "Payment details updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	function edit_personnel_benefits($personnel_id)
+	{
+		$table = "personnel_benefit";
+		
+		//Update benefits
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add benefits
+		$benefits = $this->payroll_model->get_all_benefits();
+		if($benefits->num_rows() > 0)
+		{
+			foreach($benefits->result() as $allow)
+			{
+				$benefit_id = $allow->benefit_id;
+				$amount = $this->input->post("personnel_benefit_amount".$benefit_id);
+				
+				if(!empty($amount))
+				{
+					$items = array(
+						"benefit_id" => $benefit_id,
+						"personnel_id" => $personnel_id,
+						"personnel_benefit_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		
+		$this->session->set_userdata("success_message", "Payment details updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	function edit_personnel_allowances($personnel_id)
+	{
+		$table = "personnel_allowance";
+		
+		//Update allowances
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add allowances
+		$allowances = $this->payroll_model->get_all_allowances();
+		if($allowances->num_rows() > 0)
+		{
+			foreach($allowances->result() as $allow)
+			{
+				$allowance_id = $allow->allowance_id;
+				$amount = $this->input->post("personnel_allowance_amount".$allowance_id);
+		
+				if(!empty($amount))
+				{
+					$items = array(
+						"allowance_id" => $allowance_id,
+						"personnel_id" => $personnel_id,
+						"personnel_allowance_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		
+		$this->session->set_userdata("success_message", "Payment details updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	public function edit_personnel_deductions($personnel_id)
+	{
+		$table = "personnel_deduction";
+		
+		//Update allowances
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add deductions
+		$deductions = $this->payroll_model->get_all_deductions();
+		if($deductions->num_rows() > 0)
+		{
+			foreach($deductions->result() as $allow)
+			{
+				$deduction_id = $allow->deduction_id;
+				$amount = $this->input->post("personnel_deduction_amount".$deduction_id);
+		
+				if(!empty($amount))
+				{
+					$items = array(
+						"deduction_id" => $deduction_id,
+						"personnel_id" => $personnel_id,
+						"personnel_deduction_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		
+		$this->session->set_userdata("success_message", "Deductions updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	public function edit_personnel_other_deductions($personnel_id)
+	{
+		$table = "personnel_other_deduction";
+		
+		//Update allowances
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add other_deductions
+		$other_deductions = $this->payroll_model->get_all_other_deductions();
+		if($other_deductions->num_rows() > 0)
+		{
+			foreach($other_deductions->result() as $allow)
+			{
+				$other_deduction_id = $allow->other_deduction_id;
+				$amount = $this->input->post("personnel_other_deduction_amount".$other_deduction_id);
+		
+				if(!empty($amount))
+				{
+					$items = array(
+						"other_deduction_id" => $other_deduction_id,
+						"personnel_id" => $personnel_id,
+						"personnel_other_deduction_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		
+		$this->session->set_userdata("success_message", "Deductions updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	function edit_personnel_savings($personnel_id)
+	{
+		//delete savings
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete("personnel_savings");
+		
+		$savings = $this->payroll_model->get_all_savings();
+		
+		if($savings->num_rows() > 0)
+		{
+			
+			foreach ($savings->result() as $row2)
+			{
+				//save savings opening
+				$savings_id = $row2->savings_id;
+				$savings_opening = $this->input->post("personnel_savings_opening".$savings_id);
+				$savings = $this->input->post("personnel_savings_amount".$savings_id);
+				
+				$items = array(
+					"personnel_savings_opening" => $savings_opening,
+					"personnel_savings_amount" => $savings,
+					"savings_id" => $savings_id,
+					"personnel_id" => $personnel_id
+				);
+				
+				$this->db->insert("personnel_savings", $items);
+			}
+		}
+		$this->session->set_userdata("success_message", "Savings updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	function edit_personnel_loan_schemes($personnel_id)
+	{
+		//delete savings
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete("personnel_scheme");
+		
+		$schemes = $this->payroll_model->get_all_loan_schemes();
+		
+		if($schemes->num_rows() > 0){
+			
+			foreach ($schemes->result() as $row2)
+			{
+				//save savings opening
+				$scheme_id = $row2->loan_scheme_id;
+				$amount = $this->input->post("borrowings".$scheme_id);
+				$monthly = $this->input->post("payments".$scheme_id);
+				$interest = $this->input->post("interest".$scheme_id);
+				$int = $this->input->post("interest2".$scheme_id);
+				$sdate = $this->input->post("start_date".$scheme_id);
+				$edate = $this->input->post("end_date".$scheme_id);
+				$remaining_balance = $this->input->post("remaining_balance".$scheme_id);
+				
+				$items = array(
+					"loan_scheme_id" => $scheme_id,
+					"personnel_scheme_repayment_sdate" => $sdate,
+					"personnel_scheme_repayment_edate" => $edate,
+					"personnel_scheme_monthly" => $monthly,
+					"personnel_scheme_interest" => $interest,
+					"personnel_scheme_amount" => $amount,
+					"personnel_scheme_int" => $int,
+					"personnel_id" => $personnel_id,
+					"remaining_balance"=>$remaining_balance
+				);
+				
+				$this->db->insert("personnel_scheme", $items);
+			}
+		}
+		$this->session->set_userdata("success_message", "Loan schemes updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	public function view_payslip($personnel_id)
+	{
+		$result = $this->personnel_model->get_personnel($personnel_id);
+		
+		if($result->num_rows() > 0)
+		{
+			$row2 = $result->row();
+			$onames = $row2->personnel_onames;
+			$fname = $row2->personnel_fname;
+			$personnel_number = $row2->personnel_number;
+			$nssf_number = $row2->personnel_nssf_number;
+			$nhif_number = $row2->personnel_nhif_number;
+			$kra_pin = $row2->personnel_kra_pin;
+			$branch_id = $row2->branch_id;
+			$branch_working_hours = $this->payroll_model->get_branch_working_hours($branch_id);
+			$v_data['branch_working_hours'] = $branch_working_hours;
+			$v_data['personnel_number'] = $personnel_number;
+			$v_data['nssf_number'] = $nssf_number;
+			$v_data['nhif_number'] = $nhif_number;
+			$v_data['kra_pin'] = $kra_pin;
+			$v_data['personnel_name'] = $fname." ".$onames;
+			$v_data['personnel_id'] = $personnel_id;
+			$v_data['personnel_number'] = $row2->personnel_number;
+			
+			$v_data['payments'] = $this->payroll_model->get_all_payments();
+			$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+			$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+			$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+			$v_data['savings'] = $this->payroll_model->get_all_savings();
+			$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+			$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+			$v_data['overtime'] = $this->payroll_model->get_overtime();
+			
+			$v_data['personel_payments'] = $this->payroll_model->get_personnel_payments($personnel_id);
+			$v_data['personnel_benefits'] = $this->payroll_model->get_personnel_benefits($personnel_id);
+			$v_data['personnel_allowances'] = $this->payroll_model->get_personnel_allowances($personnel_id);
+			$v_data['personnel_deductions'] = $this->payroll_model->get_personnel_deductions($personnel_id);
+			$v_data['personnel_other_deductions'] = $this->payroll_model->get_personnel_other_deductions($personnel_id);
+			$v_data['personnel_savings'] = $this->payroll_model->get_personnel_savings($personnel_id);
+			$v_data['personnel_loan_schemes'] = $this->payroll_model->get_personnel_scheme($personnel_id);
+			$v_data['personnel_overtime'] = $this->payroll_model->get_personnel_overtime($personnel_id);
+		}
+		
+		else
+		{
+			$v_data['content'] = '<h3 class="center-align">Unable to find personnel.</h3>';
+		}
+		$v_data['contacts'] = $this->site_model->get_contacts();
+		
+		$this->load->view('payroll/payroll/payslips', $v_data);
+	}
+
+	public function search_payroll()
+	{
+		$year = $this->input->post("year");
+		$month = $this->input->post("month");
+		
+		if(!empty($month) && !empty($year))
+		{
+			$search = " AND payroll.payroll_year = '".$year."' AND payroll.month_id = ".$month;
+			$title = " Payroll for ".$month."/".$year;
+			
+			$this->session->set_userdata('payroll_search', $search);
+			$this->session->set_userdata('payroll_search_title', $title);
+		}
+		
+		redirect('payroll/payroll');
+	}
+	
+	public function close_payroll_search()
+	{
+		$this->session->unset_userdata('payroll_search');
+		$this->session->unset_userdata('payroll_search_title');
+		
+		redirect('payroll/payroll');
+	}
+	
+	function deactivate_payroll($payroll_id)
+	{
+		$table = "payroll";
+		$this->db->where("payroll_id",$payroll_id);
+		$query = $this->db->get($table);
+		$row = $query->row();
+		$branch_id = $row->branch_id;
+		$closed_payroll['payroll_closed'] = 0;
+		
+		$this->db->where('branch_id = '.$branch_id.' AND payroll_id <= '.$payroll_id);
+		if($this->db->update($table,$closed_payroll))
+		{
+			
+			$this->session->set_userdata("success_message", "Payroll closed successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not close payroll. Please try again");
+		}
+		redirect('payroll/payroll');
+		//$update_data['payroll_status'] = 0;
+		
+		//$this->db->where($where);
+		/*if($this->db->update($table, $update_data))
+		{
+			$this->session->set_userdata("success_message", "Payroll deactivated successfully");
+		}
+		
+		else
+		{
+			$this->session->set_userdata("error_message","Could not deactivate payroll. Please try again");
+		}
+		
+		//update all payments except basic pay to 0
+		if($this->payroll_model->update_payment_closing_balances($payroll_id))
+		{
+			//update all allowances except house allowance
+			/*if($this->payroll_model->update_allowances_closing_balances($payroll_id))
+			{
+				//delete all personnel overtimes
+				if($this->payroll_model->update_overtime_closing_balances($payroll_id))
+				{
+					$this->session->set_userdata("success_message", "Payroll closed successfully");
+					redirect('accounts/payroll');
+				}
+			}
+		} 
+		else
+		{
+			$this->session->set_userdata("error_message","Could not close payroll. Please try again");
+		}
+		
+		redirect('accounts/payroll');*/
+	}
+	
+	public function edit_relief($relief_id)
+	{
+		$this->form_validation->set_rules('relief_name'.$relief_id, 'Relief name', 'required|xss_clean');
+		$this->form_validation->set_rules('relief_type'.$relief_id, 'Relief type', 'required|xss_clean');
+		$this->form_validation->set_rules('relief_amount'.$relief_id, 'Amount', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_relief($relief_id))
+			{
+				$this->session->set_userdata("success_message", "Relief edited successfully");
+				redirect('payroll/payroll-configuration');
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit relief. Please try again");
+			}
+		}
+		
+		$this->payroll_configuration();
+	}
+	
+	public function edit_personnel_relief($personnel_id)
+	{
+		$table = "personnel_relief";
+		
+		//Update allowances
+		$this->db->where("personnel_id", $personnel_id);
+		$this->db->delete($table);
+		
+		//Add reliefs
+		$relief = $this->payroll_model->get_relief();
+		if($relief->num_rows() > 0)
+		{
+			foreach($relief->result() as $allow)
+			{
+				$relief_id = $allow->relief_id;
+				$amount = $this->input->post("personnel_relief_amount".$relief_id);
+		
+				if($amount > 0)
+				{
+					$items = array(
+						"relief_id" => $relief_id,
+						"personnel_id" => $personnel_id,
+						"personnel_relief_amount" => $amount
+					);
+					$this->db->insert($table, $items);
+				}
+			}
+		}
+		
+		$this->session->set_userdata("success_message", "Relief updated successfully");
+		redirect("payroll/payment-details/".$personnel_id);
+	}
+	
+	public function edit_payment_details($personnel_id)
+	{
+		$this->form_validation->set_rules('personnel_account_number', 'Account number', 'required|xss_clean');
+		$this->form_validation->set_rules('personnel_nssf_number', 'NSSF number', 'required|xss_clean');
+		$this->form_validation->set_rules('personnel_nhif_number', 'NHIF number', 'required|xss_clean');
+		$this->form_validation->set_rules('personnel_kra_pin', 'KRA pin', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->edit_payment_details($personnel_id))
+			{
+				$this->session->set_userdata("success_message", "Payment details edited successfully");
+			}
+			
+			else
+			{
+				$this->session->set_userdata("error_message","Could not edit payment details. Please try again");
+			}
+		}
+		
+		redirect('payroll/payment-details/'.$personnel_id);
+	}
+	
+	public function search_personnel()
+	{
+		$personnel_number = $this->input->post('personnel_number');
+		$branch_id = $this->input->post('branch_id');
+		$search_title = '';
+		
+		/*if(!empty($personnel_number))
+		{
+			$search_title .= ' member number <strong>'.$personnel_number.'</strong>';
+			$personnel_number = ' AND personnel.personnel_number LIKE \'%'.$personnel_number.'%\'';
+		}*/
+		if(!empty($personnel_number))
+		{
+			$search_title .= ' personnel number <strong>'.$personnel_number.'</strong>';
+			$personnel_number = ' AND personnel.personnel_number = \''.$personnel_number.'\'';
+		}
+		
+		if(!empty($branch_id))
+		{
+			$search_title .= ' member type <strong>'.$branch_id.'</strong>';
+			$branch_id = ' AND personnel.branch_id = \''.$branch_id.'\' ';
+		}
+		
+		//search surname
+		if(!empty($_POST['personnel_fname']))
+		{
+			$search_title .= ' first name <strong>'.$_POST['personnel_fname'].'</strong>';
+			$surnames = explode(" ",$_POST['personnel_fname']);
+			$total = count($surnames);
+			
+			$count = 1;
+			$surname = ' AND (';
+			for($r = 0; $r < $total; $r++)
+			{
+				if($count == $total)
+				{
+					$surname .= ' personnel.personnel_fname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+				}
+				
+				else
+				{
+					$surname .= ' personnel.personnel_fname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+				}
+				$count++;
+			}
+			$surname .= ') ';
+		}
+		
+		else
+		{
+			$surname = '';
+		}
+		
+		//search other_names
+		if(!empty($_POST['personnel_onames']))
+		{
+			$search_title .= ' other names <strong>'.$_POST['personnel_onames'].'</strong>';
+			$other_names = explode(" ",$_POST['personnel_onames']);
+			$total = count($other_names);
+			
+			$count = 1;
+			$other_name = ' AND (';
+			for($r = 0; $r < $total; $r++)
+			{
+				if($count == $total)
+				{
+					$other_name .= ' personnel.personnel_onames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+				}
+				
+				else
+				{
+					$other_name .= ' personnel.personnel_onames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+				}
+				$count++;
+			}
+			$other_name .= ') ';
+		}
+		
+		else
+		{
+			$other_name = '';
+		}
+		
+		$search = $personnel_number.$branch_id.$surname.$other_name;
+		$this->session->set_userdata('personnel_search', $search);
+		$this->session->set_userdata('personnel_search_title', $search_title);
+		
+		$this->salaries();
+	}
+	
+	public function close_search()
+	{
+		$this->session->unset_userdata('personnel_search', $search);
+		$this->session->unset_userdata('personnel_search_title', $search_title);
+		
+		redirect('payroll/salary-data');
+	}
+	
+	public function calculate_personnel_paye($taxable)
+	{
+		echo $taxable.'<br/>';
+		$paye = $this->payroll_model->calculate_paye($taxable);
+		echo $paye;
+	}
+	//generate p9
+	public function generate_p9_form()
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+		$result = $this->personnel_model->get_personnel($personnel_id);
+		$title = 'Generate P9 Form';
+		$v_data['title']= $title;
+		$data['content'] = $this->load->view('payroll/payroll/generate_p9', $v_data,true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function p9_js_form()
+	{
+		$branch_id = $this->input->post("branch_id");
+		$year = $this->input->post("year");
+		$from_month_id = $this->input->post("from_month");
+		$to_month_id = $this->input->post("to_month");
+		$insight_branch = 1;
+		$data['branch_details'] = $this->payroll_model->get_branch_contacts($insight_branch);
+		
+		$this->form_validation->set_rules('year', 'Year', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('from_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('to_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('branch_id', 'Branch', 'required|numeric|xss_clean');
+		if ($this->form_validation->run())
+		{
+			//select the personnel
+			$data['p9_generation_year'] = $year;
+			$data['branch_id'] = $branch_id;
+			$data['year'] = $year;
+			$data['from_month_id'] = $from_month_id;
+			$data['to_month_id'] = $to_month_id;
+			$branch_personnel = $this->payroll_model->get_branch_personnel($branch_id);
+			//get payrolls created for those moonths and year
+			//$data['payrolls_created'] = $payrolls_created = $this->payroll_model->get_payrolls($branch_id,$from_month_id,$to_month_id,$year);
+		
+			$personnel_string = json_encode($branch_personnel->result());
+			$data['personnel'] = str_replace("\\\'", "", $personnel_string);
+			$data['total_rows'] = $branch_personnel->num_rows();
+			$data['current_row'] =  0;
+			
+			$this->load->view('payroll/payroll/p9_js', $data);
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', $validation_errors);
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Please select range to continue');
+			}
+			redirect('my-account/p9');
+		}
+	}
+	
+	public function get_p9_data($personnel_id)
+	{
+		$branch_id = $this->input->post("branch_id");
+		$year = $this->input->post("p9_generation_year");
+		$from_month_id = $this->input->post("from_month_id");
+		$to_month_id = $this->input->post("to_month_id");
+		$personnel_number = $this->input->post("personnel_number");
+		$personnel_fname = $this->input->post("personnel_fname");
+		$personnel_onames = $this->input->post("personnel_onames");
+		$kra_pin = $this->input->post("kra_pin");
+		$insight_branch = 1;
+		$branch_name = $branch_address = '';
+		$branch_details = $this->payroll_model->get_branch_contacts($insight_branch);
+		if($branch_details->num_rows() > 0)
+		{
+			//var_dump($branch_details->result()); die();
+			foreach ($branch_details->result() as $branch) 
+			{
+				$branch_name = $branch->branch_name;
+				$branch_address = $branch->branch_address;
+				$branch_kra_pin = $branch->branch_kra_pin;
+			}
+		}
+		
+		$p9_generation_year = $year;
+		$payrolls_created = $this->payroll_model->get_payrolls($branch_id,$from_month_id,$to_month_id,$year);
+		$months = $this->payroll_model->get_months();
+		$payments = $this->payroll_model->get_all_payments();
+		$savings_table= $this->payroll_model->get_table_id("savings");
+		$loan_scheme_table = $this->payroll_model->get_table_id("loan_scheme");
+		$benefits = $this->payroll_model->get_all_benefits();
+		$allowances = $this->payroll_model->get_all_allowances();
+		$deductions = $this->payroll_model->get_all_deductions();
+		$savings = $this->payroll_model->get_all_savings();
+		$loan_schemes = $this->payroll_model->get_all_loan_schemes();
+		$other_deductions = $this->payroll_model->get_all_other_deductions();
+		$rs_schemes = $this->payroll_model->get_loan_schemes();
+		$overtime = $this->payroll_model->get_overtime();
+		
+		$result = '';
+		$display_total_gross_pay = $display_total_total_benefits = $display_total_house_benefit = $display_total_total_benefits_plus_gross_pay = $display_total_e1_gross = $display_total_total_nssf = $display_total_fixed_monthly_limit = $display_total_allowable_interest_amount = $display_total_total_retirement_interest = $display_total_balance_pay = $display_total_paye = $display_total_monthly_relief = $display_total_insurance_relief = $display_total_paye_less_relief = 0;
+				
+		//foreach payroll generate data fro p9
+		//echo $payrolls_created->num_rows(); die();
+		if($payrolls_created->num_rows() > 0)
+		{
+			foreach($payrolls_created->result() as $created_payrolls)
+			{
+				$payroll_id = $created_payrolls->payroll_id;
+				$file_data = $created_payrolls->file_data;
+				$month_name = $created_payrolls->month_name;
+				$gross = 0;
+				
+				$this->load->helper('file');
+				$payroll_path = realpath(APPPATH . '../assets/payroll/');
+				$file = $payroll_path.'/'.$file_data.'.txt';
+				$payroll_data = json_decode(read_file($file));
+				
+				$data['payroll_data'] = $payroll_data;
+				$data['payroll_id'] = $payroll_id;
+				$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+				
+				$benefits_amount = $payroll_data->benefits;
+				$total_benefits2 = $payroll_data->total_benefits;
+				$payments_amount = $payroll_data->payments;
+				$total_payments2 = $payroll_data->total_payments;
+				$allowances_amount = $payroll_data->allowances;
+				$total_allowances2 = $payroll_data->total_allowances;
+				$deductions_amount = $payroll_data->deductions;
+				$total_deductions2 = $payroll_data->total_deductions;
+				$other_deductions_amount2 = $payroll_data->other_deductions;
+				$total_other_deductions2 = $payroll_data->total_other_deductions;
+				$nssf_amount = $payroll_data->nssf;
+				$nhif_amount = $payroll_data->nhif;
+				$life_ins_amount = $payroll_data->life_ins;
+				$paye_amount = $payroll_data->paye;
+				$monthly_relief_amount = $payroll_data->monthly_relief;
+				$insurance_relief_amount = $payroll_data->insurance_relief;
+				$insurance_amount_amount = $payroll_data->insurance;
+				$scheme = $payroll_data->scheme;
+				$scheme_borrowed = $payroll_data->scheme_borrowed;
+
+				$scheme_payments = $payroll_data->scheme_payments;
+				$remaining_balance = $payroll_data->remaining_balance;//var_dump($remaining_balance);die();
+				$scheme_start_date = $payroll_data->scheme_start_date;
+				$scheme_end_date = $payroll_data->scheme_end_date;
+				$total_scheme = $payroll_data->total_scheme;
+				$savings = $payroll_data->savings;
+				$total_overtime2 = $payroll_data->total_overtime;
+				$overtime_amount = $payroll_data->overtime;
+				$overtime_rate = $payroll_data->overtime_rate;
+				$overtime_type = $payroll_data->overtime_type;
+				$overtime_hours = $payroll_data->overtime_hours;
+				
+				//initialize variables
+				$gross = 0;
+				
+				//get basic bay
+				$payment_id = 1;
+				if(isset($total_payments2->$payment_id))
+				{
+					$total_payment_amount[$payment_id] = $total_payments2->$payment_id;
+				}
+				if($total_payment_amount[$payment_id] != 0)
+				{
+					if(isset($payments_amount->$personnel_id->$payment_id))
+					{
+						$basic_pay = $payments_amount->$personnel_id->$payment_id;
+					}
+				}
+				//get all payments
+				if($payments->num_rows() > 0)
+				{
+					foreach($payments->result() as $res)
+					{
+						$payment_id = $res->payment_id;
+						$table_id = $payment_id;
+						
+						if($total_payment_amount[$payment_id] != 0)
+						{
+							$payment_amt = 0;
+							if(isset($payments_amount->$personnel_id->$table_id))
+							{
+								$payment_amt = $payments_amount->$personnel_id->$table_id;
+							}
+							$gross += $payment_amt;
+							if(!isset($total_personnel_payments[$payment_id]))
+							{
+								$total_personnel_payments[$payment_id] = 0;
+							}
+							$total_personnel_payments[$payment_id] += $payment_amt;
+						}
+					}
+				}
+				//get total benefits for personnel(non cash)
+				if($benefits->num_rows() > 0)
+				{
+					foreach($benefits->result() as $res)
+					{
+						$benefit_id = $res->benefit_id;
+						$total_benefit_amount[$benefit_id] = 0;
+
+						if(isset($total_benefits2->$benefit_id))
+						{
+							$total_benefit_amount[$benefit_id] = $total_benefits2->$benefit_id;
+						}
+						$benefit_amt = 0;
+						if(isset($benefits_amount->$personnel_id->$table_id))
+						{
+							$benefit_amt = $benefits_amount->$personnel_id->$table_id;
+						}
+						$total_benefit_amt += $benefit_amt;
+						if(!isset($total_personnel_benefits[$benefit_id]))
+						{
+							$total_personnel_benefits[$benefit_id] = 0;
+						}
+						$total_personnel_benefits[$benefit_id] += $benefit_amt;
+					}
+				}
+				
+				//get total allowances
+				if($allowances->num_rows() > 0)
+				{
+					foreach($allowances->result() as $res)
+					{
+						$allowance_id = $res->allowance_id;
+						$table_id = $allowance_id;
+						
+						//echo $allowances->num_rows(); die();
+						$allowance_amt = 0;
+						if(isset( $allowances_amount->$personnel_id->$table_id))
+						{
+							$allowance_amt =  $allowances_amount->$personnel_id->$table_id;
+						}
+						$gross += $allowance_amt;
+						if(!isset($total_personnel_allowances[$allowance_id]))
+						{
+							$total_personnel_allowances[$allowance_id] = 0;
+						}
+						$total_personnel_allowances[$allowance_id] += $allowance_amt;
+					}
+				}
+				//get overtime allowance
+				$total_overtime = 0;				
+				$overtime_amt = $ot_rate = $ot_type = $ot_hours = 0;
+				//overtime
+				$overtime = $this->payroll_model->get_overtime();
+				if($overtime->num_rows() > 0)
+				{
+					foreach($overtime->result() as $res)
+					{
+						$overtime_name = $res->overtime_name;
+						$overtime_id = $res->overtime_type;
+						$table_id = $overtime_id;
+						$total_overtime_amount[$overtime_id] = 0;
+
+						if(isset($total_overtime2->$overtime_id))
+						{
+							$total_overtime_amount[$overtime_id] = $total_overtime2->$overtime_id;
+						}
+						if($total_overtime_amount[$overtime_id] != 0)
+						{
+							//overtime amount
+							if(isset($overtime_amount->$personnel_id->$table_id))
+							{
+								$overtime_amt = $overtime_amount->$personnel_id->$table_id;
+								$gross += $overtime_amt;
+								$payroll_check = $overtime_amt;
+							}
+							
+							//overtime rate
+							if(isset($overtime_rate->$personnel_id->$table_id))
+							{
+								$ot_rate = $overtime_rate->$personnel_id->$table_id;
+							}
+							
+							//overtime type
+							if(isset($overtime_type->$personnel_id->$table_id))
+							{
+								$ot_type = $overtime_type->$personnel_id->$table_id;
+							}
+							
+							//overtime hours
+							if(isset($overtime_hours->$personnel_id->$table_id))
+							{
+								$ot_hours = $overtime_hours->$personnel_id->$table_id;
+							}
+							
+							if(!isset($total_personnel_overtime[$overtime_id]))
+							{
+								$total_personnel_overtime[$overtime_id] = 0;
+							}
+							if($overtime_amt > 0)
+							{
+								if($ot_hours > 0)
+								{
+								}
+							}
+						}
+					}
+				}
+				
+				//get the gross pay
+				$total_benefits = $total_benefit_amt;
+				$gross_pay = $gross;
+				//get nssf
+				$total_nssf= $nssf = $nssf_amount->$personnel_id;
+				//get paye
+				$tax_paye= $paye =$paye_amount->$personnel_id;
+				//monthly relief
+				$relief = $relief = $monthly_relief_amount->$personnel_id;
+				
+				//insurance_relief
+				$data['insurance_relief'] = $insurance_relief = $insurance_relief_amount->$personnel_id;
+				
+				$e1_gross = 0.3 * $gross_pay;
+				$fixed_monthly_limit = 20000;
+				$allowable_interest_amount =0;
+				$least_e = 0 ;
+					
+				if($e1_gross < $total_nssf)
+				{
+					
+					if($e1_gross < $fixed_monthly_limit)
+					{
+						$least_e = $e1_gross;
+					}
+					else
+					{
+						$least_e = $fixed_monthly_limit;
+					}
+				}
+				elseif($total_nssf < $fixed_monthly_limit)
+				{
+					$least_e = $total_nssf;
+				}
+						
+				else
+				{
+					$least_e = $fixed_monthly_limit;
+				}
+				
+				$total_retirement_interest = $least_e + $allowable_interest_amount;
+				//$basic_salary = $total_payments + $total_personnel_allowances;
+				$balance_pay = $gross_pay - $total_retirement_interest;
+				$taxable = $gross_pay - $total_nssf;
+				$house_benefit = 0;
+				$paye_less_relief = 0;
+				//tax calculation -paye
+				if($taxable > 10164)
+				{
+					$monthly_relief = $relief;
+					$insurance_amount = $insurance_relief;
+					//$paye = $tax_paye;
+					$paye_less_relief = $paye - $monthly_relief - $insurance_amount;
+					
+					if($paye_less_relief < 0)
+					{
+						$paye_less_relief = 0;
+					}
+				}
+				$display_total_gross_pay += $gross_pay;
+				$display_total_total_benefits += $total_benefits;
+				$display_total_house_benefit += $house_benefit;
+				$display_total_total_benefits_plus_gross_pay += ($total_benefits + $gross_pay);
+				$display_total_e1_gross += $e1_gross;
+				$display_total_total_nssf += $total_nssf;
+				$display_total_fixed_monthly_limit += $fixed_monthly_limit;
+				$display_total_allowable_interest_amount += $allowable_interest_amount;
+				$display_total_total_retirement_interest += $total_retirement_interest;
+				$display_total_balance_pay += $balance_pay;
+				$display_total_paye += $paye;
+				$display_total_monthly_relief += $monthly_relief;
+				$display_total_insurance_relief += $insurance_relief;
+				$display_total_paye_less_relief += $paye_less_relief;
+				
+				$result .='
+				<tr>
+					<td>'.$month_name.'</td>
+					<td>'.number_format($gross_pay,2).'</td>
+					<td>'.number_format($total_benefits,2).'</td>
+					<td>'.number_format($house_benefit,2).'</td>
+					<td>'.number_format($total_benefits + $gross_pay,2).'</td>
+					<td>'.number_format($e1_gross,2).'</td>
+					<td>'.number_format($total_nssf,2).'</td>
+					<td>'.number_format($fixed_monthly_limit,2).'</td>
+					<td>'.number_format($allowable_interest_amount,2).'</td>
+					<td>'.number_format($total_retirement_interest,2).'</td>
+					<td>'.number_format($balance_pay,2).'</td>
+					<td>'.number_format($paye,2).'</td>
+					<td>'.number_format($monthly_relief,2).'</td>
+					<td>'.number_format($insurance_relief,2).'</td>
+					<td>'.number_format($paye_less_relief,2).'</td>
+				</tr>';
+				
+			}
+		}
+		
+		$result .='
+				<tr>
+					<td></td>
+					<td>'.number_format($display_total_gross_pay,2).'</td>
+					<td>'.number_format($display_total_total_benefits,2).'</td>
+					<td>'.number_format($display_total_house_benefit,2).'</td>
+					<td>'.number_format($display_total_total_benefits_plus_gross_pay,2).'</td>
+					<td>'.number_format($display_total_e1_gross,2).'</td>
+					<td>'.number_format($display_total_total_nssf,2).'</td>
+					<td>'.number_format($display_total_fixed_monthly_limit,2).'</td>
+					<td>'.number_format($display_total_allowable_interest_amount,2).'</td>
+					<td>'.number_format($display_total_total_retirement_interest,2).'</td>
+					<td>'.number_format($display_total_balance_pay,2).'</td>
+					<td>'.number_format($display_total_paye,2).'</td>
+					<td>'.number_format($display_total_monthly_relief,2).'</td>
+					<td>'.number_format($display_total_insurance_relief,2).'</td>
+					<td>'.number_format($display_total_paye_less_relief,2).'</td>
+				</tr>';
+		$response['message'] = $result;
+		$response['branch_address'] = $branch_address;
+		$response['branch_name'] = $branch_name;
+		$response['display_total_gross_pay'] = number_format($display_total_gross_pay,2);
+		$response['display_total_total_benefits'] = number_format($display_total_total_benefits,2);
+		$response['display_total_house_benefit'] = number_format($display_total_house_benefit,2);
+		$response['display_total_total_benefits_plus_gross_pay'] = number_format($display_total_total_benefits_plus_gross_pay,2);
+		$response['display_total_e1_gross'] = number_format($display_total_e1_gross,2);
+		$response['display_total_total_nssf'] = number_format($display_total_total_nssf,2);
+		$response['display_total_fixed_monthly_limit'] = number_format($display_total_fixed_monthly_limit,2);
+		$response['display_total_allowable_interest_amount'] = number_format($display_total_allowable_interest_amount,2);
+		$response['display_total_total_retirement_interest'] = number_format($display_total_total_retirement_interest,2);
+		$response['display_total_balance_pay'] = number_format($display_total_balance_pay,2);
+		$response['display_total_paye'] = number_format($display_total_paye,2);
+		$response['display_total_monthly_relief'] = number_format($display_total_monthly_relief,2);
+		$response['display_total_insurance_relief'] = number_format($display_total_insurance_relief,2);
+		$response['display_total_paye_less_relief'] = number_format($display_total_paye_less_relief,2);
+		$response['header'] = '
+				<table class="table">
+					<tr>
+						<th>
+							<span><b>P.9</b></span>                        
+						</th>
+					</div>
+                </table>
+
+				<table class="table">
+					<tr>
+						<td>
+							<table class="table">
+								<tr>
+									<th>Employer\'s Name:</th>
+									<td>'.$branch_name.'</td>
+								</tr>
+								<tr>
+									<th>Employee\'s Name:</th>
+									<td>'.$personnel_fname.'</td>
+								</tr>
+								<tr>
+									<th>Employee\'s Other Name:</th>
+									<td>'.$personnel_onames.'</td>
+								</tr>
+							</table>
+						</td>
+						<td>
+							<table class="table">
+								<tr>
+									<th>Employer\'s Pin:</th>
+									<td>'.$branch_kra_pin.'</td>
+								</tr>
+								<tr>
+									<th>Employee\'s Pin:</th>
+									<td>'.$kra_pin.'</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+                </table>
+		';
+		
+		echo json_encode($response);
+	}
+	
+	//p9 forms for each individual
+	public function p9_form1()
+	{
+		$branch_id = $this->input->post("branch_id");
+		$year = $this->input->post("year");
+		$from_month_id = $this->input->post("from_month");
+		$to_month_id = $this->input->post("to_month");
+		$branch_personnel = $this->payroll_model->get_branch_personnel($branch_id);
+		$v_data['branch_details'] = $this->payroll_model->get_branch_contacts($branch_id);
+		$this->form_validation->set_rules('year', 'Year', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('from_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('to_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('branch_id', 'Branch', 'required|numeric|xss_clean');
+		if ($this->form_validation->run())
+		{
+			if($branch_personnel->num_rows()> 0)
+			{
+				foreach($branch_personnel->result() as $personnel_branch)
+				{
+					$personnel_id = $personnel_branch->personnel_id;
+
+					$v_data['p9_data'] = $this->payroll_model->get_p9_form_data($personnel_id, $from_month_id,$to_month_id,$year, $branch_id);
+				
+					$result = $this->personnel_model->get_personnel($personnel_id);
+					if($result->num_rows() > 0)
+					{
+						$row2 = $result->row();
+						
+						$onames = $row2->personnel_onames;
+						$fname = $row2->personnel_fname;
+						$kra_pin = $row2->personnel_kra_pin;
+						
+						$v_data['personnel_name'] = $fname." ".$onames;
+						$v_data['personnel_fname'] = $fname;
+						$v_data['personnel_onames'] = $onames;
+						$v_data['kra_pin'] = $kra_pin;
+					}
+					
+					else
+					{
+						$v_data['content'] = '<h3 class="center-align">Unable to find personnel.</h3>';
+					}
+					
+					$v_data['contacts'] = $this->site_model->get_contacts();
+					$v_data['payments'] = $this->payroll_model->get_all_payments();
+					$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+					$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+					$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+					$v_data['insurance'] = $this->payroll_model->get_insurance_relief($personnel_id);
+					$v_data['savings'] = $this->payroll_model->get_all_savings();
+					$v_data['nssf'] = $this->payroll_model->get_nssf();
+					$v_data['paye'] = $this->payroll_model->get_paye();
+					$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+					$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+					$from_month = $this->input->post('from_month');
+					$to_month_id = $this->input->post('to_month');
+					$year = $this->input->post('year');	
+					$v_data['branch_id'] = $branch_id;
+					$v_data['from_month_id'] = $from_month;
+					$v_data['to_month_id'] = $to_month_id;
+					$v_data['year'] = $year;
+					$this->load->view('payroll/payroll/p9', $v_data);
+				}
+			}
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', $validation_errors);
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Please select range to continue');
+			}
+			redirect('my-account/p9');
+		}
+		
+	}
+	
+	//p10
+	public function generate_p10_form()
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+		$result = $this->personnel_model->get_personnel($personnel_id);
+		$title = 'Generate P10 Form';
+		$v_data['title']= $title;
+		$data['content'] = $this->load->view('payroll/payroll/generate_p10', $v_data,true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function p10_js_form()
+	{
+		$branch_id = $this->input->post("branch_id");
+		$year = $this->input->post("year");
+		$from_month_id = $this->input->post("from_month");
+		$to_month_id = $this->input->post("to_month");
+		$insight_branch = 1;
+		$data['branch_details'] = $this->payroll_model->get_branch_contacts($insight_branch);
+		
+		$this->form_validation->set_rules('year', 'Year', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('from_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('to_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('branch_id', 'Branch', 'required|numeric|xss_clean');
+		if ($this->form_validation->run())
+		{
+			//select the personnel
+			$data['p10_generation_year'] = $year;
+			$data['branch_id'] = $branch_id;
+			$data['year'] = $year;
+			$data['from_month_id'] = $from_month_id;
+			$data['to_month_id'] = $to_month_id;
+			$branch_personnel = $this->payroll_model->get_branch_personnel($branch_id);
+			//get payrolls created for those moonths and year
+			//$data['payrolls_created'] = $payrolls_created = $this->payroll_model->get_payrolls($branch_id,$from_month_id,$to_month_id,$year);
+		
+			$personnel_string = json_encode($branch_personnel->result());
+			$data['personnel'] = str_replace("\\\'", "", $personnel_string);
+			$data['total_rows'] = $branch_personnel->num_rows();
+			$data['current_row'] =  0;
+			
+			$this->load->view('payroll/payroll/p10_js', $data);
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', $validation_errors);
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Please select range to continue');
+			}
+			redirect('my-account/p9');
+		}
+	}
+	
+	public function p10_form()
+	{
+		//var_dump($_POST);die();
+		$this->form_validation->set_rules('year', 'Year', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('from_month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('to_month', 'Month', 'required|numeric|xss_clean');
+		
+		if ($this->form_validation->run())
+		{
+			$personnel_id = $this->session->userdata('personnel_id');
+			$branch_id = $this->input->post("branch_id");
+			$v_data['branch_details'] = $this->payroll_model->get_branch_contacts($branch_id);
+			$year = $this->input->post("year");
+			$from_month_id = $this->input->post("from_month");
+			$to_month_id = $this->input->post("to_month");
+			$v_data['contacts'] = $this->site_model->get_contacts();
+			$v_data['payments'] = $this->payroll_model->get_all_payments();
+			$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+			$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+			$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+			$v_data['insurance'] = $this->payroll_model->get_insurance_relief($personnel_id);
+			$v_data['savings'] = $this->payroll_model->get_all_savings();
+			$v_data['nssf'] = $this->payroll_model->get_nssf();
+			$v_data['paye'] = $this->payroll_model->get_paye();
+			$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+			$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+			$v_data['from_month_id'] = $from_month_id;
+			$v_data['to_month_id'] = $to_month_id;
+			$v_data['branch_id'] = $branch_id;
+			$v_data['year'] = $year;
+			$this->load->view('payroll/payroll/p10', $v_data);
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', $validation_errors);
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Please select range to continue');
+			}
+			redirect('payroll/p10');
+		}
+	}
+	
+	//bank report selection
+	public function bank()
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+		$title = 'Generate Bank Report';
+		$v_data['title']= $title;
+		$data['content'] = $this->load->view('payroll/payroll/generate_bank_report', $v_data,true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	//generating the specific bank report
+	public function generate_bank_report_old()
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+		$month_id = $this->input->post("month");
+		$bank_id = $this->input->post("bank_id");
+		$branch_id = $this->input->post("branch_id");
+		$bank_branch_id = $this->input->post("bank_branch_id");
+		
+		$this->form_validation->set_rules('month', 'Month', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('bank_id', 'Bank Name', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('bank_branch_id', 'Branch', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('branch_id', 'Client Branch', 'required|numeric|xss_clean');
+		
+		if ($this->form_validation->run())
+		{
+			$v_data['contacts'] = $this->site_model->get_contacts();
+			$v_data['payments'] = $this->payroll_model->get_all_payments();
+			$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+			$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+			$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+			$v_data['insurance'] = $this->payroll_model->get_insurance_relief($personnel_id);
+			$v_data['savings'] = $this->payroll_model->get_all_savings();
+			$v_data['nssf'] = $this->payroll_model->get_nssf();
+			$v_data['paye'] = $this->payroll_model->get_paye();
+			$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+			$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+				
+			$v_data['month'] = $month_id;
+			$v_data['bank_id'] = $bank_id;
+			$v_data['branch_id'] = $branch_id;
+			$v_data['bank_branch_id'] = $bank_branch_id;
+			$this->load->view('payroll/payroll/bank_report', $v_data);
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			
+			if(!empty($validation_errors))
+			{
+				$this->session->set_userdata('error_message', $validation_errors);
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Please select bank and branch  to continue');
+			}
+			redirect('payroll/bank');
+		}
+	}
+	
+	public function generate_bank_report($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			//var_dump($data['payroll_data']);die();
+			$data['child_branch_name'] = $branch_name;
+			$data['branch_image_name'] = $branch_image_name;
+			$data['branch_id'] = $branch_id;
+			$data['branch_address'] = $branch_address;
+			$data['branch_post_code'] = $branch_post_code;
+			$data['branch_city'] = $branch_city;
+			$data['branch_phone'] = $branch_phone;
+			$data['branch_email'] = $branch_email;
+			$data['branch_location'] = $branch_location;
+		}
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings_rs'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		
+		$data['branches'] = $branches;
+		
+		$this->load->view('payroll/payroll/bank_report', $data);
+	}
+	
+	public function all_payrolls()
+	{
+		$this->session->unset_userdata('branch_id2');
+		$this->session->unset_userdata('branch_name2');
+
+		redirect('payroll/payroll');
+	}
+	
+	public function payroll_report()
+	{
+		//var_dump($this->session->userdata('login_status'));die();
+		
+		$branch_id = $this->session->userdata('branch_id3');
+		$branch_name = $this->session->userdata('branch_name3');
+		$branches = $this->branches_model->all_branches();
+		$where = 'month.month_id = payroll.month_id AND payroll_status = 1 AND personnel.personnel_id = payroll_item.personnel_id AND payroll.month_id ='.date('m');
+		$title = $branch_name.' Payroll history';
+		
+		if(($branch_id == FALSE) || (empty($branch_id)))
+		{
+			if($branches->num_rows() > 0)
+			{
+				$row = $branches->result();
+				$branch_id = $row[0]->branch_id;
+				$branch_name = $row[0]->branch_name;
+				//$where .= ' AND payroll.branch_id = '.$branch_id;
+				$this->session->set_userdata('branch_id', $branch_id);
+				$this->session->set_userdata('branch_name', $branch_name);
+			}
+		}
+		
+		else
+		{
+			
+		}
+		
+		//search items
+		$search = $this->session->userdata('payroll_report_search');
+		
+		if(!empty($search))
+		{
+			$where .= $search;
+			$title = $branch_name.' '.$this->session->userdata('payroll_search_title');
+		}
+		$table = 'payroll, month, personnel, payroll_item';
+		//pagination
+		$segment = 2;
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'dashboard';
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active">';
+		$config['cur_tag_close'] = '</li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $data["links"] = $this->pagination->create_links();
+		$query = $this->payroll_model->get_payroll_summary($where);
+		var_dump($where); die();
+		$data['title'] = $v_data['title'] = $title;
+		$v_data['month'] = $this->payroll_model->get_months();
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['branches'] = $branches;
+		$v_data['payments'] = $this->payroll_model->get_all_payments();
+		$v_data['benefits'] = $this->payroll_model->get_all_benefits();
+		$v_data['allowances'] = $this->payroll_model->get_all_allowances();
+		$v_data['deductions'] = $this->payroll_model->get_all_deductions();
+		$v_data['savings'] = $this->payroll_model->get_all_savings();
+		$v_data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$v_data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$v_data['title'] = $this->site_model->display_page_title();
+		$v_data['title'] = $data['title'];
+		
+		$data['content'] = $this->load->view('payroll/payroll/payroll_reports', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	//display report for the branch that has been searched for
+	public function search_payroll_reports()
+	{
+		$branch_id3 = $this->input->post('branch_id');
+		$month2 = $this->input->post('month');
+		$year = $this->input->post('year');
+		$branch_name3 = $this->salary_advance_model->get_branch_name($branch_id3);
+		$m_name = $this->salary_advance_model->get_month_name($month2);
+		
+		//var_dump($branch_id2); die();
+		if(!empty($month2) && !empty($branch_id2) && !empty($year))
+		{
+			$search = " AND payroll.branch_id= '".$branch_id3."' AND payroll.month_id = ".$month2."'AND payroll.payroll_year ='".$year;
+			$title = " Payroll Report Summary for ".$branch_name3."/".$m_name;
+			
+			$this->session->set_userdata('branch_id3', $branch_id3);
+			$this->session->set_userdata('branch_name3', $m_name);
+			$this->session->set_userdata('payroll_report_search', $search);
+			$this->session->set_userdata('payroll_report_title', $title);
+		}
+		
+		redirect('payroll/payroll-reports');
+	}
+	
+	public function add_overtime_hours($personnel_id)
+	{
+		$this->form_validation->set_rules('personnel_overtime_hours', 'Overtime', 'required|numeric|xss_clean');
+		$this->form_validation->set_rules('overtime_type', 'Type', 'required|xss_clean');
+		$this->form_validation->set_rules('overtime_type_rate', 'Type', 'required|xss_clean');
+		
+		//if form conatins invalid data
+		if ($this->form_validation->run())
+		{
+			if($this->payroll_model->update_overtime_hours($personnel_id))
+			{
+				$this->session->set_userdata('success_message', 'Overtime hours updated successfully');
+			}
+			else
+			{
+				$this->session->set_userdata('error_message', 'Unable to update overtime hours. Please try again');
+			}
+		}
+		
+		else
+		{
+			$this->session->set_userdata('error_message', validation_errors());
+		}
+		$v_data['personnel_overtime'] = $this->payroll_model->calculate_overtime($personnel_id);
+		$v_data['personnel'] = $this->payroll_model->get_personnel_details($personnel_id);
+		$v_data['overtime_hours'] = $this->payroll_model->get_overtime_hours($personnel_id);
+		$data['title'] = 'Overtime Hours';
+		$v_data['title'] = $data['title'];
+		$data['content'] = $this->load->view('payroll/payroll/add_overtime_hours', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	//function for monthly branch summary
+	public function month_summary($payroll_id,$branch_id)
+	{
+		//$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id.' AND personnel.branch_id = '.$branch_id;
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$where .= ' AND branch_id = '.$branch_id;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+		}
+		
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		$data['relief'] = $this->payroll_model->get_relief();
+		
+		$data['basic_pay_table']  = $this->payroll_model->get_table_id("basic_pay");
+		$data['payment_table'] = $this->payroll_model->get_table_id("payment");
+		$data['benefit_table'] =  $this->payroll_model->get_table_id("benefit");
+		$data['payment_table'] = $this->payroll_model->get_table_id("payment");
+		$data['other_deduction_table'] = $this->payroll_model->get_table_id("other_deduction");
+		$data['deduction_table'] = $this->payroll_model->get_table_id("deduction");
+		$data['allowance_table'] = $this->payroll_model->get_table_id("allowance");
+		$data['nssf_table']  = $this->payroll_model->get_table_id("nssf");
+		$data['nhif_table']  = $this->payroll_model->get_table_id("nhif");
+		$data['paye_table'] = $this->payroll_model->get_table_id("paye");
+		$data['relief_table'] = $this->payroll_model->get_table_id("relief");
+		$data['insurance_amount_table'] = $this->payroll_model->get_table_id("insurance_amount");
+		$data['insurance_relief_table'] = $this->payroll_model->get_table_id("insurance_relief");
+		$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+		$data['overtime'] = $this->payroll_model->get_overtime();
+		
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		/*$data['total_basic_pay'] = $this->payroll_model->get_total_basic_pay($payroll_id,$branch_id);
+		$data['total_benefits'] = $this->payroll_model->get_total_benefits($payroll_id,$branch_id);
+		$data['total_allowances'] = $this->payroll_model->get_total_allowances($payroll_id,$branch_id);
+		$data['helb'] = $this->payroll_model->get_total_helb($payroll_id,$branch_id);
+		$data['paye'] = $this->payroll_model->get_total_paye($payroll_id,$branch_id);*/
+	
+		$this->load->view('payroll/payroll/branch_month_summary', $data);
+	}
+	
+	//overtime
+	public function import_overtime()
+	{
+		$v_data['title'] = $data['title'] = $this->site_model->display_page_title();
+		
+		$data['content'] = $this->load->view('payroll/payroll/import_overtime', $v_data, true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	//overtime templates
+	function import_overtime_template()
+	{
+		//export products template in excel 
+		$this->payroll_model->import_overtime_template();
+	}
+	//import the payroll data
+	function do_overtime_import()
+	{
+		if(isset($_FILES['import_csv']))
+		{
+			if(is_uploaded_file($_FILES['import_csv']['tmp_name']))
+			{
+				//import products from excel 
+				$response = $this->payroll_model->import_csv_overtime($this->csv_path);
+				
+				if($response == FALSE)
+				{
+					$v_data['import_response_error'] = 'Something went wrong. Please try again.';
+				}
+				
+				else
+				{
+					if($response['check'])
+					{
+						$v_data['import_response'] = $response['response'];
+					}
+					
+					else
+					{
+						$v_data['import_response_error'] = $response['response'];
+					}
+				}
+			}
+			
+			else
+			{
+				$v_data['import_response_error'] = 'Please select a file to import.';
+			}
+		}
+		
+		else
+		{
+			$v_data['import_response_error'] = 'Please select a file to import.';
+		}
+		
+		$v_data['title'] = $data['title'] = $this->site_model->display_page_title();
+		
+		$data['content'] = $this->load->view('payroll/payroll/import_overtime', $v_data, true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	
+	public function send_monthly_payslips($payroll_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$this->db->join('month', 'payroll.month_id = month.month_id');
+		$branches = $this->db->get('payroll, branch');
+			
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$month_name = $row[0]->month_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$month_id = $row[0]->month_id;
+			$payroll_year = $row[0]->payroll_year;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			$where .= ' AND branch_id = '.$branch_id;
+		}
+		$personnel_emails = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		if($personnel_emails->num_rows() > 0)                                                                                      
+		{
+			//Create pdf files for personnel
+			foreach($personnel_emails->result() as $email)
+			{
+				$personnel_email = $email->personnel_email;
+				$personnel_id = $email->personnel_id;
+				$branch_id = $email->branch_id;
+				$personnel_fname = $email->personnel_fname;
+				$personnel_onames = $email->personnel_onames;
+				
+				//check if payslip has been downloaded
+				$personnel_payslip_name = $this->payroll_model->is_payslip_downloaded($personnel_id, $payroll_id);
+				if($personnel_payslip_name == FALSE)
+				{
+					//create payslip if not created
+					$personnel_payslip_name = $this->payroll_model->download_payslip($payroll_id, $personnel_id, $branches, $this->payslip_path);
+				}
+				if($personnel_payslip_name != FALSE)
+				{
+					if($personnel_email != NULL)
+					{
+						$message['subject'] = $month_name.' '.$payroll_year.' Payslip';
+						$message['text'] = ' <p>Dear '.$personnel_fname.'</p>
+						<p>Please find attached your monthly payslip. When prompted for password, please enter your ID No.</p>';
+						$sender_email = $branch_email;
+						$shopping = "";
+						$from = 'insight.nairobi@insightmanagement.co.ke'; 
+						
+						$button = '';
+						$sender['email'] = 'insight.nairobi@insightmanagement.co.ke'; 
+						$sender['name'] = 'Insight Management Consultants LTD';
+						$receiver['email'] = $personnel_email;
+						$receiver['name'] = $personnel_fname.' '.$personnel_onames;
+						$payslip = $this->payslip_path.'/'.$personnel_payslip_name;
+						
+						$response = $this->email_model->send_sendgrid_mail($receiver, $sender, $message, $payslip);
+						
+						$this->session->set_userdata("success_message", "Email Sent successfully");
+					}
+				}
+			}
+		}
+		else
+		{
+			$this->session->set_userdata("error_message","Could not send emails. Please try again");
+		}
+		redirect('payroll/payroll');
+	}
+	
+	//send payslips via email
+	public function _send_monthly_payslips($payroll_id)
+	{
+		//get personnel email addresses
+		$personnel_emails = $this->payroll_model->get_personnel_emails($payroll_id);
+		
+		if($personnel_emails->num_rows() > 0)                                                                                      
+		{
+			//retieve each personnel_id for each email
+			foreach($personnel_emails->result() as $email)
+			{
+
+				$personnel_email = $email->personnel_email;
+				$personnel_id = $email->personnel_id;
+				$branch_id = $email->branch_id;
+				$first_name = $email->personnel_fname;
+				
+				$branch_email = $this->payroll_model->get_branch_email($branch_id);
+				
+				//create a link
+				$link = site_url().'payroll/payroll/access-payslip/'.$payroll_id.'/'.$personnel_id;
+				//pass link to the message
+				
+				//create the message to send 
+				$message_all  = $link;
+				
+				$message['subject'] = 'PAYSLIP FOR THE ENDING MONTH';
+				$message['text'] = ' <p>Dear '.$first_name.'</p>
+				<p>Please click on the provided hyperlink below to access your payslip</p>
+				<p>'.$message_all.'</p>
+				';
+				$sender_email = $branch_email;
+				$shopping = "";
+				$from = $branch_email; 
+				
+				$button = '';
+				$sender['email'] = $sender_email; 
+				$sender['name'] = $sender_email;
+				$receiver['email'] = $personnel_email;
+				
+				
+				//$response = $this->email_model->send_sendgrid_mail($receiver, $sender, $message);
+				
+				$this->session->set_userdata("success_message", "Email Sent successfully");
+			}
+	
+		}
+		else
+		{
+			$this->session->set_userdata("error_message","Could not send emails. Please try again");
+		}
+		redirect('payroll/payroll/access-payslip/'.$payroll_id.'/'.$personnel_id);
+	}
+	public function access_payslip($payroll_id,$personnel_id)
+	{
+		$where = 'payroll_item.personnel_id ='.$personnel_id.' AND payroll_item.payroll_id = '.$payroll_id;
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$branches = $this->db->get('payroll, branch');
+		
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$where .= ' AND branch_id = '.$branch_id;
+			$file_data = $row[0]->file_data;
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+		}
+		
+		
+		$row = $v_data['individual']->row();
+
+		$individual_lname = $row->individual_lname;
+		$individual_mname = $row->individual_mname;
+		$individual_fname = $row->individual_fname;
+		$individual_number = $row->individual_number;
+	
+ 
+
+		$data['branch_name'] = $branch_name;
+		$data['branch_image_name'] = $branch_image_name;
+		$data['branch_id'] = $branch_id;
+		$data['branch_address'] = $branch_address;
+		$data['branch_post_code'] = $branch_post_code;
+		$data['branch_city'] = $branch_city;
+		$data['branch_phone'] = $branch_phone;
+		$data['branch_email'] = $branch_email;
+		$data['branch_location'] = $branch_location;
+		
+		$data['payroll_id'] = $payroll_id; 
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		//var_dump($where);die();
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+			
+		$data['payments'] = $this->payroll_model->get_all_payments();
+		
+		$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+		$data['benefits'] = $this->payroll_model->get_all_benefits();
+		$data['allowances'] = $this->payroll_model->get_all_allowances();
+		$data['deductions'] = $this->payroll_model->get_all_deductions();
+		$data['savings'] = $this->payroll_model->get_all_savings();
+		$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+		$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+		
+		$data['basic_pay_table']  = $this->payroll_model->get_table_id("basic_pay");
+		$data['payment_table'] = $this->payroll_model->get_table_id("payment");
+		$data['benefit_table'] =  $this->payroll_model->get_table_id("benefit");
+		$data['other_deduction_table'] = $this->payroll_model->get_table_id("other_deduction");
+		$data['deduction_table'] = $this->payroll_model->get_table_id("deduction");
+		$data['allowance_table'] = $this->payroll_model->get_table_id("allowance");
+		$data['nssf_table']  = $this->payroll_model->get_table_id("nssf");
+		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		$data['nhif_table']  = $this->payroll_model->get_table_id("nhif");
+		$data['paye_table'] = $this->payroll_model->get_table_id("paye");
+		$data['relief_table'] = $this->payroll_model->get_table_id("relief");
+		$data['insurance_amount_table'] = $this->payroll_model->get_table_id("insurance_amount");
+		$data['insurance_relief_table'] = $this->payroll_model->get_table_id("insurance_relief");
+		
+		$html=$this->load->view("payroll/access_payslip", $data, TRUE);
+		//this the the PDF filename that user will get to download
+        $pdfFilePath ="  Payslip statement.pdf";
+		
+        $this->load->library('mpdf');
+		
+		$this->mpdf->WriteHTML($html);
+		$this->mpdf->Output();;
+	}
+	
+	public function create_data_file($payroll_id, $branch_id)
+	{
+		if($payroll_id > 0)
+		{
+			if($this->payroll_model->create_data_file($payroll_id, $branch_id))
+			{
+				$this->session->set_userdata('success_message', 'Data file has been created successfully');
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Unable to create data file. Please try again');
+			}
+		}
+	
+		else
+		{
+			$this->session->set_userdata('error_message', 'Please select a payroll and then try again');
+		}
+		
+		redirect('payroll/payroll');
+	}
+	public function generate_payroll($payroll_id, $batch_from, $batch_to, $current_page)
+	{
+		$next_page = $batch_from + $batch_to;
+		$branch_id = $this->payroll_model->generate_batch_payroll($payroll_id,$batch_from,$batch_to);
+		if($branch_id > 0)
+		{
+			$this->session->set_userdata('success_message', 'Batch created successfully');
+			
+			if($batch_from == 1)
+			{
+				redirect('payroll/list-batches/'.$payroll_id.'/'.$branch_id.'/'.$current_page);
+			}
+			
+			else
+			{
+				redirect('payroll/list-batches/'.$payroll_id.'/'.$branch_id.'/'.$next_page);
+			}
+		}
+		else
+		{
+			$this->session->set_userdata('error_message', 'Something went wrong. Please try again');
+			redirect('payroll/list-batches/'.$payroll_id.'/'.$branch_id);
+		}
+	}
+	
+	public function list_batches($payroll_id, $branch_id)
+	{
+		$branches = $this->branches_model->all_branches();
+		$where = 'branch_id = '.$branch_id.' AND personnel_type_id = 1 AND personnel_status = 1';
+		$table = 'personnel';
+		$title = 'List Batches';
+		
+		//pagination
+		$segment = 5;
+		$this->load->library('pagination');
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+		$config['per_page'] = 50;
+		$config['base_url'] = site_url().'payroll/list-batches/'.$payroll_id.'/'.$branch_id;
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination batch-generation">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->payroll_model->get_batch_personnel($table, $where, $config["per_page"], $page);
+		
+		$data['title'] = $v_data['title'] = $title;
+		$v_data['per_page'] = $config['per_page'];
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['payroll_id'] = $payroll_id;
+		$v_data['total_rows'] = $config['total_rows'];
+		
+		$data['content'] = $this->load->view('payroll/payroll/list_batches', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	public function view_batch_payslip($payroll_id,$personnel_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id.' AND personnel.personnel_id = '.$personnel_id;
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$this->db->join('month', 'payroll.month_id = month.month_id');
+		$branches = $this->db->get('payroll, branch');
+			
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$month_name = $row[0]->month_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$month_id = $row[0]->month_id;
+			$payroll_year = $row[0]->payroll_year;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			$where .= ' AND branch_id = '.$branch_id;
+		}
+		$personnel_emails = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		if($personnel_emails->num_rows() > 0)                                                                                      
+		{
+			//Create pdf files for personnel
+			foreach($personnel_emails->result() as $email)
+			{
+				$personnel_email = $email->personnel_email;
+				$personnel_id = $email->personnel_id;
+				$branch_id = $email->branch_id;
+				$personnel_fname = $email->personnel_fname;
+				$personnel_onames = $email->personnel_onames;
+				
+				//check if payslip has been downloaded
+				$personnel_payslip_name = $this->payroll_model->is_payslip_downloaded($personnel_id, $payroll_id);
+				if($personnel_payslip_name == FALSE)
+				{
+					//create payslip if not created
+					$personnel_payslip_name = $this->payroll_model->download_payslip($payroll_id, $personnel_id, $branches, $this->payslip_path);
+				}
+				if($personnel_payslip_name != FALSE)
+				{
+					$url = base_url().$personnel_payslip_name;
+					header("Location: $url");
+				}
+			}
+		}
+		else
+		{
+			$this->session->set_userdata("error_message","Could not send emails. Please try again");
+		}
+	}
+	public function send_batch_payslip($payroll_id,$personnel_id)
+	{
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id.' AND personnel.personnel_id = '.$personnel_id;
+		
+		$data['payroll_id'] = $payroll_id;
+		$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+		$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
+		$this->db->join('month', 'payroll.month_id = month.month_id');
+		$branches = $this->db->get('payroll, branch');
+		if($branches->num_rows() > 0)
+		{
+			$row = $branches->result();
+			$branch_id = $row[0]->branch_id;
+			$branch_name = $row[0]->branch_name;
+			$month_name = $row[0]->month_name;
+			$branch_image_name = $row[0]->branch_image_name;
+			$branch_address = $row[0]->branch_address;
+			$branch_post_code = $row[0]->branch_post_code;
+			$branch_city = $row[0]->branch_city;
+			$branch_phone = $row[0]->branch_phone;
+			$branch_email = $row[0]->branch_email;
+			$branch_location = $row[0]->branch_location;
+			$month_id = $row[0]->month_id;
+			$payroll_year = $row[0]->payroll_year;
+			$file_data = $row[0]->file_data;
+			if(empty($file_data))
+			{
+				echo 'Please generate the payroll again to view the bank report';
+				die();
+			}
+			$this->load->helper('file');
+			$payroll_path = realpath(APPPATH . '../assets/payroll/');
+			$file = $payroll_path.'/'.$file_data.'.txt';
+			$data['payroll_data'] = json_decode(read_file($file));
+			$where .= ' AND branch_id = '.$branch_id;
+		}
+		$personnel_emails = $this->personnel_model->retrieve_payroll_personnel($where);
+		
+		if($personnel_emails->num_rows() > 0)                                                                                      
+		{
+			//Create pdf files for personnel
+			foreach($personnel_emails->result() as $email)
+			{
+				$personnel_email = $email->personnel_email;
+				$personnel_id = $email->personnel_id;
+				$branch_id = $email->branch_id;
+				$personnel_fname = $email->personnel_fname;
+				$personnel_onames = $email->personnel_onames;
+				
+				//check if payslip has been downloaded
+				$personnel_payslip_name = $this->payroll_model->is_payslip_downloaded($personnel_id, $payroll_id);
+				if($personnel_payslip_name == FALSE)
+				{
+					//create payslip if not created
+					$personnel_payslip_name = $this->payroll_model->download_payslip($payroll_id, $personnel_id, $branches, $this->payslip_path);
+				}
+				if($personnel_payslip_name != FALSE)
+				{
+					if($personnel_email != NULL)
+					{
+						$message['subject'] = $month_name.' '.$payroll_year.' Payslip';
+						$message['text'] = ' <p>Dear '.$personnel_fname.'</p>
+						<p>Please find attached your monthly payslip. When prompted for password, please enter your ID No.</p>';
+						$sender_email = $branch_email;
+						$shopping = "";
+						$from = 'insight.nairobi@insightmanagement.co.ke'; 
+						
+						$button = '';
+						$sender['email'] = 'insight.nairobi@insightmanagement.co.ke'; 
+						$sender['name'] = 'Insight Management Consultants LTD';
+						$receiver['email'] = $personnel_email;
+						$receiver['name'] = $personnel_fname.' '.$personnel_onames;
+						$payslip = $this->payslip_path.'/'.$personnel_payslip_name;
+						
+						$response = $this->email_model->send_sendgrid_mail($receiver, $sender, $message, $payslip);
+						
+						$this->session->set_userdata("success_message", "Email Sent successfully");
+					}
+				}
+			}
+		}
+		else
+		{
+			$this->session->set_userdata("error_message","Could not send emails. Please try again");
+		}
+		redirect('payroll/payroll');
+	}
+	
+	public function generate_duration_payslips()
+	{
+		$title = 'Payslip History';
+		$v_data['title']= $title;
+		$data['content'] = $this->load->view('payroll/payroll/payslip_history', $v_data,true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	public function generate_personnel_payslip_for_duration()
+	{
+		$this->form_validation->set_rules('branch_id', 'Branch', 'required|xss_clean');
+		$this->form_validation->set_rules('personnel_id', 'Personnel', 'required|xss_clean');
+		$this->form_validation->set_rules('year', 'Year', 'required|xss_clean');
+		$this->form_validation->set_rules('from_month', 'From', 'required|xss_clean');
+		$this->form_validation->set_rules('to_month', 'To', 'required|xss_clean');
+		
+		if($this->form_validation->run())
+		{
+			$branch_id = $this->input->post('branch_id');
+			$personnel_id = $this->input->post('personnel_id');
+			$year = $this->input->post('year');
+			$from_month = $this->input->post('from_month');
+			$to_month = $this->input->post('to_month');
+			
+			$personnel_payslips = $this->payroll_model->get_all_personnel_payslips($branch_id,$personnel_id,$year,$from_month,$to_month);
+			if($personnel_payslips->num_rows() > 0)
+			{
+				foreach($personnel_payslips->result() as $payslips_for_personnel)
+				{
+					$payroll_id = $payslips_for_personnel->payroll_id;
+					$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id.' AND personnel.personnel_id = '.$personnel_id;
+					$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id.' AND branch.branch_id = '.$branch_id);
+					$branches = $this->db->get('payroll, branch');
+		
+					if($branches->num_rows() > 0)
+					{
+						$row = $branches->result();
+						$branch_id = $row[0]->branch_id;
+						$branch_name = $row[0]->branch_name;
+						$branch_image_name = $row[0]->branch_image_name;
+						$branch_working_hours = $row[0]->branch_working_hours;
+						$branch_address = $row[0]->branch_address;
+						$branch_post_code = $row[0]->branch_post_code;
+						$branch_city = $row[0]->branch_city;
+						$branch_phone = $row[0]->branch_phone;
+						$payroll_created_for = $row[0]->payroll_created_for;
+						$branch_email = $row[0]->branch_email;
+						$branch_location = $row[0]->branch_location;
+						$file_data = $row[0]->file_data;
+						if(empty($file_data))
+						{
+							echo 'Please generate the payroll again to view the payslips';
+						}
+						$this->load->helper('file');
+						$payroll_path = realpath(APPPATH . '../assets/payroll/');
+						$file = $payroll_path.'/'.$file_data.'.txt';
+						$data['payroll_data'] = json_decode(read_file($file));
+						$where .= ' AND branch_id = '.$branch_id;
+					}
+					
+					$data['branch_name'] = $branch_name;
+					$data['branch_image_name'] = $branch_image_name;
+					$data['branch_id'] = $branch_id;
+					$data['branch_address'] = $branch_address;
+					$data['branch_post_code'] = $branch_post_code;
+					$data['branch_city'] = $branch_city;
+					$data['branch_phone'] = $branch_phone;
+					$data['branch_email'] = $branch_email;
+					$data['payroll_created_for'] = $payroll_created_for;
+					$data['branch_location'] = $branch_location;
+					$data['branch_working_hours'] = $branch_working_hours;
+					
+					$data['payroll_id'] = $payroll_id;
+					$data['payroll'] = $this->payroll_model->get_payroll($payroll_id);
+					$data['query'] = $this->personnel_model->retrieve_payroll_personnel($where);
+						
+					$data['payments'] = $this->payroll_model->get_all_payments();
+					$data['savings_table'] = $this->payroll_model->get_table_id("savings");
+					$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+					
+					//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
+					$data['benefits'] = $this->payroll_model->get_all_benefits();
+					$data['allowances'] = $this->payroll_model->get_all_allowances();
+					$data['deductions'] = $this->payroll_model->get_all_deductions();
+					$data['savings'] = $this->payroll_model->get_all_savings();
+					$data['loan_schemes'] = $this->payroll_model->get_all_loan_schemes();
+					$data['other_deductions'] = $this->payroll_model->get_all_other_deductions();
+					$data['rs_schemes'] = $this->payroll_model->get_loan_schemes();
+					$data['overtime'] = $this->payroll_model->get_overtime();
+					
+					$this->load->view('payroll/payroll/monthly_payslips', $data);
+				}
+			}
+			else
+			{
+				echo "No payslips were generated for this branch that have the personnel selected";
+			}
+			
+		}
+		
+	}
+	public function update_payroll_date_created()
+	{
+		$this->db->select('payroll_year,month_id,payroll_id');
+		$query = $this->db->get('payroll');
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() as $payroll_details)
+			{
+				$payroll_year = $payroll_details->payroll_year;	
+				$month_id = $payroll_details->month_id;
+				$payroll_id = $payroll_details->payroll_id;
+				$payroll_date = 28;
+				
+				//update all payroll_created_for columns with the payroll dates
+				$payroll_created_for = $payroll_year.'-'.$month_id.'-'.$payroll_date;
+				$date_update = array('payroll_created_for'=>$payroll_created_for);
+				$this->db->where('payroll_id ='.$payroll_id);
+				$this->db->update('payroll',$date_update);
+			}
+		}
+	}
+}
