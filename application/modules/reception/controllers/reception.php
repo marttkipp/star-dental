@@ -1175,7 +1175,7 @@ public function save_visit2($patient_id)
 		if(!empty($patient_phone))
 		{
 			$search_title .= ' Phone <strong>'.$patient_phone.'</strong>';
-			$patient_phone = ' AND patients.patient_phone1 = \''.$patient_phone.'\' ';
+			$patient_phone = ' AND patients.patient_phone1 LIKE \''.$patient_phone.'\' ';
 		}
 		
 		//search surname
