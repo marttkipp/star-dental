@@ -478,8 +478,8 @@ class Reception  extends MX_Controller
 	{
 		//form validation rules
 		$this->form_validation->set_rules('title_id', 'Title', 'is_numeric|xss_clean');
-		$this->form_validation->set_rules('patient_surname', 'Surname', 'required|xss_clean');
-		$this->form_validation->set_rules('patient_othernames', 'Other Names', 'required|xss_clean');
+		$this->form_validation->set_rules('patient_surname', 'Name', 'required|xss_clean');
+		$this->form_validation->set_rules('patient_othernames', 'Other Names', 'xss_clean');
 		$this->form_validation->set_rules('patient_dob', 'Date of Birth', 'trim|xss_clean');
 		$this->form_validation->set_rules('gender_id', 'Gender', 'trim|xss_clean');
 		$this->form_validation->set_rules('religion_id', 'Religion', 'trim|xss_clean');
@@ -1958,8 +1958,8 @@ public function save_visit2($patient_id)
 	{
 		//form validation rules
 		$this->form_validation->set_rules('title_id', 'Title', 'is_numeric|xss_clean');
-		$this->form_validation->set_rules('patient_surname', 'Surname', 'required|xss_clean');
-		$this->form_validation->set_rules('patient_othernames', 'Other Names', 'required|xss_clean');
+		$this->form_validation->set_rules('patient_surname', 'Name', 'required|xss_clean');
+		$this->form_validation->set_rules('patient_othernames', 'Other Names', 'xss_clean');
 		$this->form_validation->set_rules('patient_dob', 'Date of Birth', 'trim|xss_clean');
 		$this->form_validation->set_rules('gender_id', 'Gender', 'xss_clean');
 		$this->form_validation->set_rules('religion_id', 'Religion', 'xss_clean');

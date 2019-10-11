@@ -29,14 +29,14 @@
                
                 
                 <div class="form-group">
-                    <label class="col-md-4 control-label">First name: </label>
+                    <label class="col-md-4 control-label">Name: </label>
                     
                     <div class="col-md-8">
                         <input type="text" class="form-control" name="patient_surname" placeholder="First name" value="<?php echo set_value('patient_surname');?>">
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                     <label class="col-md-4 control-label">Other Names: </label>
                     
                     <div class="col-md-8">
@@ -49,6 +49,7 @@
                     
                     <div class="col-md-8">
                         <select class="form-control" name="gender_id">
+                            <!-- <option value="" >---- select an option ----</option> -->
                             <?php
                                 if($genders->num_rows() > 0)
                                 {

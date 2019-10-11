@@ -38,7 +38,7 @@ class Reception_model extends CI_Model
 		$this->db->from($table);
 		$this->db->select($items);
 		$this->db->where($where);
-		$this->db->order_by('suffix,prefix','desc');
+		$this->db->order_by('suffix,prefix','ASC');
 		$query = $this->db->get('', $per_page, $page);
 		
 		return $query;

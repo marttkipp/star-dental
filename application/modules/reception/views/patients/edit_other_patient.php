@@ -96,14 +96,14 @@ if(!empty($validation_error))
                           
                             
                             <div class="form-group">
-                                <label class="col-md-4 control-label">Surname: </label>
+                                <label class="col-md-4 control-label">Name: </label>
                                 
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="patient_surname" placeholder="Surname" value="<?php echo $patient_surname;?>">
+                                    <input type="text" class="form-control" name="patient_surname" placeholder="Names" value="<?php echo $patient_surname;?>">
                                 </div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" style="display: none">
                                 <label class="col-md-4 control-label">Other Names: </label>
                                 
                                 <div class="col-md-8">
