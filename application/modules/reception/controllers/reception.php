@@ -1089,15 +1089,16 @@ public function save_visit2($patient_id)
 		// $invoice_number = $this->reception_model->create_invoice_number();
 		// var_dump($invoice_number); die();
 		$this->db->select('*');
-		$this->db->where('visit_id > 0 AND invoice_number IS NULL');
-		$query = $this->db->get('visit');
+		$this->db->where('patient_id > 0');
+		$query = $this->db->get('patients');
 
 		if($query->num_rows() > 0 )
 		{
 			$number = 0;
 			foreach ($query->result() as $key) {
 				# code...
-				$visit_id = $key->visit_id;
+				$patient_id = $key->patient_id;
+				$patient_phone1 = '0'.$key->patient_phone1;
 				// $patient_phone1 = $key->patient_phone1;
 				// $current_patient_number = $key->current_patient_number;
 				// $patient_id = $key->patient_id;
@@ -1112,10 +1113,10 @@ public function save_visit2($patient_id)
 
 				// $patient_phone1 = str_replace(' ', '', $patient_phone1);
 
-				$update_array = array('invoice_number'=>$visit_id);
+				$update_array = array('patient_phone1'=>$patient_phone1);
 
-				$this->db->where('visit_id',$visit_id);
-				$this->db->update('visit',$update_array);
+				$this->db->where('patient_id',$patient_id);
+				$this->db->update('patients',$update_array);
 
 				// if(empty($patient_number))
 				// {
