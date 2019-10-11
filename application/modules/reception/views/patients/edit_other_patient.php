@@ -136,6 +136,7 @@ if(!empty($validation_error))
                                 
                                 <div class="col-md-8">
                                     <select class="form-control" name="gender_id">
+                                         <option value="">Select a gender</option>
                                         <?php
                                             if($genders->num_rows() > 0)
                                             {

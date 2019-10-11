@@ -49,7 +49,6 @@
                     
                     <div class="col-md-8">
                         <select class="form-control" name="gender_id">
-                            <!-- <option value="" >---- select an option ----</option> -->
                             <?php
                                 if($genders->num_rows() > 0)
                                 {
@@ -240,8 +239,7 @@
                 
             </div>
         </div>
-       
-            <br/>
+        <br>
         <div class="center-align">
             <button class="btn btn-info btn-sm" type="submit">Add Patient</button>
         </div>
