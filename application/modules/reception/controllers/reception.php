@@ -1985,7 +1985,7 @@ public function save_visit2($patient_id)
 			if($this->reception_model->edit_other_patient($patient_id))
 			{
 				$this->session->set_userdata("success_message","Patient edited successfully");
-				//redirect('patients');
+				redirect('patients');
 			}
 			
 			else
