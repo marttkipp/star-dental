@@ -278,7 +278,23 @@ class Reception_model extends CI_Model
 			$is_appointment = $this->input->post('appointment_status');
 			if($is_appointment == 0)
 			{
-				$data['patient_number'] = $this->create_patient_number();
+				$suffix = $this->create_patient_number();
+
+				if($suffix < 10)
+				{
+					$patient_number = '00'.$suffix.'/'.date('Y');
+				}
+				else if($suffix < 100 AND $suffix >= 10)
+				{
+					$patient_number = '0'.$suffix.'/'.date('Y');
+				}
+				else
+				{
+					$patient_number = $suffix.'/'.date('Y');
+				}
+
+
+				$data['patient_number'] = $patient_number;
 			}
 						
 			if($this->db->insert('patients', $data))
@@ -2431,10 +2447,11 @@ class Reception_model extends CI_Model
 	}
 	public function create_patient_number()
 	{
+		$year = date('Y');
 		//select product code
-		$this->db->where('patient_id > 0');
+		$this->db->where('suffix = '.$year.'');
 		$this->db->from('patients');
-		$this->db->select('patient_id AS number');
+		$this->db->select('MAX(prefix) AS number');
 		$this->db->order_by('patient_id','DESC');
 		$this->db->limit(1);
 		$query = $this->db->get();
@@ -2572,10 +2589,10 @@ class Reception_model extends CI_Model
 	{
 		//count total rows
 		$total_rows = count($array);
-		$total_columns = count($array[0]);//var_dump($array);die();
+		$total_columns = count($array[0]);//var_dump($total_columns);die();
 		
 		//if products exist in array
-		if(($total_rows > 0) && ($total_columns == 21))
+		if(($total_rows > 0) && ($total_columns == 20))
 		{
 			$items['modified_by'] = $this->session->userdata('personnel_id');
 			$response = '
@@ -2633,9 +2650,32 @@ class Reception_model extends CI_Model
 						$gender_id = '';
 					}
 				}
-				$items['patient_number'] = $current_patient_number;//$this->create_patient_number();
-				$items['current_patient_number'] = $current_patient_number;
-				$items['patient_id'] = $current_patient_number;
+
+				$explode = explode('/', $current_patient_number);
+
+				$prefix = $prefix_old = (int)$explode[0];
+				$suffix = $suffix_old  = $explode[1];
+
+
+				$items['prefix'] = $prefix = $prefix;
+				$items['suffix'] = $suffix = '20'.$suffix;
+				if($prefix < 10)
+				{
+					$patient_number = '00'.$prefix.'/'.$suffix_old;
+				}
+				else if($prefix < 100 AND $prefix >= 10)
+				{
+					$patient_number = '0'.$prefix.'/'.$suffix_old;
+				}
+				else
+				{
+					$patient_number = $prefix.'/'.$suffix_old;
+				}
+				$items['patient_number'] = $patient_number;//$this->create_patient_number();
+				$items['current_patient_number'] =  $patient_number;
+
+				// var_dump($items);die();
+				
 				if(!empty($current_patient_number))
 				{
 					// check if the number already exists
@@ -2644,6 +2684,18 @@ class Reception_model extends CI_Model
 						//number exists
 						$comment .= '<br/>Not saved ensure you have a patient number entered'.$items['patient_surname'];
 						$class = 'danger';
+
+						if($this->db->insert('patients', $items))
+						{
+							$comment .= '<br/>Patient successfully added to the database';
+							$class = 'success';
+						}
+						
+						else
+						{
+							$comment .= '<br/>Internal error. Could not add patient to the database. Please contact the site administrator. Product code '.$items['patient_surname'];
+							$class = 'warning';
+						}
 					}
 					else
 					{
@@ -3205,7 +3257,24 @@ class Reception_model extends CI_Model
 		$patient_number = $patient_row->patient_number;
 		if(empty($patient_number))
 		{
-			$array['patient_number'] = $patient_id;//$this->create_patient_number();
+			$suffix = $this->create_patient_number();
+
+			if($suffix < 10)
+			{
+				$patient_number = '00'.$suffix.'/'.date('Y');
+			}
+			else if($suffix < 100 AND $suffix >= 10)
+			{
+				$patient_number = '0'.$suffix.'/'.date('Y');
+			}
+			else
+			{
+				$patient_number = $suffix.'/'.date('Y');
+			}
+
+
+			$array['patient_number'] = $patient_number;
+
 			$this->db->where('patient_id',$patient_id);
 		    $this->db->update('patients',$array);
 		}
