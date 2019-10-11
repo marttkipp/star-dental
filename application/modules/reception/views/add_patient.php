@@ -120,13 +120,6 @@
                         </div>
                     </div>
                 </div>
-                
-            </div>
-            </div>
-            <div class="col-md-6">
-                
-                
-                
                 <div class="form-group">
                     <label class="col-md-4 control-label">Primary Phone: </label>
                     
@@ -141,6 +134,15 @@
                         <input type="text" class="form-control" name="patient_phone2" placeholder="Other Phone">
                     </div>
                 </div>
+
+                
+            </div>
+            </div>
+            <div class="col-md-6">
+                
+                
+                
+                
                 <div class="form-group">
                     <label class="col-md-4 control-label">Residence: </label>
                     

@@ -171,14 +171,6 @@ if(!empty($validation_error))
                                     <input type="text" class="form-control" name="patient_email" placeholder="Email Address" value="<?php echo $patient_email;?>">
                                 </div>
                             </div>
-                            
-                            
-                        </div>
-                        
-                        <div class="col-md-6">
-                            
-                           
-                            
                             <div class="form-group">
                                 <label class="col-md-4 control-label">Primary Phone: </label>
                                 
@@ -194,6 +186,15 @@ if(!empty($validation_error))
                                     <input type="text" class="form-control" name="patient_phone2" placeholder="Other Phone" value="<?php echo $patient_phone2;?>">
                                 </div>
                             </div>
+                            
+                            
+                        </div>
+                        
+                        <div class="col-md-6">
+                            
+                           
+                            
+                           
                              <div class="form-group">
                                 <label class="col-md-4 control-label">Residence: </label>
                                 
