@@ -278,23 +278,26 @@ class Reception_model extends CI_Model
 			$is_appointment = $this->input->post('appointment_status');
 			if($is_appointment == 0)
 			{
-				$suffix = $this->create_patient_number();
+				$prefix = $this->create_patient_number();
 
-				if($suffix < 10)
+				if($prefix < 10)
 				{
-					$patient_number = '00'.$suffix.'/'.date('Y');
+					$patient_number = '00'.$prefix.'/'.date('y');
 				}
-				else if($suffix < 100 AND $suffix >= 10)
+				else if($prefix < 100 AND $prefix >= 10)
 				{
-					$patient_number = '0'.$suffix.'/'.date('Y');
+					$patient_number = '0'.$prefix.'/'.date('y');
 				}
 				else
 				{
-					$patient_number = $suffix.'/'.date('Y');
+					$patient_number = $prefix.'/'.date('y');
 				}
 
 
 				$data['patient_number'] = $patient_number;
+				$data['prefix'] = $prefix;
+				$data['suffix'] = date('Y');
+
 			}
 						
 			if($this->db->insert('patients', $data))
@@ -3257,22 +3260,25 @@ class Reception_model extends CI_Model
 		$patient_number = $patient_row->patient_number;
 		if(empty($patient_number))
 		{
-			$suffix = $this->create_patient_number();
+			$prefix = $this->create_patient_number();
 
-			if($suffix < 10)
+			if($prefix < 10)
 			{
-				$patient_number = '00'.$suffix.'/'.date('Y');
+				$patient_number = '00'.$prefix.'/'.date('y');
 			}
-			else if($suffix < 100 AND $suffix >= 10)
+			else if($prefix < 100 AND $prefix >= 10)
 			{
-				$patient_number = '0'.$suffix.'/'.date('Y');
+				$patient_number = '0'.$prefix.'/'.date('y');
 			}
 			else
 			{
-				$patient_number = $suffix.'/'.date('Y');
+				$patient_number = $prefix.'/'.date('y');
 			}
 
 
+			$array['patient_number'] = $patient_number;
+			$array['prefix'] = $prefix;
+			$array['suffix'] = date('Y');
 			$array['patient_number'] = $patient_number;
 
 			$this->db->where('patient_id',$patient_id);

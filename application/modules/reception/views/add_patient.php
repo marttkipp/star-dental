@@ -32,7 +32,7 @@
                     <label class="col-md-4 control-label">Name: </label>
                     
                     <div class="col-md-8">
-                        <input type="text" class="form-control" name="patient_surname" placeholder="First name" value="<?php echo set_value('patient_surname');?>">
+                        <input type="text" class="form-control" name="patient_surname" placeholder="Name" value="<?php echo set_value('patient_surname');?>">
                     </div>
                 </div>
                 
@@ -74,7 +74,7 @@
                         </select>
                     </div>
                 </div>
-                 <div class="form-group" >
+                 <div class="form-group"  style="display: none;">
                     <label class="col-md-4 control-label">Patient Number: </label>
                     
                     <div class="col-md-8">
@@ -82,7 +82,7 @@
                         NOTE: For a new patient leave this field blank
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                     <label class="col-lg-4 control-label">An Appointment?</label>
                     <div class="col-lg-8">
                         <div class="radio">
