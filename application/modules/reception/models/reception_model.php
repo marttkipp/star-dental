@@ -317,51 +317,51 @@ class Reception_model extends CI_Model
 
 		$patient_phone1 = $this->input->post('patient_phone1');
 		$patient_phone1 = str_replace(' ', '', $patient_phone1);
-		if(!empty($current_patient_number))
-		{
-			$explode = explode('/', $current_patient_number);
-			$number = $explode[0];
-			$year = $explode[1];
-			// check if it exists
-			$this->db->where('patient_number ='.$number.' AND patient_year ='.$year);
-			$query = $this->db->get('patients');
+		// if(!empty($current_patient_number))
+		// {
+		// 	$explode = explode('/', $current_patient_number);
+		// 	$number = $explode[0];
+		// 	$year = $explode[1];
+		// 	// check if it exists
+		// 	$this->db->where('patient_number ='.$number.' AND patient_year ='.$year);
+		// 	$query = $this->db->get('patients');
 
-			if($query->num_rows() != 1)
-			{
-				return FALSE;
-			}
-			else
-			{
-				$data = array(
-								'patient_surname'=>ucwords(strtolower($this->input->post('patient_surname'))),
-								'patient_othernames'=>ucwords(strtolower($this->input->post('patient_othernames'))),
-								'title_id'=>$this->input->post('title_id'),
-								'patient_date_of_birth'=>$this->input->post('patient_dob'),
-								'gender_id'=>$this->input->post('gender_id'),
-								'patient_email'=>$this->input->post('patient_email'),
-								'patient_phone1'=>$patient_phone1,
-								'patient_phone2'=>$this->input->post('patient_phone2'),
-								'patient_kin_sname'=>$this->input->post('patient_kin_sname'),
-								'patient_kin_othernames'=>$this->input->post('patient_kin_othernames'),
-								'relationship_id'=>$this->input->post('relationship_id'),
-								'patient_national_id'=>$this->input->post('patient_national_id'),
-								'patient_date'=>date('Y-m-d H:i:s'),
-								'created_by'=>$this->session->userdata('personnel_id'),
-								'modified_by'=>$this->session->userdata('personnel_id'),
-								'visit_type_id'=>3,
-								'dependant_id'=>$this->input->post('dependant_id'),
-								'current_patient_number'=>$this->input->post('current_patient_number'),
-								'branch_code'=>$this->session->userdata('branch_code'),
-								'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact'),
-								'insurance_company_id'=>$this->input->post('insurance_company_id'),
-								'patient_town'=>$this->input->post('patient_town'),
-								'patient_number'=>$number,
-								'patient_year'=>$year
-							);
-			}
-		}
-		else
-		{
+		// 	if($query->num_rows() != 1)
+		// 	{
+		// 		return FALSE;
+		// 	}
+		// 	else
+		// 	{
+		// 		$data = array(
+		// 						'patient_surname'=>ucwords(strtolower($this->input->post('patient_surname'))),
+		// 						'patient_othernames'=>ucwords(strtolower($this->input->post('patient_othernames'))),
+		// 						'title_id'=>$this->input->post('title_id'),
+		// 						'patient_date_of_birth'=>$this->input->post('patient_dob'),
+		// 						'gender_id'=>$this->input->post('gender_id'),
+		// 						'patient_email'=>$this->input->post('patient_email'),
+		// 						'patient_phone1'=>$patient_phone1,
+		// 						'patient_phone2'=>$this->input->post('patient_phone2'),
+		// 						'patient_kin_sname'=>$this->input->post('patient_kin_sname'),
+		// 						'patient_kin_othernames'=>$this->input->post('patient_kin_othernames'),
+		// 						'relationship_id'=>$this->input->post('relationship_id'),
+		// 						'patient_national_id'=>$this->input->post('patient_national_id'),
+		// 						'patient_date'=>date('Y-m-d H:i:s'),
+		// 						'created_by'=>$this->session->userdata('personnel_id'),
+		// 						'modified_by'=>$this->session->userdata('personnel_id'),
+		// 						'visit_type_id'=>3,
+		// 						'dependant_id'=>$this->input->post('dependant_id'),
+		// 						'current_patient_number'=>$this->input->post('current_patient_number'),
+		// 						'branch_code'=>$this->session->userdata('branch_code'),
+		// 						'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact'),
+		// 						'insurance_company_id'=>$this->input->post('insurance_company_id'),
+		// 						'patient_town'=>$this->input->post('patient_town'),
+		// 						'patient_number'=>$number,
+		// 						'patient_year'=>$year
+		// 					);
+		// 	}
+		// }
+		// else
+		// {
 			$data = array(
 								'patient_surname'=>ucwords(strtolower($this->input->post('patient_surname'))),
 								'patient_othernames'=>ucwords(strtolower($this->input->post('patient_othernames'))),
@@ -386,7 +386,7 @@ class Reception_model extends CI_Model
 								'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact'),
 								'insurance_company_id'=>$this->input->post('insurance_company_id')
 							);
-		}
+		// }
 		
 		
 		$this->db->where('patient_id', $patient_id);
