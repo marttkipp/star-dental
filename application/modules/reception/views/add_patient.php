@@ -82,7 +82,7 @@
                         NOTE: For a new patient leave this field blank
                     </div>
                 </div>
-                <div class="form-group" style="display: none;">
+                <div class="form-group" >
                     <label class="col-lg-4 control-label">An Appointment?</label>
                     <div class="col-lg-8">
                         <div class="radio">
