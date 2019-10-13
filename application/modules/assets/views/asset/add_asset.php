@@ -97,20 +97,20 @@
                 <div class="form-group">
                         <label class="col-lg-4 control-label">Rate</label>
                         <div class="col-lg-8">
-                            <input type="text" class="form-control" name="rate" placeholder="number" value="<?php echo $rate;?>" >
+                            <input type="text" class="form-control" name="rate" placeholder="number" value="<?php echo set_value('rate');?>" >
                         </div>
                 </div>
 
                 <div class="form-group">
                         <label class="col-lg-4 control-label">Duration</label>
                         <div class="col-lg-8">
-                            <input type="text" class="form-control" name="duration" placeholder="number" value="<?php echo $duration;?>" >
+                            <input type="text" class="form-control" name="duration" placeholder="number" value="<?php echo set_value('duration');?>" >
                         </div>
                 </div>
                  <div class="form-group">
                         <label class="col-lg-4 control-label">Installment</label>
                         <div class="col-lg-8">
-                            <input type="text" class="form-control" name="installment" placeholder="number" value="<?php echo $installment;?>" >
+                            <input type="text" class="form-control" name="installment" placeholder="number" value="<?php echo set_value('installment');?>" >
                         </div>
                 </div>
                  <div class="form-group">
