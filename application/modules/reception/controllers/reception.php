@@ -2931,7 +2931,7 @@ public function save_visit2($patient_id)
 				$time_start = $value->time_start;
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
 				// $time_start = date('H:i A',strtotime($time_start));
-				$message = 'Hello '.$patient_surname.', please remember that you have a dental appointment scheduled for '.$date_to_send.' '.$visit_date.' at '.$time_start.'. For more information contact 0707348180.';
+				$message = 'Hello '.$patient_surname.', please remember that you have a dental appointment scheduled for '.$date_to_send.' '.$visit_date.' at '.$time_start.'. For more information contact 0722201662.';
 				// $patient_phone = 734808007;
 				$message_data = array(
 						"phone_number" => $patient_phone,
@@ -3045,7 +3045,7 @@ public function save_visit2($patient_id)
 				$time_start = $value->time_start;
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
 				$time_start = date('H:i A',strtotime($time_start));
-				$message = 'Hello '.$patient_othernames.' '.$patient_surname.', This is a kind reminder you are now due for your 6 Months dental checkup. Call us to book an appointment 0722858879 / 0707348180.';
+				$message = 'Hello '.$patient_othernames.' '.$patient_surname.', This is a kind reminder you are now due for your 6 Months dental checkup. Call us to book an appointment 0722201662.';
 
 				$message_data = array(
 						"phone_number" => $patient_phone,
