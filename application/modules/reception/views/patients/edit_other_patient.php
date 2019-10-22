@@ -19,6 +19,7 @@ $patient_kin_othernames = $row->patient_kin_othernames;
 $relationship_id = $row->relationship_id;
 $patient_national_id = $row->patient_national_id;
 $insurance_company_id = $row->insurance_company_id;
+$patient_number = $row->patient_number;
 $next_of_kin_contact = $row->patient_kin_phonenumber1;
 $current_patient_number = $row->current_patient_number;
 //echo $gender_id;
@@ -46,6 +47,7 @@ if(!empty($validation_error))
     $insurance_company_id1 = set_value('insurance_company_id');
     $patient_national_id = set_value('patient_national_id');
     $next_of_kin_contact = set_value('next_of_kin_contact');
+    $patient_number = set_value('patient_number');
 
      $current_patient_number = set_value('current_patient_number');
 
@@ -111,10 +113,10 @@ if(!empty($validation_error))
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-md-4 control-label">Card Number: </label>
+                                <label class="col-md-4 control-label">Patient Number: </label>
                                 
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="current_patient_number" placeholder="Current Card Number" value="<?php echo $current_patient_number;?>">
+                                    <input type="text" class="form-control" name="patient_number" placeholder="Patient Number" value="<?php echo $patient_number;?>">
                                 </div>
                             </div>
                             

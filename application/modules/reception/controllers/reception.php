@@ -1974,6 +1974,7 @@ public function save_visit2($patient_id)
 		$this->form_validation->set_rules('patient_number', 'Patient Number', 'xss_clean');
 		$this->form_validation->set_rules('patient_kin_sname', 'Next of Kin Surname', 'trim|xss_clean');
 		$this->form_validation->set_rules('patient_kin_othernames', 'Next of Kin Other Names', 'trim|xss_clean');
+		$this->form_validation->set_rules('patient_number','Patient Number', 'trim|required|xss_clean');
 		$this->form_validation->set_rules('relationship_id', 'Relationship With Kin', 'xss_clean');
 		$this->form_validation->set_rules('patient_national_id', 'National ID', 'trim|xss_clean');
 		$this->form_validation->set_rules('next_of_kin_contact', 'Next of Kin Contact', 'trim|xss_clean');

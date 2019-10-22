@@ -391,7 +391,40 @@ class Reception_model extends CI_Model
 								'insurance_company_id'=>$this->input->post('insurance_company_id')
 							);
 		// }
-		
+
+		$patient_number = $this->input->post('patient_number');
+
+		$branch_code = $patient_number[0];
+
+		$patient_number = str_replace($branch_code, '', $patient_number);
+		$explode = explode('/', $patient_number);
+
+
+
+		$prefix = $prefix_old = (int)$explode[0];
+		$suffix = $suffix_old  = $explode[1];
+
+
+		$data['prefix'] = $prefix = $prefix;
+		$data['suffix'] = $suffix = '20'.$suffix;
+		if($prefix < 10)
+		{
+			$patient_number = '00'.$prefix.'/'.$suffix_old;
+		}
+		else if($prefix < 100 AND $prefix >= 10)
+		{
+			$patient_number = '0'.$prefix.'/'.$suffix_old;
+		}
+		else
+		{
+			$patient_number = $prefix.'/'.$suffix_old;
+		}
+		$data['patient_number'] = $branch_code.$patient_number;//$this->create_patient_number();
+		$data['current_patient_number'] = $branch_code.$patient_number;
+		$data['branch_code'] = $branch_code;
+	
+
+		// var_dump($data); die();
 		
 		$this->db->where('patient_id', $patient_id);
 		if($this->db->update('patients', $data))
