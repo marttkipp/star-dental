@@ -2184,6 +2184,7 @@ class Reception_model extends CI_Model
 			"personnel_id"=>$doctor_id,
 			"insurance_description"=>$insurance_description,
 			"dental_visit"=>$this->input->post('dental_visit')
+			// "branch_code"=>'N'
 			//"room_id"=>$room_id,
 		);
 		$this->db->insert('visit', $visit_data);
