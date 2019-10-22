@@ -296,6 +296,7 @@ class Reception_model extends CI_Model
 
 				$data['patient_number'] = $patient_number;
 				$data['prefix'] = $prefix;
+				$data['branch_code'] = 'N';
 				$data['suffix'] = date('Y');
 
 			}
@@ -2636,7 +2637,7 @@ class Reception_model extends CI_Model
 				$relationship_id = $array[$r][19];
 				// $items['patient_date'] = date('Y-m-d H:i:s');
 				$items['created_by'] = $this->session->userdata('personnel_id');
-				$items['branch_code'] = $this->session->userdata('branch_code');
+				$items['branch_code'] = $branch_code = 'N';// $this->session->userdata('branch_code');
 				$comment = '';
 				
 				if(isset($gender))
@@ -2674,8 +2675,8 @@ class Reception_model extends CI_Model
 				{
 					$patient_number = $prefix.'/'.$suffix_old;
 				}
-				$items['patient_number'] = $patient_number;//$this->create_patient_number();
-				$items['current_patient_number'] =  $patient_number;
+				$items['patient_number'] = $branch_code.$patient_number;//$this->create_patient_number();
+				$items['current_patient_number'] = $branch_code.$patient_number;
 
 				// var_dump($items);die();
 				

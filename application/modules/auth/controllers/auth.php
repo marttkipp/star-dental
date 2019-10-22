@@ -48,8 +48,8 @@ class Auth extends MX_Controller
                    'username'     => 'marttkip',
                    'personnel_type_id'     => '2',
                    'personnel_id' => 0,
-                   'branch_code'   => 'TDCL',
-                   'branch_name'     => 'Tabasamu Dental Clinic',
+                   'branch_code'   => 'N',
+                   'branch_name'     => 'Star Dental Clinics',
                    'branch_id' => 2
                );
 
