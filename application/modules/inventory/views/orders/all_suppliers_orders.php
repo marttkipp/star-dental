@@ -1,6 +1,4 @@
-<?php 
-    echo $this->load->view('search/search_supplier', '', TRUE);?>
-    
+<?php echo $this->load->view('search_suppliers_orders', '', TRUE);?>
 <section class="panel panel-featured panel-featured-info">
     <header class="panel-heading">
          <h2 class="panel-title pull-left"><?php echo $title;?></h2>
@@ -8,7 +6,6 @@
             	<a class="btn btn-success btn-sm" data-toggle='modal' data-target='#add_provider_items'>Add Order</a>
           </div>
           <div class="clearfix"></div>
-         
     </header>
     <div class="panel-body">
     	<div class="padd">
@@ -28,12 +25,11 @@
 				$search_result2 ='<div class="alert alert-success">'.$success.'</div>';
 				$this->session->unset_userdata('success_message');
 			}
-					
-			$search = $this->session->userdata('search_hospital_creditors');
+			$search = $this->session->userdata('supplier_order_search');
 			
 			if(!empty($search))
 			{
-				$search_result = '<a href="'.site_url().'inventory/orders/close_search_hospital_creditors" class="btn btn-danger">Close Search</a>';
+				$search_result2 = '<a href="'.site_url().'inventory/orders/close_supplier_order_search" class="btn btn-danger">Close Search</a>';
 			}
 
 
@@ -51,7 +47,7 @@
 				'
 				<div class="row">
 					<div class="col-md-12">
-						<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+						<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 						  <thead>
 							<tr>
 							  <th >#</th>
@@ -78,9 +74,9 @@
 								$order_instructions = $row->order_instructions;
 								$order_status_name = $row->order_status_name;
 								$created_by = $row->created_by;
-								$creditor_name = $row->creditor_name;
 								$created = $row->created;
 								$modified_by = $row->modified_by;
+								$creditor_name = $row->creditor_name;
 								$store_id = $row->store_id;
 								$store_name = $row->store_name;
 								$last_modified = $row->last_modified;
@@ -186,7 +182,8 @@
 											<td>'.$created_by.'</td>
 											<td>'.$status.'</td>
 											<td><a href="'.site_url().'procurement/supplier-invoice-detail/'.$order_id.'" class="btn btn-info  btn-sm fa fa-eye"> VIEW INVOICE </a></td>
-											<td><a href="'.site_url().'procurement/delete-invoices/'.$order_id.'" class="btn btn-sm btn-danger  btn-sm fa fa-trash"> Delete </a></td>
+											<td><a href="'.site_url().'inventory/orders/goods_received_notes/'.$order_id.'" target="_blank" class="btn btn-warning  btn-sm fa fa-print"> PRINT </a></td>
+											
 											
 											
 										</tr> 
@@ -240,7 +237,7 @@
 			                    	 <select name="store_id" id="store_id" class="form-control">
 	                                        <?php
 	                                        $personnel_id = $this->session->userdata('personnel_id');
-	                                        $all_stores = $this->stores_model->all_stores_assigned($personnel_id);
+	                                        $all_stores = $this->stores_model->get_parent_stores($personnel_id);
 	                                        echo '<option value="0">No Store</option>';
 	                                        if($all_stores->num_rows() > 0)
 	                                        {

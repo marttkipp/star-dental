@@ -47,7 +47,7 @@
                                                             <span class="input-group-addon">
                                                                 <i class="fa fa-calendar"></i>
                                                             </span>
-                                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="orders_date" placeholder="Order Date">
+                                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="orders_date" value="<?php echo date('Y-m-d')?>" placeholder="Order Date">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -75,7 +75,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="form-group" id="supplier_id">
+                                                <div class="form-group" id="supplier_id" style="display:none">
                                                     <label for="exampleInputEmail1" class="col-lg-5 control-label">Select Supplier: </label>
                                                     
                                                     <div class="col-lg-7">
@@ -180,13 +180,13 @@
                                     $store_parent = $rs10->store_parent;
                                     $orders_id = $rs10->order_id;
                                     $orders_date = $rs10->orders_date;
-                                    $orders_number = $rs10->orders_number;
-									$orders_approval_status = $rs10->orders_approval_status;
+                                    $orders_number = $rs10->order_number;
+									$orders_approval_status = $rs10->order_approval_status;
                                     $store_id = $rs10->store_id;
                                     $store_name = $rs10->store_name;
                                     $personnel_fname = $rs10->personnel_fname;
                                     $personnel_onames = $rs10->personnel_onames;
-									$order_approval_status = $rs10->orders_approval_status;
+									$order_approval_status = $rs10->order_approval_status;
 									$status = $this->inventory_management_model->get_status($order_approval_status);
 									$count++;
                                 ?>
@@ -269,7 +269,7 @@
 									
 									?>
 										
-									<td><a href="<?php echo site_url().'receive-order/'.$orders_id.'/'.$store_parent;?>" class="btn btn-sm btn-warning">Recieve order</a></td>
+									<!-- <td><a href="<?php echo site_url().'receive-order/'.$orders_id.'/'.$store_parent;?>" class="btn btn-sm btn-warning">Recieve order</a></td> -->
                                 </tr>
                                 <?php endforeach;?>
                             </table>

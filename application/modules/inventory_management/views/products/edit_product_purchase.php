@@ -1,13 +1,16 @@
 <?php
 	$purchase_quantity = $purchase_details->purchase_quantity;
 	$purchase_pack_size = $purchase_details->purchase_pack_size;
+    $purchase_description = $purchase_details->purchase_description;
 	$expiry_date = $purchase_details->expiry_date;
+    $purchase_date = $purchase_details->purchase_date;
 	
 	if(!empty($validation_errors))
 	{
 		$purchase_quantity = set_value('purchase_quantity');
 		$purchase_pack_size = set_value('purchase_pack_size');
-		$expiry_date = set_value('expiry_date');
+		$purchase_date = set_value('purchase_date');
+        $expiry_date = set_value('expiry_date');
 	}
 ?>
  <section class="panel">
@@ -66,6 +69,26 @@
                         
                         <div class="col-lg-8">
                             <input type="text" class="form-control" name="purchase_pack_size" placeholder="Pack Size" value="<?php echo $purchase_pack_size;?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Purchase Date: </label>
+                        
+                        <div class="col-lg-8">
+                          <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="purchase_date" value="<?php echo $purchase_date?>" placeholder="Date"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Purchase Reason: </label>
+                        
+                        <div class="col-lg-8">
+                          <textarea class="form-control" name="purchase_description"><?php echo $purchase_description;?></textarea>
                         </div>
                     </div>
         

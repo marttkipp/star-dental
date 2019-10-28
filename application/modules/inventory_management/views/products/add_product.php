@@ -22,6 +22,7 @@ if($product_id > 0)
     $creditor_name = $product[0]->creditor_name;
     $class_id = $product[0]->class_id;
     $drug_type_id = $product[0]->drug_type_id;
+    $vatable = $product[0]->vatable;
 
 	$v_errors = validation_errors();
 	
@@ -47,6 +48,7 @@ else
     $class_id = set_value('class_id');
     $drug_type_id = set_value('drug_type_id');
     $unit_of_measure = set_value('unit_of_measure');
+    $vatable = set_value('vatable');
 }
 
 ?>
@@ -310,7 +312,29 @@ else
                                                         </div>
                                                     </div>
                                                 </div> 
-
+                                                <div class="form-group">
+                                                    <label class="col-lg-4 control-label">Vatable?</label>
+                                                    <div class="col-lg-8">
+                                                        <div class="radio">
+                                                            <label>
+                                                                <?php
+                                                                if($product_status == 1){echo '<input id="optionsRadios1" type="radio" checked value="1" name="vatable">';}
+                                                                else{echo '<input id="optionsRadios1" type="radio" value="1" name="vatable">';}
+                                                                ?>
+                                                                Yes
+                                                            </label>
+                                                        </div>
+                                                        <div class="radio">
+                                                            <label>
+                                                                <?php
+                                                                if($vatable == 0){echo '<input id="optionsRadios1" type="radio" checked value="0" name="vatable">';}
+                                                                else{echo '<input id="optionsRadios1" type="radio" value="0" name="vatable">';}
+                                                                ?>
+                                                                No
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div> 
                                               
                                         	</div>
                                             <div class="col-md-6">
@@ -319,6 +343,13 @@ else
                                                     
                                                     <div class="col-lg-8">
                                                         <input type="text" class="form-control" name="product_unitprice" placeholder="Pack Size" value="<?php echo set_value('product_unit_price');?>">
+                                                    </div>
+                                                </div>
+                                                 <div class="form-group">
+                                                    <label class="col-lg-4 control-label">Insurance Unit Price: </label>
+                                                    
+                                                    <div class="col-lg-8">
+                                                        <input type="text" class="form-control" name="product_unitprice_insurance" placeholder="Pack Size" value="<?php echo set_value('product_unitprice_insurance');?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
@@ -443,7 +474,7 @@ else
 		
 		if(value == 2)
 		{
-			$('div#drug_descriptions').css('display','block');
+			$('div#drug_descriptions').css('display','none');
 		}
 		else
 		{

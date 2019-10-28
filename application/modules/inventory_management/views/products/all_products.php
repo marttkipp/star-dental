@@ -1,4 +1,4 @@
-<?php 
+<?php
 $v_data['all_categories'] = $all_categories;
 $v_data['all_brands'] = $all_brands;
 $v_data['all_generics'] = $all_generics;
@@ -11,7 +11,7 @@ if($store_priviledges->num_rows() > 0)
 	foreach($store_priviledges->result() as $res)
 	{
 		$store_parent = $res->store_parent;
-		
+
 		if($store_parent == 0)
 		{
 			$parent_store = 1;
@@ -20,12 +20,12 @@ if($store_priviledges->num_rows() > 0)
 	}
 }
 
-echo $this->load->view('search_products', $v_data, TRUE); 
+echo $this->load->view('search_products', $v_data, TRUE);
 
 	//get personnel approval rightts
 	$personnel_id = $this->session->userdata('personnel_id');
-	$approval_id = $this->inventory_management_model->get_approval_id($personnel_id);
-
+	$approval_id = 2;//$this->inventory_management_model->get_approval_id($personnel_id);
+// var_dump($approval_id); die();
 ?>
 <div class="row">
     <div class="col-md-12">
@@ -37,32 +37,55 @@ echo $this->load->view('search_products', $v_data, TRUE);
 						if($approval_id == 2)
 						{
 							?>
-                            <a href="<?php echo base_url();?>inventory/manage-orders" class="btn btn-info btn-sm fa fa-plus"> Manage Orders</a>
+                            <!-- <a href="<?php echo base_url();?>inventory/manage-orders" class="btn btn-info btn-sm fa fa-plus"> Manage Orders</a> -->
                             <?php
 						}
 					?>
-                 	<a href="<?php echo base_url();?>inventory/manage-store" class="btn btn-default btn-sm fa fa-plus"> Manage Store</a>
-			         <?php 
+                 	<!-- <a href="<?php echo base_url();?>inventory/manage-store" class="btn btn-default btn-sm fa fa-plus"> Manage Store</a> -->
+			        <?php
 			         if(($type == 1) || ($type == 3))
 			         {
 			         	?>
-			         	 
+
 			         	<?php
 			         }
-			         if(($type == 2) || ($type == 3))
-			         {
+			         $personnel_id = $this->session->userdata('personnel_id');
+			         $department_id = $this->reception_model->get_personnel_department($personnel_id);
+			         // if(($type == 2) || ($type == 3) || $personnel_id == 0 || $department_id == 1)
+			         // {
 			         	?>
-			         	<a href="<?php echo base_url();?>inventory/import-products" class="btn btn-success btn-sm" style="margin-left:10px;">Import Product</a>
-						<!--<a href="<?php echo base_url();?>inventory/export-products" class="btn btn-info btn-sm" style="margin-left:10px;">Export Product</a>-->
+			         	<!--<a href="<?php echo base_url();?>inventory/import-products" class="btn btn-success btn-sm" style="margin-left:10px;">Import Product</a>
+						<a href="<?php echo base_url();?>inventory/export-products" class="btn btn-info btn-sm" style="margin-left:10px;">Export Product</a>
                         <a href="<?php echo base_url();?>inventory/import-balances" class="btn btn-info btn-sm" style="margin-left:10px;">Import Opening Balances</a>
-						<a href="<?php echo base_url();?>inventory/product-deductions" class="btn btn-warning btn-sm fa fa-minus"> Manage Requests</a>
+						<!-- <a href="<?php echo base_url();?>inventory/product-deductions" class="btn btn-warning btn-sm fa fa-minus"> Manage Requests</a> -->
+
 						<a href="<?php echo base_url();?>inventory/add-product" class="btn btn-success btn-sm fa fa-plus"> Add New Product</a>
-                        <a href="<?php echo base_url();?>inventory_management/update_initial_product_balance" class="btn btn-default btn-sm fa fa-plus"> Update Stock Balances</a>
-                        <a href="<?php echo base_url();?>inventory/print-product-out-stock" class="btn btn-danger btn-sm fa fa-print"> Out Of Stock</a>
-						
+
+                        <!-- <a href="<?php echo base_url();?>inventory_management/update_initial_product_balance" class="btn btn-default btn-sm fa fa-plus"> Update Stock Balances</a> -->
+
+                        <!-- <a href="<?php echo base_url();?>inventory/print-product-out-stock" class="btn btn-danger btn-sm fa fa-print"> Out Of Stock</a> -->
+
 			         	<?php
-			         }
-			         ?>
+			         // }
+					 ?>
+
+                     <a href="<?php echo base_url();?>inventory/download-all-stock" target="_blank" class="btn btn-default btn-sm fa fa-print"> Download All</a>
+
+                     <!-- <?php
+					 if($store_priviledges->num_rows() > 0)
+					 {
+						 foreach($store_priviledges->result() as $res)
+						 {
+							 $store_name = $res->store_name;
+							 $store_id = $res->store_id;
+							 ?> -->
+                             <!-- <a href="<?php echo base_url();?>inventory/print-product-in-store/<?php echo $store_id;?>" class="btn btn-default btn-sm fa fa-print" target="_blank">Download <?php echo $store_name;?></a> -->
+                           <!--   <?php
+						 }
+					 }
+
+			         ?> -->
+
 		          </div>
 		          <div class="clearfix"></div>
 		    </header>
@@ -78,20 +101,20 @@ echo $this->load->view('search_products', $v_data, TRUE);
 							$search_result2 = '<div class="alert alert-danger">'.$error.'</div>';
 							$this->session->unset_userdata('error_message');
 						}
-						
+
 						if(!empty($success))
 						{
 							$search_result2 ='<div class="alert alert-success">'.$success.'</div>';
 							$this->session->unset_userdata('success_message');
 						}
-								
+
 						$search = $this->session->userdata('product_inventory_search');
-						
+
 						if(!empty($search))
 						{
 							$search_result = '<a href="'.site_url().'inventory/close-product-search" class="btn btn-success btn-sm">Close Search</a>';
 						}
-						
+
 						$inventory_search_start_date = $this->session->userdata('inventory_search_start_date');
 						if(!empty($inventory_search_start_date))
 						{
@@ -105,7 +128,7 @@ echo $this->load->view('search_products', $v_data, TRUE);
 						{
 							$search_start_date = NULL;
 						}
-						
+
 						$inventory_search_end_date = $this->session->userdata('inventory_search_end_date');
 						if(!empty($inventory_search_start_date))
 						{
@@ -119,9 +142,9 @@ echo $this->load->view('search_products', $v_data, TRUE);
 						{
 							$search_end_date = NULL;
 						}
-						
-						
-						$result = '';	
+
+
+						$result = '';
 						$result .= ''.$search_result2.'';
 						$result .= '
 								';
@@ -133,34 +156,38 @@ echo $this->load->view('search_products', $v_data, TRUE);
 
 							if($type == 1)
 							{
-								$cols_items ='';
+								$cols_items ='
+		                                <th>O</th>
+		                                <th>T</th>
+		                                <th>S</th>
+		                                <th>R</th>';
 								$colspan = 2;
 							}
 							else
 							{
-								$cols_items = 
+								$cols_items =
 										'
 										<!--<th>Unit Price</th>
-		                                <th>33% MU</th>-->
-		                                <th>Opening</th>
+		                                <th>33% MU</th>
+		                                <th>O</th>-->
 		                                <th>P</th>
-		                                <th>S</th>
 		                                <th>D</th>
 		                                ';
 		                         $colspan = 6;
 							}
-							$result .= 
+							$result .=
 							'
 							<div class="row">
 							<div class="col-md-12 table-responsive">
-								<table class="table table-hover table-bordered">
-								 
-								  <thead> 
+								<table class="table table-bordered">
+
+								  <thead>
 		                                <th>#</th>
 		                                <th>Code</th>
 		                                <th>Store</th>
 		                                <th>Name</th>
 		                                <th>Category</th>
+		                                <th>Vatable</th>
 		                                '.$cols_items.'
 		                                <th>Stock</th>
 		                                <th>Status</th>
@@ -168,13 +195,13 @@ echo $this->load->view('search_products', $v_data, TRUE);
 		                            </thead>
 								  <tbody>
 							';
-							
+
 							//get all administrators
-							$personnel_query = $this->personnel_model->get_all_personnel();
-							
+							// $personnel_query = $this->personnel_model->get_all_personnel();
+
 							foreach ($query->result() as $row)
 							{//var_dump($query);die();
-						
+
 								$product_id = $row->product_id;
 								$product_name = $row->product_name;
 								$product_code = $row->product_code;
@@ -190,6 +217,10 @@ echo $this->load->view('search_products', $v_data, TRUE);
 								$store_id = $row->store_id;
 								$reorder_level = $row->reorder_level;
 								$parent_store = $row->store_parent;
+								$vatable = $row->vatable;
+								$owning_store_id = $row->owning_store_id;
+								$regenerate_id = $row->regenerate_id;
+								$stock_take = $row->stock_take;
 								if($parent_store == 0)
 								{
 									$quantity = $row->quantity;
@@ -198,13 +229,14 @@ echo $this->load->view('search_products', $v_data, TRUE);
 								{
 									$quantity = 0;
 								}
-								
+
+								$quantity = $row->store_quantity;
+								// var_dump($quantity); die();
 								$product_unitprice = $row->product_unitprice;
-		                        
 		                        $product_deleted = $row->product_deleted;
 		                        $in_service_charge_status = $row->in_service_charge_status;
+		                        // var_dump($owning_store_id);
 
-								
 								//status
 								if($product_status == 1)
 								{
@@ -215,7 +247,29 @@ echo $this->load->view('search_products', $v_data, TRUE);
 									$status = 'Disabled';
 								}
 
-								
+
+								if($vatable == 1)
+								{
+									$vatable_status = 'Yes';
+								}
+								else
+								{
+									$vatable_status = 'No';
+								}
+
+								if($stock_take == 0 OR empty($stock_take))
+								{
+									$regenerate = 'info';
+									$closed = 'readonly';
+								}
+								else
+								{
+									$regenerate = 'primary';
+									$closed = '';
+								}
+
+
+
 								$button = '';
 								//create deactivated status display
 								if($product_status == 0)
@@ -235,147 +289,31 @@ echo $this->load->view('search_products', $v_data, TRUE);
 										$button .= '<a class="btn btn-default btn-sm" href="'.site_url().'inventory/deactivate-product/'.$product_id.'" onclick="return confirm(\'Do you want to deactivate '.$product_name.'?\');">Deactivate</a>';
 									}
 								}
-					
-								//creators & editors
-								if($personnel_query->num_rows() > 0)
-								{
-									$personnel_result = $personnel_query->result();
-									
-									foreach($personnel_result as $adm)
-									{
-										$personnel_id2 = $adm->personnel_id;
-										
-										if($created_by == $personnel_id2)
-										{
-											$created_by = $adm->personnel_fname;
-											break;
-										}
-										
-										else
-										{
-											$created_by = '-';
-										}
-									}
-								}
-								
-								else
-								{
-									$created_by = '-';
-								}
-
-								if($type == 1)
-								{
-									$in_stock = $quantity;
-									$other_items ='';
-									$button_two = '';
-
-								}
-								else
-								{
-									$markup = round(($product_unitprice * 1.33), 0);
-									$markdown = $markup;//round(($markup * 0.9), 0);
-
-									if($parent_store == 0)
-									{
-										$purchases = $this->inventory_management_model->item_purchases($inventory_start_date, $product_id,$store_id,$search_start_date,$search_end_date);
-			                       
-			                        	$deductions = $this->inventory_management_model->item_deductions($inventory_start_date, $product_id,$store_id,$search_start_date,$search_end_date);
-									}
-									else
-									{
-										$purchases = $this->inventory_management_model->child_item_purchases($inventory_start_date, $product_id,$store_id,$search_start_date,$search_end_date);
-										$deductions = $this->inventory_management_model->item_deductions($inventory_start_date, $product_id,$store_id,$search_start_date,$search_end_date);
-										//$deductions = 0;
-									}
-									// var_dump($store_name);die();
-			                        if(($in_service_charge_status == 1)&&(($store_name == "Pharmacy") || ($store_name == "Lab Store")))
-			                        {
-			                        	 $sales = $this->inventory_management_model->get_drug_units_sold($inventory_start_date, $product_id,$search_start_date,$search_end_date);
-			                        }
-
-			                        elseif($store_name == "Pharmaceutical Store")
-			                        {
-										//get all children that belong to that store
-										$children_stores = $this->inventory_management_model->get_all_child_stores($store_id);
-										$sales = 0;
-										//get all child store reuests
-										if($children_stores->num_rows() > 0)
-										{
-											foreach($children_stores->result() as $child_stores)
-											{
-												$child_store_id = $child_stores->store_id;
-												
-												$child_requests = $this->inventory_management_model->get_requests($child_store_id);												//var_dump($child_requests);die();
-												if($child_requests->num_rows() > 0)
-												{
-													foreach($child_requests->result() as $requests)
-													{
-														$orders_id = $requests->order_id;
-														$child_requests_sales = $this->inventory_management_model->get_child_sales($inventory_start_date, $orders_id,$product_id,$search_start_date,$search_end_date);	
-														//var_dump($child_requests_sales);die();
-														$sales +=	$child_requests_sales;
-													}
-												}
-											}
-										}
-			                        }
-									else
-									{
-										$sales =0;
-										
-									}
-
-									// var_dump($sales);die();
-									if($store_name == "Pharmacy")
-									{
-										$branch_code = "OSE";
-										$sales2 = $sales1 = 0; 
-										//$sales = $this->inventory_management_model->get_drug_units_sold($inventory_start_date, $product_id,$search_start_date,$search_end_date, $branch_code);
-										$sales1 = $this->inventory_management_model->get_pharmacy_drug_units_sold($inventory_start_date, $product_id,$search_start_date,$search_end_date, $branch_code);
-										//for all stores whose parent is pharmacy
-										$pharmacy_children = $this->inventory_management_model->get_all_child_stores($store_id);
-										if($pharmacy_children->num_rows() > 0)
-										{
-											foreach($pharmacy_children->result() as $child_stores)
-											{
-												$pharmacy_child_store_id = $child_stores->store_id;
-												
-												$pharmacy_child_requests = $this->inventory_management_model->get_requests($pharmacy_child_store_id);												//var_dump($child_requests);die();
-												if($pharmacy_child_requests->num_rows() > 0)
-												{
-													foreach($pharmacy_child_requests->result() as $pharm_requests)
-													{
-														$orders_id = $pharm_requests->order_id;
-														$pharmacy_child_requests_sales = $this->inventory_management_model->get_child_sales($inventory_start_date, $orders_id,$product_id,$search_start_date,$search_end_date);	
-														//var_dump($child_requests_sales);die();
-														$sales2 +=	$pharmacy_child_requests_sales;
-													}
-												}
-											}
-										}
-										else
-										{
-											$sales2 = 0;
-										}
-										$sales = $sales1 + $sales2;
-									}
-									elseif($store_name == "Oserengoni")
-									{
-										$branch_code = "OSEB";
-										
-										$sales = $this->inventory_management_model->get_pharmacy_drug_units_sold($inventory_start_date, $product_id,$search_start_date,$search_end_date, $branch_code);
-									}
 
 
-									$sales = $this->inventory_management_model->get_drug_units_sold($inventory_start_date, $product_id,$search_start_date,$search_end_date, $branch_code=NULL);
 
-									$procurred = $this->inventory_management_model->item_proccured($inventory_start_date, $product_id,$store_id,$search_start_date,$search_end_date);
-			                       
-									// var_dump($procurred); die();
+									$store_id = $owning_store_id;
 
-			                        $in_stock = ($quantity + $purchases + $procurred) - $sales - $deductions;
 
-			                        $purchases = $purchases + $procurred;
+                                    $purchases = 0;
+                                    $sales = 0;
+                                    $purchases = 0;
+                                    $deductions = 0;
+                                    $in_stock = 0;
+                                    $pending_procurement = 0;
+                                    $opening_quantity = 0;
+                                    $total_store_deductions = 0;
+                                    $child_stock = 0;
+
+                                    $stock_level = $this->inventory_management_model->get_stock_purchases_new($product_id,$store_id);
+
+                                    $purchases = $stock_level['dr_quantity'];
+                                    $deductions = $stock_level['cr_quantity'];
+                                   
+                                    $in_stock = $purchases - $deductions;
+
+                                    
+			                        	// var_dump($store_requests); die();
 									if($in_stock<=$reorder_level)
 									{
 			                        	$class = "class = 'danger'";
@@ -384,54 +322,124 @@ echo $this->load->view('search_products', $v_data, TRUE);
 			                        	$class = "";
 
 			                        }
-									$other_items = 
+									$other_items =
 										'
-										<!--<td>'.number_format($product_unitprice, 2).'</td>
-		                                <td>'.number_format($markup, 2).'</td>-->				         
-		                                <td>'.$quantity.'</td>						         
 		                                <td>'.$purchases.'</td>
-		                                <td>'.$sales.'</td>						         
 		                                <td>'.$deductions.'</td>
 
 										';
-										if($parent_store == 0)
+
+
+
+										if($parent_store == 0 )
 										{
-											$button_two = ' <td><a href="'.site_url().'inventory/edit-product/'.$product_id.'" class="btn btn-sm btn-primary">Edit</a></td>
-					                                <td><a href="'.site_url().'inventory/product-purchases/'.$product_id.'" class="btn btn-sm btn-warning">Purchases</a></td>
-													
-													 <td><a href="'.site_url().'deductions/'.$product_id.'/'.$store_id.'" class="btn btn-sm btn-danger">Deductions</a></td>
+											
+												
+													// <td><a href="'.site_url().'search-store-ded/'.$product_id.'" class="btn btn-sm btn-info fa fa-database"></a></td>
+												$button_two_sub ='
+
+													<td><a href="'.site_url().'inventory/drug-trail/'.$product_id.'" class="btn btn-sm btn-primary fa fa-file"></a></td>
+													 <td><a href="'.site_url().'inventory/product-purchases/'.$product_id.'" class="btn btn-sm btn-success fa fa-plus"></a></td>
+													 
+													';
+												// $personnel_role = $this->session->userdata('personnel_role');
+
+												$personnel_role = $this->session->userdata('personnel_role');
+												$regenerate_button = '';
+
+												// var_dump($personnel_role);die();
+												if($personnel_role == 'Admin' OR $personnel_role == 'Accounts' OR $personnel_role == 'CEO')
+												{
+													$regenerate_button = '<td><a href="'.site_url().'regenerate-product/'.$product_id.'" class="btn btn-sm btn-danger fa fa-recycle" onclick="return confirm(\'Are you sure you want to regenerate this product?\');"></a></td>
+													<td><a href="'.site_url().'delete-product/'.$product_id.'" class="btn btn-sm btn-danger fa fa-trash" tooltip="Delete" onclick="return confirm(\'Are you sure you want to delete this record ? \')"></a></td>';
+												}
+												else
+												{
+													$regenerate_button = '';
+												}
+
+											$delete_button = '<td><a href="'.site_url().'inventory/deduction-product/'.$product_id.'/'.$store_id.'" class="btn btn-sm btn-danger fa fa-minus" tooltip="Reduce Stock"></a></td>
+													';	
+											
+											$button_two = ' <td><a href="'.site_url().'inventory/edit-product/'.$product_id.'" class="btn btn-sm btn-primary fa fa-pencil"> </a></td>
+					                           	'.$button_two_sub.'
+					                           	'.$delete_button.'
+					                            
+
 					                              ';
+
 										}
 										else
 										{
-											$button_two = '';
+											
+											$personnel_role = $this->session->userdata('personnel_role');
+											$delete_button = '';
+											if($personnel_role == 'Admin' OR $personnel_role == 'Accounts' OR $personnel_role == 'CEO')
+											{
+												$delete_button = '<td><a href="'.site_url().'inventory/deduction-product/'.$product_id.'/'.$store_id.'" class="btn btn-sm btn-danger fa fa-minus" tooltip="Reduce Stock"></a></td>
+													';
+											}
+											else
+											{
+												$delete_button = '';
+											}
+											$button_two = ' <td><a class="btn btn-default btn-sm fa fa-money" href="'.site_url().'inventory/product-sales/'.$product_id.'" ></a></td>
+													 <td><a href="'.site_url().'search-s11/'.$product_id.'" class="btn btn-sm btn-success fa fa-search"></a></td>
+													  '.$delete_button.'';
+											
 										}
-								}
 
-								
-								
 
+								// }
+							  	// var_dump($department_id); die();
+										if( ($personnel_id_main==0))
+										{
+
+											$button_update = '<td><input type="text" name="amount" class="form-control" value="'.$quantity.'" '.$closed.'/></td>
+												 <td><button type="submit" class="btn btn-sm btn-warning" >Update </button></td>';
+										}
+										else
+										{
+											if(($department_id == 1 AND ($is_admin OR $personnel_id_main == 0) AND $store_id > 5))
+											{
+												$button_update = ' <td><a href="'.site_url().'inventory/return-product/'.$product_id.'/'.$store_id.'" class="btn btn-sm btn-warning fa fa-arrow-left"></a></td>';
+											}
+											else
+											{
+												$button_update = '';
+											}
+
+										}
+
+
+								// $child_store_stock = $this->inventory_management_model->child_store_stock($inventory_start_date, $product_id,6);
 								$count++;
-								
-								$result .= 
+								$result.= form_open("update-current-stock/".$product_id."/".$owning_store_id, array("class" => "form-horizontal"));
+								$result .=
 								'
-									<tr '.$class.'>
+									<tr >
 										<td>'.$count.'</td>
-										<td>'.$product_code.'</td>
+										<td class="'.$regenerate.'">'.$product_code.'</td>
 										<td>'.$store_name.'</td>
-										<td>'.$product_name.'</td>
-										<td>'.$category_name.'</td>		         
+										<td '.$class.'>'.$product_name.'</td>
+										<td>'.$category_name.'</td>
+										<td>'.$vatable_status.'</td>
 		                                '.$other_items.'
-		                                <td>'.$in_stock.'</td>
+		                                <td '.$class.'>'.$in_stock.'</td>
 		                                <td>'.$status.'</td>
+		                                '.$button_update.'
 		                                '.$button_two.'
-		                                <td><a class="btn btn-default btn-sm" href="'.site_url().'inventory/product-sales/'.$product_id.'" >Sales</a></td>
-									</tr> 
+
+
+
+
+									</tr>
 								';
-								
+								 $result .= form_close();
+
 							}
-							
-							$result .= 
+
+							$result .=
 							'
 										  </tbody>
 										</table>
@@ -439,12 +447,12 @@ echo $this->load->view('search_products', $v_data, TRUE);
 									</div>
 							';
 						}
-						
+
 						else
 						{
 							$result .= '';
 						}
-						
+
 						$result .= '</div>';
 						echo $result;
 				?>
@@ -454,7 +462,7 @@ echo $this->load->view('search_products', $v_data, TRUE);
 			    ?>
 			    </div>
 			</div>
-			
+
 		</section>
 	</div>
 </div>

@@ -3,7 +3,7 @@
       <h4 class="pull-left"><i class="icon-reorder"></i><?php echo $title;?></h4>
       <div class="widget-icons pull-right">
         <a href="<?php echo site_url().'inventory/products';?>" class="btn btn-sm btn-default">Back to inventory</a>
-        <a href="<?php echo site_url().'inventory/deduct-product/'.$product_id;?>" class="btn btn-sm btn-success">Deduct Product</a>
+        <a href="<?php echo site_url().'inventory/deduct-product/'.$product_id.'/'.$store_id;?>" class="btn btn-sm btn-success">Deduct Product</a>
         </div>
       <div class="clearfix"></div>
     </header>             
@@ -40,6 +40,7 @@
                                         <th>Deduction Date</th>
                                         <th>Pack Size</th>
                                         <th>Quantity</th>
+                                        <th>Description</th>
                                         <th></th>
                                     </thead>
                         
@@ -48,10 +49,12 @@
                                     $count = $page;
                                     $rs9 = $query->result();
                                     foreach ($rs9 as $rs10) :
-                                        $deduction_date = $last_visit = date('jS M Y H:i:s',strtotime($rs10->product_deductions_date));
-                                        $product_deduction_id = $rs10->product_deductions_id;
-                                        $product_deduction_pack_size = $rs10->product_deductions_pack_size;
-                                        $product_deduction_quantity = $rs10->product_deductions_quantity;
+                                        $deduction_date = $last_visit = date('jS M Y H:i:s',strtotime($rs10->product_deductions_stock_date));
+                                        $product_deduction_id = $rs10->product_deductions_stock_id;
+                                        $product_deduction_pack_size = $rs10->product_deductions_stock_pack_size;
+                                        $product_deduction_quantity = $rs10->product_deductions_stock_quantity;
+                                        $deduction_description = $rs10->deduction_description;
+                                        $store_id = $rs10->store_id;
                                         $count++;
                                     ?>
                                    <tr>
@@ -60,7 +63,8 @@
                                         <td><?php echo $deduction_date;?></td>	
                                         <td><?php echo $product_deduction_pack_size;?></td>
                                         <td><?php echo $product_deduction_quantity;?></td>
-                                        <td><a href="<?php echo site_url().'inventory_management/edit_product_deduction/'.$product_deduction_id.'/'. $product_id;?>" class="btn btn-sm btn-primary">Edit</a></td>
+                                        <td><?php echo $deduction_description;?></td>
+                                        <td><a href="<?php echo site_url().'inventory_management/edit_product_deduction/'.$product_deduction_id.'/'. $product_id.'/'.$store_id;?>" class="btn btn-sm btn-primary">Edit</a></td>
                                     </tr>
                                     <?php endforeach;?>
                                 </table>

@@ -41,6 +41,7 @@
                                         <th>Expiry Date</th>
                                         <th>Pack Size</th>
                                         <th>Quantity</th>
+                                        <th>Description</th>
                                         <th></th>
                                     </thead>
                         
@@ -54,14 +55,16 @@
                                         $purchase_id = $rs10->purchase_id;
                                         $purchase_pack_size = $rs10->purchase_pack_size;
                                         $purchase_quantity = $rs10->purchase_quantity;
+                                        $purchase_description = $rs10->purchase_description;
                                         $count++;
                                     ?>
                                    <tr>
                                         <td><?php echo $count;?></td>
                                         <td><?php echo $purchase_date;?></td>
                                         <td><?php echo $expiry_date;?></td>		
-                                        <td><?php echo $purchase_pack_size;?></td>						         
+                                        <td><?php echo $purchase_pack_size;?></td>
                                         <td><?php echo $purchase_quantity;?></td>
+                                        <td><?php echo $purchase_description;?></td>
                                         <td><a href="<?php echo site_url().'inventory/edit-product-purchase/'.$purchase_id.'/'. $product_id;?>" class="btn btn-sm btn-primary">Edit</a></td>
                                     </tr>
                                     <?php endforeach;?>

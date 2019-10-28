@@ -32,6 +32,7 @@ class Stores_model extends CI_Model
 	*/
 	public function all_parent_stores()
 	{
+		$this->db->where('store_status = 1 AND store_parent = 0');
 		$this->db->order_by('store_name', 'ASC');
 		$query = $this->db->get('store');
 		
@@ -237,7 +238,7 @@ class Stores_model extends CI_Model
 
 		if($is_admin OR $personnel_id == 0)
 		{
-			$where = 'store.store_id > 0 AND store.store_parent = 0';
+			$where = 'store.store_id > 0';
 			$table = '';
 		}
 		else
@@ -245,6 +246,19 @@ class Stores_model extends CI_Model
 			$where = 'personnel_store.store_id = store.store_id AND personnel_store.personnel_id = '.$personnel_id;
 			$table = ',personnel_store';
 		}
+		$this->db->select('store.*');
+		$this->db->where($where);
+		$qquery = $this->db->get('store'.$table);
+		
+		return $qquery;
+	}
+
+	public function get_parent_stores($personnel_id)
+	{
+		$is_admin = $this->reception_model->check_if_admin($personnel_id,1);	
+		$where = 'store.store_parent = 0';
+		$table = '';
+		
 		$this->db->select('store.*');
 		$this->db->where($where);
 		$qquery = $this->db->get('store'.$table);

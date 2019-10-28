@@ -1,12 +1,15 @@
 <?php
-	$product_deductions_quantity = $deduction_details->product_deductions_quantity;
-	$product_deductions_pack_size = $deduction_details->product_deductions_pack_size;
+	$product_deductions_stock_quantity = $deduction_details->product_deductions_stock_quantity;
+	$product_deductions_stock_pack_size = $deduction_details->product_deductions_stock_pack_size;
+  $deduction_description = $deduction_details->deduction_description;
+  $deduction_date = $deduction_details->product_deductions_stock_date;
 	
 	if(!empty($validation_errors))
 	{
-		$product_deductions_pack_size = set_value('product_deductions_pack_size');
-		$product_deductions_quantity = set_value('product_deductions_quantity');
-		$expiry_date = set_value('expiry_date');
+		$product_deductions_stock_pack_size = set_value('product_deductions_stock_pack_size');
+		$product_deductions_stock_quantity = set_value('product_deductions_stock_quantity');
+    $deduction_description = set_value('deduction_description');
+		$deduction_date = set_value('deduction_date');
 	}
 ?>
  <section class="panel">
@@ -56,7 +59,7 @@
                         <label class="col-lg-4 control-label">Purchase Quantity: </label>
                         
                         <div class="col-lg-8">
-                            <input type="text" class="form-control" name="product_deductions_quantity" placeholder="Deduction Quantity" value="<?php echo $product_deductions_quantity;?>">
+                            <input type="text" class="form-control" name="product_deductions_quantity" placeholder="Deduction Quantity" value="<?php echo $product_deductions_stock_quantity;?>">
                         </div>
                     </div>
                     
@@ -64,9 +67,32 @@
                         <label class="col-lg-4 control-label">Pack Size: </label>
                         
                         <div class="col-lg-8">
-                            <input type="text" class="form-control" name="product_deductions_pack_size" placeholder="Pack Size" value="<?php echo $product_deductions_pack_size;?>">
+                            <input type="text" class="form-control" name="product_deductions_pack_size" placeholder="Pack Size" value="<?php echo $product_deductions_stock_pack_size;?>">
                         </div>
                     </div>
+                     <div class="form-group">
+                        <label class="col-lg-4 control-label">Deduction Date: </label>
+                        
+                        <div class="col-lg-8">
+                          <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="deduction_date" value="<?php echo $deduction_date?>" placeholder="Date"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Deducted Reason: </label>
+                        
+                        <div class="col-lg-8">
+                          <textarea class="form-control" name="deduction_description"><?php echo $deduction_description;?></textarea>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
             <br/>

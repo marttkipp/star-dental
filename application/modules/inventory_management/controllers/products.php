@@ -13,6 +13,8 @@ class Products extends MX_Controller
 		$this->load->model('site/site_model');
 		$this->load->model('admin/sections_model');
 		$this->load->model('admin/admin_model');
+		$this->load->model('accounts/accounts_model');
+		$this->load->model('reception/database');
 		$this->load->model('inventory_management_model');
 		$this->load->model('administration/personnel_model');
 		$this->csv_path = realpath(APPPATH . '../assets/csv');
@@ -42,7 +44,7 @@ class Products extends MX_Controller
 		$config['base_url'] = base_url().'inventory/products';
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
-		$config['per_page'] = 20;
+		$config['per_page'] = 10;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -742,8 +744,8 @@ class Products extends MX_Controller
 	public function deductions($product_id,$store_id)
 	{
 		$segment = 4;
-		$order = 'product_deductions_date';
-		$where = 'product_deductions.product_id = '.$product_id.' AND product_deductions.store_id ='.$store_id;
+		$order = 'product_deductions_stock_date';
+		$where = 'product_deductions_stock.product_id = '.$product_id.' AND product_deductions_stock.store_id ='.$store_id;
 		
 		$drugs_search = $this->session->userdata('drugs_deductions_search');
 		
@@ -752,7 +754,7 @@ class Products extends MX_Controller
 			$where .= $drugs_search;
 		}
 		
-		$table = 'product_deductions';
+		$table = 'product_deductions_stock';
 		
 		//pagination
 		$this->load->library('pagination');
@@ -869,8 +871,8 @@ class Products extends MX_Controller
 	public function product_sales($product_id)
 	{
 
-		$where = 'visit.patient_id = patients.patient_id AND service_charge.service_charge_id = visit_charge.service_charge_id AND service_charge.service_charge_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit.visit_id = visit_charge.visit_id AND service_charge.product_id = '.$product_id;
-		$table = 'visit,patients,service_charge,visit_charge';
+		$where = 'visit.patient_id = patients.patient_id AND service_charge.service_charge_id = visit_charge.service_charge_id AND service_charge.service_charge_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit_charge.charged = 1 AND visit_type.visit_type_id = visit.visit_type AND visit.visit_id = visit_charge.visit_id AND visit_charge.product_id = '.$product_id;
+		$table = 'visit,patients,service_charge,visit_charge,visit_type';
 		
 		$segment = 4;
 		//pagination
@@ -878,7 +880,7 @@ class Products extends MX_Controller
 		$config['base_url'] = base_url().'inventory/product-sales/'.$product_id;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
-		$config['per_page'] = 20;
+		$config['per_page'] = 10;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -906,7 +908,7 @@ class Products extends MX_Controller
 		$this->pagination->initialize($config);
 		
 		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
-        $data["links"] = $this->pagination->create_links();
+        $v_data["links"] = $this->pagination->create_links();
 		$query = $this->products_model->get_all_products_sales($table, $where, $config["per_page"], $page);
 		
 		$v_data['query'] = $query;
@@ -931,6 +933,196 @@ class Products extends MX_Controller
 		$data['title'] = 'All Products';
 		
 		$this->load->view('admin/templates/general_page', $data);
+	}
+
+	public function regenerate_product($product_id)
+	{
+		$product_query = $this->products_model->get_product_details($product_id);
+
+		if($product_query->num_rows() > 0)
+		{
+			foreach ($product_query->result() as $key => $value) {
+				# code...
+				$product_name = $value->product_name;
+				$category_id = $value->category_id;
+				$product_code = $value->product_code;
+				$product_packsize = $value->product_packsize;
+				$product_unitprice = $value->product_unitprice;
+				$vatable = $value->vatable;
+			}
+
+			
+
+			// update service charge table with the deleted status for this product
+			$array['service_charge_delete'] = 1;
+			$this->db->where('product_id',$product_id);
+			$this->db->update('service_charge',$array);
+
+			// create another product with the same code 
+			$array_create['product_name'] = $product_name;
+			$array_create['category_id'] = $category_id;
+			$array_create['product_status'] = 1;
+			$array_create['store_id'] = 5;
+			$array_create['stock_take'] = 1;
+			$array_create['product_code'] = $product_code;
+			$array_create['product_packsize'] = $product_packsize;
+			$array_create['product_unitprice'] = $product_unitprice;
+			$array_create['product_unitprice_insurance'] = $product_unitprice;
+			$array_create['vatable'] = $vatable;
+			$array_create['regenerate_id'] = $product_id;
+
+
+			if($this->db->insert('product',$array_create))
+			{
+				$product_id_new = $this->db->insert_id();
+
+				// update service charge with the product
+				$service_array['service_charge_name'] = $product_name;
+				$service_array['product_id'] = $product_id_new;
+				$service_array['vatable'] = $vatable;
+				$service_array['service_charge_amount'] = $product_unitprice;
+				$service_array['service_charge_delete'] = 0;
+				$service_array['service_charge_status'] = 1;
+				$service_array['created'] = date('Y-m-d');
+				$service_array['created_by'] = $this->session->userdata('personnel_id');
+
+				// get all visit types and loop an insert for them
+
+				$this->db->where('visit_type_status = 1');
+				$query_visits = $this->db->get('visit_type');
+				if($query_visits->num_rows() > 0)
+				{
+					foreach ($query_visits->result() as $key => $values) {
+						# code...
+						$visit_type_id = $values->visit_type_id;
+						$service_array['visit_type_id'] = $visit_type_id;
+						$service_array['service_id'] = 3;
+						// insert into service_charge
+						$this->db->insert('service_charge',$service_array);
+					}
+				}
+
+				// upadte product table with synced status
+				$product_update['is_synced'] =1;
+				$this->db->where('product_id',$product_id_new);
+				$this->db->update('product',$product_update);
+
+				// update store_product with the new product id
+
+				// $store_update['product_id'] =$product_id_new;
+				// $store_update['store_quantity'] = 0;
+				// $this->db->where('product_id',$product_id);
+				// $this->db->update('store_product',$store_update);
+
+
+
+
+				// search and redirect this to inventory
+
+				// update the stock_level from the charges 
+				$this->db->where('product_id',$product_id);
+				$query_charges = $this->db->get('store_product');
+				// var_dump($query_charges->num_rows());die();
+				if($query_charges->num_rows() > 0)
+				{
+					foreach ($query_charges->result() as $key => $value_chaed) {
+						# code...
+						$store_idd = $value_chaed->owning_store_id;
+						$store_product_id = $value_chaed->store_product_id;
+						// var_dump($store_idd);die();
+						$stock_level = $this->inventory_management_model->get_stock_purchases_new($product_id,$store_idd);
+
+	                    $purchases = $stock_level['dr_quantity'];
+	                    $deductions = $stock_level['cr_quantity'];
+	                   
+	                    $in_stock = $purchases - $deductions;
+
+						$store_update_closed['stock_take'] = $in_stock;
+						$this->db->where('store_product_id',$store_product_id);
+						$this->db->update('store_product',$store_update_closed);
+
+
+
+						$store_update['product_id'] =$product_id_new;
+						$store_update['store_quantity'] = 0;
+						$store_update['owning_store_id'] = $store_idd;
+						$store_update['created'] = date('Y-m-d');
+						$store_update['created_by'] = $this->session->userdata('personnel_id');
+
+						// $this->db->where('product_id',$product_id);
+						$this->db->insert('store_product',$store_update);
+					}
+				}
+
+
+				// remove this product prom the product table
+				$update_array['product_deleted'] = 1;
+				$update_array['deleted_by'] = $this->session->userdata('personnel_id');
+				$this->db->where('product_id',$product_id);
+				$this->db->update('product',$update_array);
+
+				$search = ' AND product.product_name LIKE \'%'.$product_name.'%\' ';;
+				$this->session->set_userdata('product_inventory_search',$search);
+				$this->session->userdata('success_message', 'Product has been added regenerated successfully');
+
+			}
+		}
+		else
+		{
+			$this->session->userdata('error_message', 'Sorry could not regenerate the product, please try again');
+			
+		}
+		redirect('inventory/products');
+
+	}
+
+
+
+
+	public function update_store_product()
+	{
+		$product_query = $this->db->get('store_product');
+
+		if($product_query->num_rows() > 0)
+		{
+			foreach ($product_query->result() as $key => $value) {
+				# code...
+				$modified = $value->modified;
+				$store_product_id = $value->store_product_id;
+				$exploded = explode(' ', $modified);
+
+				$created = $exploded[0];
+				$update_array['created'] = $created;
+				$this->db->where('store_product_id',$store_product_id);
+				$this->db->update('store_product',$update_array);
+			}
+		}
+		else
+		{
+			$this->session->userdata('error_message', 'Sorry could not regenerate the product, please try again');
+			
+		}
+		redirect('inventory/products');
+
+	}
+	public function update_stock_quantities()
+	{
+		$this->db->where('quantity > 0');
+		$query = $this->db->get('product');
+
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				# code...
+				$product_id = $value->product_id;
+				$quantity = $value->quantity;
+
+				$update_quaery['store_quantity'] = $quantity;
+
+				$this->db->where('product_id',$product_id);
+				$this->db->update('store_product',$update_quaery);
+			}
+		}
 	}
 
 }

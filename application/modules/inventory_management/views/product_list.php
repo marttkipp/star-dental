@@ -163,7 +163,7 @@
             XMLHttpRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
         }
         var url = config_url+"inventory/selected-items/"+store_id+"/"+order_id;
-        
+        // alert(url);
         if(XMLHttpRequestObject) {
                     
             XMLHttpRequestObject.open("GET", url);
@@ -278,8 +278,7 @@
            contentType: false,
            processData: false,
            dataType: 'json',
-           success:function(data){
-            
+           success:function(data){            
             window.alert(data.result);
 
             get_requested_items_check(store_id, <?php echo $order_id;?>);
@@ -292,13 +291,39 @@
         return false;
      }
 
-     function finish_making_request(){
+     function finish_making_request(order_id){
 
-        window.onunload = refreshParent;
-        function refreshParent() {
-            window.opener.location.reload();
-        }
-        window.close();
+        var item = confirm('Do you want to end making this order ?')
+
+        if(item)
+        {
+
+            var url = "<?php echo base_url();?>inventory/close-order/"+order_id;
+            // alert(url);
+            $.ajax({
+               type:'POST',
+               url: url,
+               cache:false,
+               contentType: false,
+               processData: false,
+               dataType: 'json',
+               success:function(data){
+
+                    window.onunload = refreshParent;
+                    function refreshParent() {
+                        window.opener.location.reload();
+                    }
+                    window.close();
+
+               },
+               error: function(xhr, status, error) {
+                alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+               
+               }
+            });
+            return false;
+    }
+       
     }
 
   

@@ -8,17 +8,17 @@ class Products_model extends CI_Model
 	*/
 	public function all_products($store_id=null)
 	{
-
+		// var_dump($store_id); die();
 		if(!empty($store_id))
 		{
-			$where  =' AND store_id ='.$store_id;
+			$where  =' AND store_product.owning_store_id ='.$store_id;
 		}
 		else
 		{
 			$where = '';
 		}
-		$this->db->where('product_status = 1 AND product.product_deleted = 0 '.$where);
-		$query = $this->db->get('product');
+		$this->db->where('product_status = 1 AND store_product.product_id = product.product_id AND product.stock_take = 1  AND product.product_deleted = 0 '.$where);
+		$query = $this->db->get('product,store_product');
 		
 		return $query;
 	}
@@ -28,7 +28,7 @@ class Products_model extends CI_Model
 		//var_dump($table);
 		//var_dump($where);die();
 		$this->db->from($table);
-		$this->db->select('product.*, category.*, store.*');
+		$this->db->select('product.*,product.stock_take as stock_take, category.*, store.*,store_product.store_product_id,store_product.owning_store_id,store_product.store_quantity');
 		$this->db->where($where);
 		$this->db->order_by($order_by, $order_method);
 		
@@ -46,6 +46,27 @@ class Products_model extends CI_Model
 	}
 
 
+	public function get_all_products_sales_old($table, $where, $per_page, $page, $limit = NULL, $order_by = 'visit.close_card,visit.visit_type', $order_method = 'ASC')
+	{
+		//var_dump($table);
+		//var_dump($where);die();
+		$this->db->from($table);
+		$this->db->select('service_charge.*, visit_charge.*, patients.patient_surname,patients.patient_othernames,patients.patient_id,visit_charge.date AS charge_date,visit_charge.time AS charge_time, visit_charge.modified_by AS charge_modified_by, visit_charge.created_by AS charge_created_by,visit.close_card,visit.visit_id,visit_type.visit_type_name');
+		$this->db->where($where);
+		$this->db->order_by($order_by, $order_method);
+		
+		if(isset($limit))
+		{
+			$query = $this->db->get('', $limit);
+		}
+		
+		else
+		{
+			$query = $this->db->get('', $per_page, $page);
+		}
+		
+		return $query;
+	}
 	public function get_all_products_sales($table, $where, $per_page, $page, $limit = NULL, $order_by = 'visit_charge.visit_charge_id', $order_method = 'DESC')
 	{
 		//var_dump($table);
@@ -394,6 +415,8 @@ class Products_model extends CI_Model
 		$count++;
 		$report[$row_count][$count] = 'Category Code';
 		$count++;
+		$report[$row_count][$count] = 'Vatable (Yes/ No)';
+		$count++;
 		$report[$row_count][$count] = 'Group Code';
 		
 		
@@ -484,7 +507,7 @@ class Products_model extends CI_Model
 		$categories_query = $this->db->get('category');
 		
 		//get stores
-		$this->db->where('store_parent', 0);
+		$this->db->where('store_id > 0');
 		$stores_query = $this->db->get('store');
 		
 		//Get Units
@@ -493,33 +516,36 @@ class Products_model extends CI_Model
 		
 		//count total rows
 		$total_rows = count($array);
-		$total_columns = count($array[0]);//var_dump($array);die();
+		$total_columns = count($array[0]);
+
+		// var_dump($total_columns); die();
 		$count = 0;
 		//if products exist in array
-		if(($total_rows > 0) && ($total_columns == 16))
+		if(($total_rows > 0) && ($total_columns == 17))
 		{
 			$items['modified_by'] = $this->session->userdata('personnel_id');
 			$items['created_by'] = $this->session->userdata('personnel_id');
 			$response = '
-				<table class="table table-condensed table-striped table-hover">
-					<tr>
-						<th>#</th>
-						<th>Category</th>
-						<th>Product code</th>
-						<th>Product name</th>
-						<th>Unit of Measure</th>
-						<th>Activate</th>
-						<th>Buying price</th>
-						<th>Selling price</th>
-						<th>Opening Quantity</th>
-						<th>Reorder Level</th>
-						<th>Posting Group</th>
-						<th>Category Code</th>
-						<th>Group Code</th>
-						<th>Description</th>
-						<th>Comment</th>
-					</tr>
-			';
+							<table class="table table-condensed table-striped table-hover">
+								<tr>
+									<th>#</th>
+									<th>Category</th>
+									<th>Product code</th>
+									<th>Product name</th>
+									<th>Unit of Measure</th>
+									<th>Activate</th>
+									<th>Buying price</th>
+									<th>Selling price</th>
+									<th>Opening Quantity</th>
+									<th>Reorder Level</th>
+									<th>Posting Group</th>
+									<th>Category Code</th>
+									<th>Group Code</th>
+									<th>Description</th>
+									<th>Vatable (Yes / No)</th>
+									<th>Comment</th>
+								</tr>
+						';
 			
 			//retrieve the data from array
 			for($r = 1; $r < $total_rows; $r++)
@@ -556,21 +582,21 @@ class Products_model extends CI_Model
 						}
 					}
 				}
-				$creditor_name = ucwords(strtolower($array[$r][$count]));
-				$count++;
-				$creditor_id = '';
-				if($creditors_query->num_rows() > 0)
-				{
-					foreach($creditors_query->result() as $res)
-					{
-						$db_creditor_name = ucwords(strtolower($res->creditor_name));
+				// $creditor_name = ucwords(strtolower($array[$r][$count]));
+				// $count++;
+				// $creditor_id = '';
+				// if($creditors_query->num_rows() > 0)
+				// {
+				// 	foreach($creditors_query->result() as $res)
+				// 	{
+				// 		$db_creditor_name = ucwords(strtolower($res->creditor_name));
 						
-						if($db_creditor_name == $creditor_name)
-						{
-							$creditor_id = $res->creditor_id;
-						}
-					}
-				}
+				// 		if($db_creditor_name == $creditor_name)
+				// 		{
+				// 			$creditor_id = $res->creditor_id;
+				// 		}
+				// 	}
+				// }
 				$product_code = $array[$r][$count];
 				if(empty($product_code))
 				{
@@ -627,8 +653,10 @@ class Products_model extends CI_Model
 				$count++;
 				$items['category_code'] = $array[$r][$count];
 				$count++;
-				$items['group_code'] = $array[$r][$count];
+				$items['vatable'] = $array[$r][$count];
 				$count++;
+				// $items['group_code'] = $array[$r][$count];
+				// $count++;
 				$items['created'] = date('Y-m-d H:i:s');
 				$comment = '';
 				
@@ -713,31 +741,51 @@ class Products_model extends CI_Model
 						$items['quantity'] = 0;
 					}
 					
-					$items['store_id'] = 5;
+					$items['store_id'] = $store_id;
 					$items['is_synced'] = 0;
 					$items['created'] = date('Y-m-d H:i:s');
 					$items['created_by'] = $this->session->userdata('personnel_id');
 					$items['modified_by'] = $this->session->userdata('personnel_id');
 					
 					//check for the system
-					
+					$product_name = $items['product_name'];
 					$checker = $this->check_product_exisit($product_code);
-					
+					// $checker = FALSE;
 					if($checker == FALSE)
 					{
 						//save product in the db
 						if($this->db->insert('product', $items))
 						{
+							$product_idd = $this->db->insert_id();
 							//add product sore
 							if(!empty($store_id))
 							{
+								// $this->db->where('product_id = '.$product_idd.' AND owning_store_id = '.$store_id);
+								// $store_query = $this->db->get('store_product');
 								$product_store = array(
-									'product_id' => $this->db->insert_id(),
-									'store_id' => $store_id
+									'product_id' => $product_idd,
+									'owning_store_id' => $store_id,
+									'store_quantity' => $items['quantity']
 								);
-								if($this->db->insert('store_product', $product_store))
-								{
-								}
+								// var_dump($product_store);
+								// if($store_query->num_rows() > 0)
+								// {
+								// 	foreach ($store_query->result() as $key => $value_row) {
+								// 			# code...
+								// 		$store_product_id = $value_row->store_product_id;
+								// 	}	
+								// 	$this->db->update('store_product', $product_store);
+									
+
+								// }
+								// else
+								// {
+									if($this->db->insert('store_product', $product_store))
+									{
+										
+									}
+
+								// }
 							}
 							$comment .= '<br/>Product successfully added to the database';
 						}
@@ -751,29 +799,37 @@ class Products_model extends CI_Model
 					{
 					//save product in the db
 					    $product_id = $checker;
-						$items['is_synced'] = 0;
-						$this->db->where('product_id',$product_id);
-						if($this->db->update('product', $items))
+
+					   //add product sore
+						if(!empty($store_id))
 						{
-							//add product sore
-							if(!empty($store_id))
-							{
-								$product_store = array(
-									'product_id' => $this->db->insert_id(),
-									'store_id' => $store_id
-								);
+							// $this->db->where('product_id = '.$product_idd.' AND owning_store_id = '.$store_id);
+							// $store_query = $this->db->get('store_product');
+							$product_store = array(
+								'product_id' => $product_id,
+								'owning_store_id' => $store_id,
+								'store_quantity' => $items['quantity']
+							);
+							// var_dump($product_store);
+							// if($store_query->num_rows() > 0)
+							// {
+							// 	foreach ($store_query->result() as $key => $value_row) {
+							// 			# code...
+							// 		$store_product_id = $value_row->store_product_id;
+							// 	}	
+							// 	$this->db->update('store_product', $product_store);
+								
+
+							// }
+							// else
+							// {
 								if($this->db->insert('store_product', $product_store))
 								{
+									
 								}
-							}
-							$comment .= '<br/>Product successfully added to the database';
+
+							// }
 						}
-						
-						else
-						{
-							$comment .= '<br/>Internal error. Could not add product to the database. Please contact the site administrator. Product code '.$items['product_code'];
-						}
-					
 					}
 				}
 				
@@ -796,7 +852,6 @@ class Products_model extends CI_Model
 						<td>'.$items['reorder_level'].'</td>
 						<td>'.$items['posting_group'].'</td>
 						<td>'.$items['category_code'].'</td>
-						<td>'.$items['group_code'].'</td>
 						<td>'.implode(' ', array_slice(explode(' ', $items['product_description']), 0, 10)).'...</td>
 						<td>'.$comment.'</td>
 					</tr>
@@ -980,7 +1035,25 @@ class Products_model extends CI_Model
 	}
 	public function check_product_exisit($product_code)
 	{
-		$this->db->where('product_code',$product_code);
+		$this->db->where('product_code = "'.$product_code.'" AND product_deleted = 0 ');
+		$query = $this->db->get('product');
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() AS $key)
+			{
+			   $product_id = $key->product_id;
+			}
+			return $product_id;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
+	public function check_product_exisit_name($product_name)
+	{
+		$this->db->where('product_name = "'.$product_name.'" AND product_deleted = 0');
 		$query = $this->db->get('product');
 		if($query->num_rows() > 0)
 		{
@@ -999,7 +1072,7 @@ class Products_model extends CI_Model
 	{
 		//retrieve all purchases
 		$this->db->from($table);
-		$this->db->select('product_deductions.*');
+		$this->db->select('product_deductions_stock.*');
 		$this->db->where($where);
 		$this->db->order_by($order,'DESC');
 		$query = $this->db->get('', $per_page, $page);
@@ -1164,6 +1237,1295 @@ class Products_model extends CI_Model
 		{
 			return FALSE;
 		}
+	}
+	public function get_all_products_download($table, $where)
+	{
+		$this->db->select('product.*, category.*');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		return $query;
+	}
+	public function get_all_drug_prices($table, $where, $per_page, $page, $limit = NULL, $order_by = 'product.product_unitprice', $order_method = 'ASC')
+	{
+		//var_dump($table);
+		//var_dump($where);die();
+		$this->db->from($table);
+		$this->db->select('product.*, category.*');
+		$this->db->where($where);
+		$this->db->order_by($order_by, $order_method);
+		
+		if(isset($limit))
+		{
+			$query = $this->db->get('', $limit);
+		}
+		
+		else
+		{
+			$query = $this->db->get('', $per_page, $page);
+		}
+		
+		return $query;
+	}
+
+	public function get_product_sales($drug_id)
+	{
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+		
+
+		$where = 'visit.patient_id = patients.patient_id AND service_charge.service_charge_id = visit_charge.service_charge_id AND service_charge.service_charge_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit_charge.charged = 1 AND visit_type.visit_type_id = visit.visit_type AND visit.visit_id = visit_charge.visit_id AND visit_charge.product_id = '.$drug_id;
+		$table = 'visit,patients,service_charge,visit_charge,visit_type';
+
+
+		$this->db->from($table);
+		$this->db->select('visit_charge.visit_id AS invoice_id, visit.invoice_number AS invoice_number,visit_charge.visit_charge_timestamp AS visit_date,visit_charge.visit_charge_units AS quantity, patients.patient_surname, patients.patient_othernames,patients.patient_type,visit_type.visit_type_name,visit_charge.visit_charge_comment');
+		$this->db->where($where);
+
+		$this->db->order_by('visit_date','ASC');
+		$this->db->group_by('visit_charge.visit_id');
+		$query = $this->db->get();
+		return $query;
+	}
+	public function get_all_drug_purchases($drug_id)
+	{
+		
+
+
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+		
+
+		$where = "order_item.order_item_id = order_supplier.order_item_id AND order_item.product_id = product.product_id AND orders.order_id = order_item.order_id  AND product.product_deleted = 0 AND orders.supplier_id > 0 AND creditor.creditor_id = orders.supplier_id AND order_item.product_id = ".$drug_id;
+		$table = 'order_item,order_supplier,product,orders,creditor';
+
+
+		$this->db->from($table);
+		$this->db->select('orders.order_id AS invoice_id, orders.supplier_invoice_number AS receipt_number,orders.supplier_invoice_date AS purchase_date,(order_supplier.quantity_received * order_supplier.pack_size) AS received_quantity,creditor.creditor_name AS description');
+		$this->db->where($where);
+		$this->db->order_by('orders.supplier_invoice_date','ASC');
+		$this->db->group_by('orders.supplier_invoice_number');
+		$query = $this->db->get();
+		return $query;
+	}
+	
+
+	public function get_all_store_deductions($drug_id)
+	{
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+
+
+		$table = "product_deductions, store, product, orders";
+		$where = "product_deductions.store_id = store.store_id AND product_deductions.quantity_requested > 0  AND product_deductions.product_id = product.product_id AND product_deductions.order_id = orders.order_id AND orders.order_id = product_deductions.order_id AND is_store = 1 AND product_deductions.product_deduction_rejected = 0 AND product.product_id =".$drug_id;
+		$order = "product_deductions_pack_size";
+		
+		$this->db->from($table);
+		$this->db->select('orders.order_id AS invoice_id, orders.order_number AS deduction_number,orders.orders_date AS deduction_date, product_deductions.quantity_given AS deducted_quantity,store.store_name AS description');
+		$this->db->where($where);
+		$this->db->order_by('orders.orders_date','ASC');
+		$query = $this->db->get();
+		return $query;
+	}
+
+	public function get_all_store_transfers($drug_id)
+	{
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+		$where = "product_deductions.order_id = orders.order_id AND product_deductions.product_id = product.product_id AND orders.supplier_id > 0 AND creditor.creditor_id = orders.supplier_id AND orders.is_store = 2 AND orders.order_approval_status = 7 AND product.product_id = ".$drug_id;
+		$table = 'product_deductions,product,orders,creditor';
+		
+		$this->db->from($table);
+		$this->db->select('orders.order_id AS invoice_id, orders.order_number AS deduction_number,orders.orders_date AS deduction_date, (product_deductions.quantity_given * product_deductions.pack_size) AS deducted_quantity,creditor.creditor_name AS description');
+		$this->db->where($where);
+		$this->db->order_by('orders.orders_date','ASC');
+		$query = $this->db->get();
+		return $query;
+	}
+	public function get_all_store_credit_note($drug_id)
+	{
+		
+
+
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+
+		$where = "order_item.order_item_id = order_supplier.order_item_id AND order_item.product_id = product.product_id AND orders.order_id = order_item.order_id  AND product.product_deleted = 0 AND orders.supplier_id > 0 AND orders.is_store = 3 AND product.product_id = ".$drug_id;
+		$table = 'order_item,order_supplier,product,orders';
+		$select = 'SUM(quantity_received*pack_size) AS total_purchases';
+		
+		
+		$this->db->from($table);
+		$this->db->select('orders.order_id AS invoice_id, orders.supplier_invoice_number AS receipt_number,orders.supplier_invoice_date AS purchase_date,(order_supplier.quantity_received * order_supplier.pack_size) AS received_quantity');
+		$this->db->where($where);
+		$this->db->order_by('orders.supplier_invoice_date','ASC');
+		$this->db->group_by('order_supplier.order_supplier_id');
+		$query = $this->db->get();
+		return $query;
+	}
+	public function get_product_opening_stock($product_id)
+	{
+
+		$this->db->from('store_product');
+		$this->db->select('store_product.store_product_id AS invoice_id, store_product.store_product_id AS receipt_number,store_product.created AS stock_take_date,store_product.store_quantity AS opening_quantity');
+		$this->db->where('product_id = '.$product_id);
+		$this->db->order_by('store_product.created','ASC');
+		$query = $this->db->get();
+		return $query;
+	}
+	public function get_all_drug_additions($drug_id)
+	{
+
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+		$where = "product_purchase.product_id = ".$drug_id;
+		$table = 'product_purchase';
+		
+		$this->db->from($table);
+		$this->db->select('product_purchase.purchase_id AS invoice_id, product_purchase.purchase_id AS deduction_number,product_purchase.purchase_date AS date_added, (purchase_quantity * purchase_pack_size) AS added_quantity,purchase_description as description');
+		$this->db->where($where);
+		$this->db->order_by('product_purchase.purchase_date','ASC');
+		$query = $this->db->get();
+		return $query;
+
+	}
+
+	public function get_all_drug_deductions($drug_id)
+	{
+
+		$date_from = $this->session->userdata('creditor_date_from');
+		$date_to = $this->session->userdata('creditor_date_to');
+
+		if(!empty($date_from) AND !empty($date_to))
+		{
+			$search_add =  ' AND (invoice_date >= \''.$date_from.'\' AND invoice_date <= \''.$date_to.'\') ';
+			$search_payment_add =  ' AND (payment_date >= \''.$date_from.'\' AND payment_date <= \''.$date_to.'\') ';
+		}
+		else if(!empty($date_from))
+		{
+			$search_add = ' AND invoice_date = \''.$date_from.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_from.'\'';
+		}
+		else if(!empty($date_to))
+		{
+			$search_add = ' AND invoice_date = \''.$date_to.'\'';
+			$search_payment_add = ' AND payment_date = \''.$date_to.'\'';
+		}
+		$where = "product_deductions_stock.product_id = ".$drug_id;
+		$table = 'product_deductions_stock';
+		
+		$this->db->from($table);
+		$this->db->select('product_deductions_stock.product_deductions_stock_id AS invoice_id, product_deductions_stock.product_deductions_stock_id AS deduction_number,product_deductions_stock.product_deductions_stock_date AS date_added, (product_deductions_stock_quantity * product_deductions_stock_pack_size) AS added_quantity,deduction_description as description');
+		$this->db->where($where);
+		$this->db->order_by('product_deductions_stock.product_deductions_stock_date','ASC');
+		$query = $this->db->get();
+		return $query;
+
+	}
+	public function get_product_trail($drug_id)
+	{
+
+		$bills = $this->get_product_sales($drug_id);
+		$opening_stock = $this->get_product_opening_stock($drug_id);
+		$drug_purchases = $this->get_all_drug_purchases($drug_id);
+		$drug_additions = $this->get_all_drug_additions($drug_id);
+		$stock_trail = $this->get_all_store_deductions($drug_id);
+		$drug_transfers = $this->get_all_store_transfers($drug_id);
+		$drug_credit_note = $this->get_all_store_credit_note($drug_id);
+		$drug_deductions = $this->get_all_drug_deductions($drug_id);
+
+
+
+		$x=0;
+
+		$bills_result = '';
+		$last_date = '';
+		$current_year = date('Y');
+		$total_invoices = $bills->num_rows();
+		$invoices_count = 0;
+		$total_invoice_balance = 0;
+		$total_arrears = 0;
+		$total_payment_amount = 0;
+		$result = '';
+		$total_credit_notes_amount = 0;
+
+		if($bills->num_rows() > 0)
+		{
+			foreach ($bills->result() as $supplier) {
+				# code...
+				$invoice_date_bill = $supplier->visit_date;
+				$supplier_invoice_number = $supplier->invoice_id;
+				$quantity = $supplier->quantity;
+				$invoice_number = $supplier->invoice_number;
+				$patient_surname = $supplier->patient_surname;
+				$patient_type = $supplier->patient_type;
+				$patient_othernames = $supplier->patient_othernames;
+				$visit_type_name = $supplier->visit_type_name;
+				$visit_charge_comment = $supplier->visit_charge_comment;
+				$patients = $patient_surname.' '.$patient_othernames.' - '.$visit_type_name;
+				$invoice_explode = explode('-', $invoice_date_bill);
+				$drug_sale_description = strtoupper($patients);
+				$invoices_count++;
+				if($opening_stock->num_rows() > 0)
+				{
+					foreach ($opening_stock->result() as $opening_stock_value) {
+						# code...
+						$stock_take_date = $opening_stock_value->stock_take_date;
+						$supplier_invoice_number = $opening_stock_value->invoice_id;
+						$opening_quantity = $opening_stock_value->opening_quantity;
+						$receipt_number = $opening_stock_value->receipt_number;
+
+
+						if(($stock_take_date <= $invoice_date_bill) && ($stock_take_date > $last_date) && ($opening_quantity > 0))
+						{
+							$total_arrears += $opening_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($stock_take_date)).' </td>
+									<td>-</td>
+									<td>STOCK TAKE</td>
+									<td>-</td>
+									<td>'.$opening_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $opening_quantity;
+
+						}
+
+
+					}
+				}
+
+
+				if($drug_additions->num_rows() > 0)
+				{
+					foreach ($drug_additions->result() as $additions_key) {
+						# code...
+						$date_added = $additions_key->date_added;
+						$supplier_invoice_number = $additions_key->invoice_id;
+						$added_quantity = $additions_key->added_quantity;
+						$receipt_number = '-';
+						$addition_description = $additions_key->description;
+
+
+						if(($date_added <= $invoice_date_bill) && ($date_added > $last_date) && ($added_quantity > 0))
+						{
+							$total_arrears += $added_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($date_added)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>ADDITION</td>
+									<td>'.strtoupper($addition_description).'</td>
+									<td>'.$added_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $added_quantity;
+
+						}
+
+
+					}
+				}
+				if($drug_purchases->num_rows() > 0)
+				{
+					foreach ($drug_purchases->result() as $payments_key) {
+						# code...
+						$purchase_date = $payments_key->purchase_date;
+						$supplier_invoice_number = $payments_key->invoice_id;
+						$received_quantity = $payments_key->received_quantity;
+						$receipt_number = $payments_key->receipt_number;
+						$creditor_name = $payments_key->description;
+
+
+						if(($purchase_date <= $invoice_date_bill) && ($purchase_date > $last_date) && ($received_quantity > 0))
+						{
+							$total_arrears += $received_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($purchase_date)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>PURCHASE</td>
+									<td>'.strtoupper($creditor_name).'</td>
+									<td>'.$received_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $received_quantity;
+
+						}
+
+
+					}
+				}
+
+				if(($quantity > 0))
+				{
+					$total_arrears -= $quantity;
+					$total_invoice_balance -= $quantity;
+
+					if($patient_type == 0)
+					{
+						$description = $drug_sale_description.'<br> LOCATION : '.$visit_charge_comment;
+					}
+					else
+					{
+						$description = 'WALKIN <br> LOCATION : '.$visit_charge_comment;
+					}
+				
+						$result .= 
+						'
+							<tr>
+								<td>'.date('d M Y',strtotime($invoice_date_bill)).' </td>
+								<td>'.strtoupper($invoice_number).'</td>
+								<td>SALES</td>
+								<td>'.$description.'</td>
+								<td></td>
+								<td>'.$quantity.'</td>
+								<td>'.$total_arrears.'</td>
+							</tr> 
+						';
+					
+				}
+
+
+				
+
+				if($drug_transfers->num_rows() > 0)
+				{
+					foreach ($drug_transfers->result() as $transfers) {
+						# code...
+						$transfer_date = $transfers->deduction_date;
+						$supplier_invoice_number = $transfers->invoice_id;
+						$transfered_quantity = $transfers->deducted_quantity;
+						$transfer_number = $transfers->deduction_number;
+						$transfer_description = $transfers->description;
+
+
+						if(($transfer_date <= $invoice_date_bill) && ($transfer_date > $last_date) && ($transfered_quantity > 0))
+						{
+
+							$total_arrears -= $transfered_quantity;
+							$total_invoice_balance -= $transfered_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($transfer_date)).' </td>
+									<td>'.strtoupper($transfer_number).'</td>
+									<td>TRANSFER</td>
+									<td>MAIN STORE - '.strtoupper($transfer_description).'</td>
+									<td></td>
+									<td>'.$transfered_quantity.'</td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+
+						}
+					}
+				}
+
+
+				if($drug_credit_note->num_rows() > 0)
+				{
+					foreach ($drug_credit_note->result() as $credit_note) {
+						# code...
+						$credit_date = $credit_note->purchase_date;
+						$supplier_invoice_number = $credit_note->invoice_id;
+						$credited_quantity = $credit_note->received_quantity;
+						$credit_number = $credit_note->receipt_number;
+
+
+						if(($credit_date <= $invoice_date_bill) && ($credit_date > $last_date) && ($credited_quantity > 0))
+						{
+
+							$total_arrears -= $credited_quantity;
+							$total_invoice_balance -= $credited_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($credit_date)).' </td>
+									<td>'.strtoupper($credit_number).'</td>
+									<td>CREDIT NOTE</td>
+									<td>STOCK TAKE</td>
+									<td></td>
+									<td>'.$credited_quantity.'</td>
+									<td>'.abs($total_arrears).'</td>
+								</tr> 
+							';
+							
+
+						}
+					}
+				}
+				if($drug_deductions->num_rows() > 0)
+				{
+					foreach ($drug_deductions->result() as $deductions_key) {
+						# code...
+						$date_deducted = $deductions_key->date_added;
+						$supplier_invoice_number = $deductions_key->invoice_id;
+						$deducted_quantity = $deductions_key->added_quantity;
+						$receipt_number = '-';
+						$deduction_description = $deductions_key->description;
+
+
+						if(($date_deducted <= $invoice_date_bill) && ($date_deducted > $last_date) && ($deducted_quantity > 0))
+						{
+							$total_arrears -= $deducted_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($date_deducted)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>DEDUCTION</td>
+									<td>'.strtoupper($deduction_description).'</td>
+									<td>'.$deducted_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_invoice_balance += $deducted_quantity;
+
+						}
+
+					}
+				}
+
+
+				
+				if($stock_trail->num_rows() > 0)
+				{
+					foreach ($stock_trail->result() as $trail_key) {
+						# code...
+						$deduction_date = $trail_key->deduction_date;
+						$supplier_invoice_number = $trail_key->invoice_id;
+						$deducted_quantity = $trail_key->deducted_quantity;
+						$receipt_number = $trail_key->deduction_number;
+						$deduction_description = $trail_key->description;
+
+
+						if(($deduction_date <= $invoice_date_bill) && ($deduction_date > $last_date) && ($deducted_quantity > 0))
+						{
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($deduction_date)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>STORE DEDUCTION</td>
+									<td>MAIN STORE - '.strtoupper($deduction_description).' TRANSFER</td>
+									<td></td>
+									<td>'.$deducted_quantity.'</td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+
+						}
+
+					}
+				}
+				
+			  $last_date = $invoice_date_bill;
+			}
+
+
+			if($total_invoices == $invoices_count)
+			{
+				if($drug_purchases->num_rows() > 0)
+				{
+					foreach ($drug_purchases->result() as $payments_key) {
+						# code...
+						$purchase_date = $payments_key->purchase_date;
+						$supplier_invoice_number = $payments_key->invoice_id;
+						$received_quantity = $payments_key->received_quantity;
+						$receipt_number = $payments_key->receipt_number;
+						$creditor_name = $payments_key->description;
+
+						if(($received_quantity > 0) && ($purchase_date > $invoice_date_bill))
+						{
+						
+							$total_arrears += $received_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($purchase_date)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>PURCHASE</td>
+									<td>'.strtoupper($creditor_name).'</td>
+									<td>'.$received_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $received_quantity;
+
+						}
+
+
+					}
+				}
+
+				if($drug_additions->num_rows() > 0)
+				{
+					foreach ($drug_additions->result() as $additions_key) {
+						# code...
+						$date_added = $additions_key->date_added;
+						$supplier_invoice_number = $additions_key->invoice_id;
+						$added_quantity = $additions_key->added_quantity;
+						$receipt_number = '-';
+						$addition_description = $additions_key->description;
+
+						if(($added_quantity > 0) && ($date_added > $invoice_date_bill))
+						{
+						
+							$total_arrears += $added_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($date_added)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>ADDITION</td>
+									<td>'.strtoupper($addition_description).'</td>
+									<td>'.$added_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $added_quantity;
+
+						}
+
+
+					}
+				}
+
+
+				if($drug_credit_note->num_rows() > 0)
+				{
+					foreach ($drug_credit_note->result() as $credit_note) {
+						# code...
+						$credit_date = $credit_note->purchase_date;
+						$supplier_invoice_number = $credit_note->invoice_id;
+						$credited_quantity = $credit_note->received_quantity;
+						$credit_number = $credit_note->receipt_number;
+
+						if(($credited_quantity > 0) && ($credit_date > $invoice_date_bill))
+						{
+							$total_arrears -= $credited_quantity;
+							$total_invoice_balance -= $credited_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($credit_date)).' </td>
+									<td>'.strtoupper($credit_number).'</td>
+									<td>CREDIT NOTE</td>
+									<td>STOCK TAKE</td>
+									<td></td>
+									<td>'.$credited_quantity.'</td>
+									<td>'.abs($total_arrears).'</td>
+								</tr> 
+							';
+							
+
+						}
+					}
+				}
+
+				if($drug_transfers->num_rows() > 0)
+				{
+					foreach ($drug_transfers->result() as $transfers) {
+						# code...
+						$transfer_date = $transfers->deduction_date;
+						$supplier_invoice_number = $transfers->invoice_id;
+						$transfered_quantity = $transfers->deducted_quantity;
+						$transfer_number = $transfers->deduction_number;
+
+
+						if(($transfered_quantity > 0) && ($transfer_date > $invoice_date_bill))
+						{
+							$total_arrears -= $transfered_quantity;
+							$total_invoice_balance -= $transfered_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($transfer_date)).' </td>
+									<td>'.strtoupper($transfer_number).'</td>
+									<td>TRANSFER</td>
+									<td>STOCK TAKE</td>
+									<td></td>
+									<td>'.$transfered_quantity.'</td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+
+						}
+					}
+				}
+
+				if($opening_stock->num_rows() > 0)
+				{
+					foreach ($opening_stock->result() as $opening_stock_value) {
+						# code...
+						$stock_take_date = $opening_stock_value->stock_take_date;
+						$supplier_invoice_number = $opening_stock_value->invoice_id;
+						$opening_quantity = $opening_stock_value->opening_quantity;
+						$receipt_number = $opening_stock_value->receipt_number;
+
+						if(($opening_quantity > 0) && ($stock_take_date > $invoice_date_bill))
+						{
+						
+							$total_arrears += $opening_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($stock_take_date)).' </td>
+									<td>-</td>
+									<td>STOCK TAKE</td>
+									<td>-</td>
+									<td>'.$opening_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_payment_amount += $opening_quantity;
+
+						}
+
+
+					}
+				}
+
+				if($drug_deductions->num_rows() > 0)
+				{
+					foreach ($drug_deductions->result() as $deductions_key) {
+						# code...
+						$date_deducted = $deductions_key->date_added;
+						$supplier_invoice_number = $deductions_key->invoice_id;
+						$deducted_quantity = $deductions_key->added_quantity;
+						$receipt_number = '-';
+						$deduction_description = $deductions_key->description;
+
+						if(($date_deducted > 0) && ($date_deducted > $invoice_date_bill))
+						{
+
+							$total_arrears -= $deducted_quantity;
+							$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($date_deducted)).' </td>
+									<td>'.strtoupper($receipt_number).'</td>
+									<td>DEDUCTION</td>
+									<td>'.strtoupper($deduction_description).'</td>
+									<td>'.$deducted_quantity.'</td>
+									<td></td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+							
+							$total_invoice_balance += $deducted_quantity;
+
+						}
+
+					}
+				}
+			}
+		}
+
+
+
+
+			
+						
+		//display loan
+		$result .= 
+		'
+			<tr>
+				<th colspan="4">Total</th>
+				<th>'.$total_payment_amount.'</th>
+				<th>'.abs($total_invoice_balance).'</th>
+				<td>'.$total_arrears.'</td>
+			</tr> 
+		';
+		
+
+
+
+		$response['total_arrears'] = $total_arrears;
+		$response['total_invoice_balance'] = $total_invoice_balance;
+		$response['total_credit_notes_amount'] = $total_credit_notes_amount;
+		$response['result'] = $result;
+		$response['total_payment_amount'] = $total_payment_amount;
+
+		// var_dump($response); die();
+
+		return $response;
+	}
+
+
+	public function get_drug_trail_report($product_id)
+	{
+		$select_statement  = "
+							SELECT 
+								* 
+							FROM
+							 (SELECT
+							    `store_product`.`store_product_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								store_product.owning_store_id AS `store_id`,
+							    '' AS `receiving_store`,
+								product.product_name AS `product_name`,
+							    store.store_name AS `store_name`,
+								CONCAT('Opening Balance of',' ',`product`.`product_name`) AS `transactionDescription`,
+							    `store_product`.`store_quantity` AS `dr_quantity`,
+							    '0' AS `cr_quantity`,
+								(`product`.`product_unitprice` * `store_product`.`store_quantity` ) AS `dr_amount`,
+								'0' AS `cr_amount`,
+								`store_product`.`created` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+							    `product`.`product_deleted` AS `product_deleted`,
+								'Income' AS `transactionCategory`,
+								'Product Opening Stock' AS `transactionClassification`,
+								'store_product' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM
+							store_product,product,store
+							WHERE  product.product_id = store_product.product_id AND product.product_deleted = 0
+							AND store.store_id = store_product.owning_store_id AND store_product.product_id = ".$product_id."
+
+							UNION ALL
+
+							SELECT
+							  `order_supplier`.`order_supplier_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								orders.store_id AS `store_id`,
+								'' AS `receiving_store`,
+								product.product_name AS `product_name`,
+								store.store_name AS `store_name`,
+								CONCAT('Purchase of',' ',`product`.`product_name`) AS `transactionDescription`,
+								(quantity_received*pack_size) AS `dr_quantity`,
+							    '0' AS `cr_quantity`,
+								(order_supplier.total_amount) AS `dr_amount`,
+								'0' AS `cr_amount`,
+								`orders`.`supplier_invoice_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Income' AS `transactionCategory`,
+								'Supplier Purchases' AS `transactionClassification`,
+								'order_item' AS `transactionTable`,
+								'orders' AS `referenceTable`
+							FROM (`order_item`, `order_supplier`, `product`, `orders`,store)
+							WHERE
+							`order_item`.`order_item_id` = order_supplier.order_item_id
+							AND order_item.product_id = product.product_id
+							AND orders.order_id = order_item.order_id
+							AND product.product_deleted = 0
+							AND orders.supplier_id > 0
+							AND orders.is_store < 2
+							AND orders.order_approval_status = 7
+							AND product.product_id
+							AND store.store_id = orders.store_id
+							AND order_item.product_id = ".$product_id."
+
+
+							UNION ALL
+
+							SELECT
+								`product_purchase`.`purchase_id` AS transactionId,
+							    `product_purchase`.`product_id` AS `product_id`,
+							    `product`.`category_id` AS `category_id`,
+								 product_purchase.store_id AS `store_id`,
+								 '' AS `receiving_store`,
+								 product.product_name AS `product_name`,
+							  	store.store_name AS `store_name`,
+								product_purchase.purchase_description AS `transactionDescription`,
+							    (purchase_quantity * purchase_pack_size) AS `dr_quantity`,
+							    '0' AS `cr_quantity`,
+								(`product`.`product_unitprice` * (purchase_quantity * purchase_pack_size) ) AS `dr_amount`,
+								'0' AS `cr_amount`,
+								`product_purchase`.`purchase_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+							  `product`.`product_deleted` AS `product_deleted`,
+								'Income' AS `transactionCategory`,
+								'Product Addition' AS `transactionClassification`,
+								'product_purchase' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`product_purchase`,product,store)
+							WHERE product.product_id = product_purchase.product_id AND product.product_deleted = 0
+							AND store.store_id = product_purchase.store_id
+							AND product_purchase.product_id = ".$product_id."
+
+
+							UNION ALL
+
+
+							SELECT
+							`product_deductions_stock`.`product_deductions_stock_id` AS transactionId,
+							`product_deductions_stock`.`product_id` AS `product_id`,
+							`product`.`category_id` AS `category_id`,
+							 product_deductions_stock.store_id AS `store_id`,
+							 '' AS `receiving_store`,
+							 product.product_name AS `product_name`,
+							store.store_name AS `store_name`,
+							 product_deductions_stock.deduction_description AS `transactionDescription`,
+							 '0' AS `dr_quantity`,
+							 (product_deductions_stock_quantity * product_deductions_stock_pack_size) AS  `cr_quantity`,
+							'0' AS `dr_amount`,
+							 (`product`.`product_unitprice` * (product_deductions_stock_quantity * product_deductions_stock_pack_size)) AS `cr_amount`,
+							`product_deductions_stock`.`product_deductions_stock_date` AS `transactionDate`,
+							`product`.`product_status` AS `status`,
+							`product`.`product_deleted` AS `product_deleted`,
+							'Expense' AS `transactionCategory`,
+							'Product Deductions' AS `transactionClassification`,
+							'product_deductions_stock' AS `transactionTable`,
+							'product' AS `referenceTable`
+							FROM (`product_deductions_stock`,product,store)
+							WHERE product.product_id = product_deductions_stock.product_id AND product.product_deleted = 0
+							AND store.store_id = product_deductions_stock.store_id
+							AND product_deductions_stock.product_id = ".$product_id."
+
+
+							UNION ALL
+
+							SELECT
+								`order_supplier`.`order_supplier_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								orders.store_id AS `store_id`,
+								'' AS `receiving_store`,
+								product.product_name AS `product_name`,
+								store.store_name AS `store_name`,
+								CONCAT('Credit note of',' ',`product`.`product_name`) AS `transactionDescription`,
+								 '0' AS `dr_quantity`,
+							   (quantity_received*pack_size) AS `cr_quantity`,
+								 '0' AS `dr_amount`,
+								(order_supplier.total_amount) AS `cr_amount`,
+								`orders`.`supplier_invoice_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Expense' AS `transactionCategory`,
+								'Supplier Credit Note' AS `transactionClassification`,
+								'order_item' AS `transactionTable`,
+								'orders' AS `referenceTable`
+							FROM (`order_item`, `order_supplier`, `product`, `orders`,store)
+							WHERE `order_item`.`order_item_id` = order_supplier.order_item_id
+							AND order_item.product_id = product.product_id
+							AND orders.order_id = order_item.order_id
+							AND product.product_deleted = 0
+							AND orders.supplier_id > 0
+							AND orders.order_approval_status = 7
+							AND orders.is_store = 3
+							AND store.store_id = orders.store_id
+							AND order_item.product_id = ".$product_id."
+
+
+							UNION ALL
+
+
+							SELECT
+								`product_return_stock`.`product_deductions_stock_id` AS transactionId,
+								`product_return_stock`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								 product_return_stock.from_store_id AS `store_id`,
+								 product_return_stock.to_store_id AS `receiving_store`,
+								 product.product_name AS `product_name`,
+								 store.store_name AS `store_name`,
+								 CONCAT('Store Transfer') AS `transactionDescription`,
+								 '0' AS `dr_quantity`,
+								 (product_deductions_stock_quantity * product_deductions_stock_pack_size) AS `cr_quantity`,
+								 '0' AS `dr_amount`,
+								(product.product_unitprice* (product_deductions_stock_quantity * product_deductions_stock_pack_size)) AS `cr_amount`,
+								`product_return_stock`.`product_deductions_stock_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Expense' AS `transactionCategory`,
+								'Product Addition' AS `transactionClassification`,
+								'product_return_stock' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`product_return_stock`,product,store)
+							WHERE product.product_id = product_return_stock.product_id AND product.product_deleted = 0
+							AND store.store_id = product_return_stock.from_store_id
+							AND  product_return_stock.product_id = ".$product_id."
+
+							UNION ALL
+
+							SELECT
+								`product_return_stock`.`product_deductions_stock_id` AS transactionId,
+								`product_return_stock`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								 product_return_stock.to_store_id AS `store_id`,
+								 product_return_stock.from_store_id AS `receiving_store`,
+								 product.product_name AS `product_name`,
+								 store.store_name AS `store_name`,
+								 CONCAT('Store Transfer') AS `transactionDescription`,
+								 (product_deductions_stock_quantity * product_deductions_stock_pack_size) AS `dr_quantity`,
+								 '0' AS `cr_quantity`,
+								 (product.product_unitprice* (product_deductions_stock_quantity * product_deductions_stock_pack_size)) AS `dr_amount`,
+								 '0' AS `cr_amount`,
+								`product_return_stock`.`product_deductions_stock_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Income' AS `transactionCategory`,
+								'Store Deduction' AS `transactionClassification`,
+								'product_return_stock' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`product_return_stock`,product,store)
+							WHERE product.product_id = product_return_stock.product_id AND product.product_deleted = 0
+							AND store.store_id = product_return_stock.to_store_id
+							AND product_return_stock.product_id = ".$product_id."
+
+
+							UNION ALL
+
+							-- drug sale
+
+							SELECT
+								`visit_charge`.`visit_charge_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								visit_charge.store_id AS `store_id`,
+								'' AS `receiving_store`,
+								product.product_name AS `product_name`,
+								store.store_name AS `store_name`,
+								CONCAT('Product Sale',' ',`product`.`product_name`) AS `transactionDescription`,
+								'0' AS `dr_quantity`,
+							    (visit_charge.visit_charge_units) AS `cr_quantity`,
+								 '0' AS `dr_amount`,
+								(visit_charge.visit_charge_units * visit_charge.buying_price) AS `cr_amount`,
+								`visit_charge`.`date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Expense' AS `transactionCategory`,
+								'Drug Sales' AS `transactionClassification`,
+								'visit_charge' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`visit_charge`,product,store)
+							WHERE `visit_charge`.`charged` = 1
+							AND visit_charge.visit_charge_delete = 0
+							AND product.product_id = visit_charge.product_id AND product.product_deleted = 0 
+							AND store.store_id = visit_charge.store_id
+							AND visit_charge.product_id = ".$product_id."
+
+
+							UNION ALL
+
+							-- store deductions
+							SELECT
+							  `product_deductions`.`product_deductions_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								`product_deductions`.`store_id` AS `store_id`,
+								`product`.`store_id` AS `receiving_store`,
+								product.product_name AS `product_name`,
+								store.store_name AS `store_name`,
+								CONCAT('Product Added',' ',`product`.`product_name`) AS `transactionDescription`,
+								 product_deductions.quantity_given AS `dr_quantity`,
+							   '0' AS `cr_quantity`,
+								 (product.product_unitprice * product_deductions.quantity_given) AS `dr_amount`,
+								 '0' AS `cr_amount`,
+								`product_deductions`.`search_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Income' AS `transactionCategory`,
+								'Product Addition' AS `transactionClassification`,
+								'product_deductions' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`product_deductions`, `store`, `product`, `orders`)
+							WHERE `product_deductions`.`store_id` = store.store_id
+							AND product_deductions.quantity_requested > 0
+							AND product.product_deleted = 0
+							AND product_deductions.product_id = product.product_id
+							AND product_deductions.order_id = orders.order_id
+							AND orders.order_id = product_deductions.order_id
+							AND (orders.is_store = 1 OR orders.is_store = 0)
+							AND product_deductions.product_deduction_rejected = 0
+							AND product_deductions.product_id = ".$product_id."
+							
+
+							UNION ALL
+							
+							SELECT
+							  `product_deductions`.`product_deductions_id` AS `transactionId`,
+								`product`.`product_id` AS `product_id`,
+								`product`.`category_id` AS `category_id`,
+								product.store_id AS `store_id`,
+								product_deductions.store_id AS `receiving_store`,
+								product.product_name AS `product_name`,
+								store.store_name AS `store_name`,
+								CONCAT('Product Deducted',' ',`product`.`product_name`) AS `transactionDescription`,
+								 '0' AS `dr_quantity`,
+							     product_deductions.quantity_given AS `cr_quantity`,
+								 '0' AS `dr_amount`,
+								 (product.product_unitprice * product_deductions.quantity_given) AS `cr_amount`,
+								`product_deductions`.`search_date` AS `transactionDate`,
+								`product`.`product_status` AS `status`,
+								`product`.`product_deleted` AS `product_deleted`,
+								'Expense' AS `transactionCategory`,
+								'Store Deduction' AS `transactionClassification`,
+								'product_deductions' AS `transactionTable`,
+								'product' AS `referenceTable`
+							FROM (`product_deductions`, `store`, `product`, `orders`)
+							WHERE store.store_id = product_deductions.store_id
+							AND product_deductions.quantity_requested > 0
+							AND product_deductions.product_id = product.product_id
+							AND product_deductions.order_id = orders.order_id
+							AND orders.order_id = product_deductions.order_id
+							AND product.product_deleted = 0
+							AND (orders.is_store = 1 OR orders.is_store = 0)
+							AND product_deductions.product_deduction_rejected = 0
+							AND product_deductions.product_id = ".$product_id."
+
+
+							UNION ALL 
+
+							SELECT
+							`product_deductions`.`product_deductions_id` AS `transactionId`,
+							`product`.`product_id` AS `product_id`,
+							`product`.`category_id` AS `category_id`,
+							`store`.`store_id` AS `store_id`,
+							'' AS `receiving_store`,
+							product.product_name AS `product_name`,
+							store.store_name AS `store_name`,
+							CONCAT('Product Added',' ',`product`.`product_name`) AS `transactionDescription`,
+							  '0'  AS `dr_quantity`,
+							 (quantity_given*pack_size) AS `cr_quantity`,
+							 '0' AS `dr_amount`,
+							 (product.product_unitprice * (quantity_given*pack_size) ) AS `cr_amount`,
+							`product_deductions`.`search_date` AS `transactionDate`,
+							`product`.`product_status` AS `status`,
+							`product`.`product_deleted` AS `product_deleted`,
+							'Expense' AS `transactionCategory`,
+							'Drug Transfer' AS `transactionClassification`,
+							'product_deductions' AS `transactionTable`,
+							'product' AS `referenceTable`
+							FROM (`product_deductions`, `product`, `orders`,store)
+							WHERE `product_deductions`.`order_id` = orders.order_id
+							AND product_deductions.product_id = product.product_id
+							AND product.product_deleted = 0
+							AND orders.supplier_id > 0
+							AND orders.is_store = 2
+							AND orders.order_approval_status = 7
+							AND `orders`.`store_id` = store.store_id
+							AND product_deductions.product_id = ".$product_id.") AS data ORDER BY data.transactionDate ASC  ";
+	// $this->db->order_by('data.transactionDate','ASC');
+	$query = $this->db->query($select_statement);
+	$result = '';
+	$total_invoices = 0;
+	$total_payments = 0;
+	$total_arrears = 0;
+	if($query->num_rows() > 0)
+	{
+		foreach ($query->result() as $key => $value) {
+			# code...
+
+			$date_added = $value->transactionDate;
+			$transactionClassification = $value->transactionClassification;
+			$transactionDescription = $value->transactionDescription;
+			$dr_quantity = $value->dr_quantity;
+			$cr_quantity = $value->cr_quantity;
+			$store_name = $value->store_name;
+
+			$total_arrears += $dr_quantity - $cr_quantity;
+
+			$total_payments += $dr_quantity;
+			$total_invoices += $cr_quantity;
+
+			$result .= 
+							'
+								<tr>
+									<td>'.date('d M Y',strtotime($date_added)).' </td>
+									<td>'.$store_name.'</td>
+									<td>'.$transactionClassification.'</td>
+									<td>'.strtoupper($transactionDescription).'</td>
+									<td>'.$dr_quantity.'</td>
+									<td>'.$cr_quantity.'</td>
+									<td>'.$total_arrears.'</td>
+								</tr> 
+							';
+		}
+	}
+			
+			$result .= 
+		'
+			<tr>
+				<th colspan="4">Total</th>
+				<th>'.$total_payments.'</th>
+				<th>'.abs($total_invoices).'</th>
+				<td>'.$total_arrears.'</td>
+			</tr> 
+		';
+		
+
+
+
+		$response['total_arrears'] = $total_arrears;
+		$response['total_invoice_balance'] = $total_invoices;
+		$response['total_credit_notes_amount'] = 0;
+		$response['result'] = $result;
+		$response['total_payment_amount'] = $total_payments;
+
+		// var_dump($response); die();
+
+		return $response;
+	}
+
+
+	public function stock_take_drugs()
+	{
+		$select_statement ='SELECT 
+								product.product_id,product.product_unitprice,store.store_name,product.product_name,store_product.store_quantity,store_product.owning_store_id,product.regenerate_id,category.category_name
+							FROM product,store_product,store,category
+							WHERE
+							product.product_id = store_product.product_id 
+							AND product.category_id = category.category_id 
+							AND store.store_id = store_product.owning_store_id  
+							AND product.product_deleted = 0 
+							AND product.regenerate_id > 0
+							AND product.product_id >= 9316
+							ORDER BY product.product_id';
+		$query = $this->db->query($select_statement);
+
+		return $query;
+	}
+
+	public function get_opening_stock($store_id,$product_id)
+	{
+
+		$select_statement ='SELECT 
+								store_product.stock_take
+							FROM store_product,product 
+							WHERE
+							store_product.product_id = '.$product_id.'
+							AND store_product.owning_store_id = '.$store_id.'
+							AND product.product_id = store_product.product_id  ';
+		$query = $this->db->query($select_statement);
+
+		$number = 0;
+
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				# code...
+				$number = $value->stock_take;
+			}
+		}
+
+
+		return $number;
+	
 	}
 }
 ?>

@@ -1,5 +1,6 @@
 <?php
 $current_query = $this->inventory_management_model->get_store_request($store_id, $order_id);
+// var_dump($current_query); die();
 ?>
 <table class='table table-striped table-hover table-condensed'>
 	<tr>
@@ -43,6 +44,6 @@ $current_query = $this->inventory_management_model->get_store_request($store_id,
 </table>
 <div class="row">
 	<div class="col-md-12 center-align">
-		<a class='btn btn-sm btn-success' onclick='finish_making_request()'> Done Making Order </a>
+		<a class='btn btn-sm btn-success' onclick='finish_making_request(<?php echo $order_id;?>)'> Done Making Order </a>
 	</div>
 </div>

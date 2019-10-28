@@ -53,10 +53,30 @@
                             <input type="text" class="form-control" name="purchase_pack_size" placeholder="Pack Size" value="<?php echo set_value('purchase_pack_size');?>">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Purchase Date: </label>
+                        
+                        <div class="col-lg-8">
+                          <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="purchase_date" value="<?php echo date('Y-m-d')?>" placeholder="Date"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Purchase Reason: </label>
+                        
+                        <div class="col-lg-8">
+                          <textarea class="form-control" name="purchase_description"><?php echo set_value('purchase_description');?></textarea>
+                        </div>
+                    </div>
         
                     <div class="form-group">
-                        <label class="col-lg-5 control-label">Expiry Date: </label>
-                        <div class="col-lg-7">
+                        <label class="col-lg-4 control-label">Expiry Date: </label>
+                        <div class="col-lg-8">
                             <div class="input-group">
                                 <span class="input-group-addon">
                                     <i class="fa fa-calendar"></i>
@@ -69,7 +89,7 @@
                 </div>
             </div>
             
-            <div class="center-align">
+            <div class="center-align" style="margin-top: 5px;">
             	<a href="<?php echo site_url().'inventory/product-purchases/'.$product_id;?>" class="btn btn-sm btn-default">Back</a>
                 <button class="btn btn-info btn-sm" type="submit">Add Purchase</button>
             </div>

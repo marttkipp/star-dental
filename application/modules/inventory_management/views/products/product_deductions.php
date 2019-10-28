@@ -94,12 +94,20 @@
 													$personnel_surname = $orders->personnel_onames;
 													$personnel_names = $personnel_first_name.' '.$personnel_surname;
 													$store_id = $orders->store_id;
-													$order_number = $orders->orders_number;
+													$order_number = $orders->order_number;
 													$store_name = $orders->store_name;
 													$order_date = $orders->orders_date;
 													$store_parent = $orders->store_parent;
-													$order_approval_status = $orders->orders_approval_status;
+													$order_approval_status = $orders->order_approval_status;
 													$status = $this->inventory_management_model->get_status($order_approval_status);
+
+													if($status == "Approved"){
+														$status = "Approved";
+													}
+													else{
+														$status = "Not Approved";
+													}
+													
 													$order_count++;
 													
 													?>
@@ -110,21 +118,7 @@
                                                         <td><?php echo date('jS M Y H:i:s',strtotime($order_date));?></td>
                                                         <td><?php echo $personnel_names;?></td>
                                                         <td><?php echo $status;?></td>
-                                                        <?php
-														if($order_approval_status == 0)
-														{
-														?>
-                                                        <td><a href="<?php echo site_url().'approve-request-order/'.$order_id;?>" class="btn btn-sm btn-success ">Approve Request</a></td>
-                                                        <?php
-														}
-														else
-														{
-															?>
-															<td></td>
-															<?php
-														}
-														?>
-                                                        <td><a href="<?php echo site_url().'view-order/'.$order_id;?>" class="btn btn-sm btn-primary ">View Details</a></td>
+                                                       	<td><a href="<?php echo site_url().'view-order/'.$order_id;?>" class="btn btn-sm btn-primary ">View Details</a></td>
                                                     </tr>
                                                     <?php
 								
@@ -146,13 +140,21 @@
 													$personnel_surname = $keys->personnel_onames;
 													$personnel_names = $personnel_first_name.' '.$personnel_surname;
 													$store_id = $keys->store_id;
-													$order_number = $keys->orders_number;
+													$order_number = $keys->order_number;
 													$store_name = $keys->store_name;
 													$order_date = $keys->orders_date;
 													$store_parent = $keys->store_parent;
-													$order_approval_status = $keys->orders_approval_status;
+													$order_approval_status = $keys->order_approval_status;
 													$status = $this->inventory_management_model->get_status($order_approval_status);
 													$order_count++;
+
+													if($status == "Approved"){
+														$status = "Approved";
+													}
+													else{
+														$status = "Not Approved";
+													}
+													
 													
 													?>
 													<tr>
@@ -162,20 +164,7 @@
 														<td><?php echo date('jS M Y H:i:s',strtotime($order_date));?></td>
 														<td><?php echo $personnel_names;?></td>
 														<td><?php echo $status;?></td>
-														<?php
-														if($order_approval_status == 0)
-														{
-														?>
-														<td><a href="<?php echo site_url().'approve-request-order/'.$order_id;?>" class="btn btn-sm btn-success ">Approve Request</a></td>
-														<?php
-														}
-														else
-														{
-															?>
-															<td></td>
-															<?php
-														}
-														?>
+														
 														<td><a href="<?php echo site_url().'view-order/'.$order_id;?>" class="btn btn-sm btn-primary ">View Details</a></td>
 													</tr>
 													<?php

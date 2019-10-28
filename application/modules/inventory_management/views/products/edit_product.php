@@ -20,7 +20,7 @@
 		//the product details
 		$category_id = $product[0]->category_id;
 		$product_id = $product[0]->product_id;
-		$creditor_id = $product[0]->creditor_id;
+		// $creditor_id = $product[0]->creditor_id;
 		$product_name = $product[0]->product_name;
 		$product_status = $product[0]->product_status;
 		$product_description = $product[0]->product_description;
@@ -31,7 +31,8 @@
         $quantity = $product[0]->quantity;
         $product_pack_size = $product[0]->product_packsize;
         $product_unitprice = $product[0]->product_unitprice;
-        $creditor_name = $product[0]->creditor_name;
+        $product_unitprice_insurance = $product[0]->product_unitprice_insurance;
+        // $creditor_name = $product[0]->creditor_name;
 
         $unit_of_measure = $product[0]->unit_of_measure;
         $reorder_level = $product[0]->reorder_level;
@@ -39,7 +40,7 @@
         $generic_id = $product[0]->generic_id;
         $class_id = $product[0]->class_id;
         $drug_type_id = $product[0]->drug_type_id;
-    
+        $vatable = $product[0]->vatable;
 
         $purchases = $this->inventory_management_model->child_item_purchases($inventory_start_date, $product_id,$store_id,null,null);
         $deductions = $this->inventory_management_model->item_deductions($inventory_start_date, $product_id,$store_id,null,null);     
@@ -68,6 +69,7 @@
             $quantity = set_value('quantity');
             $product_pack_size = set_value('product_pack_size');
             $product_unitprice = set_value('product_unitprice');
+            $product_unitprice_insurance = set_value('product_unitprice_insurance');
             $reorder_level = set_value('reorder_level');
             $brand_id = set_value('brand_id');
             $generic_id = set_value('generic_id');
@@ -225,6 +227,29 @@
                             </label>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Vatable?</label>
+                    <div class="col-lg-8">
+                        <div class="radio">
+                            <label>
+                                <?php
+                                if($vatable == 1){echo '<input id="optionsRadios1" type="radio" checked value="1" name="vatable">';}
+                                else{echo '<input id="optionsRadios1" type="radio" value="1" name="vatable">';}
+                                ?>
+                                Yes
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <?php
+                                if($vatable == 0){echo '<input id="optionsRadios1" type="radio" checked value="0" name="vatable">';}
+                                else{echo '<input id="optionsRadios1" type="radio" value="0" name="vatable">';}
+                                ?>
+                                No
+                            </label>
+                        </div>
+                    </div>
                 </div> 
             </div>
 
@@ -234,7 +259,14 @@
                     <label class="col-lg-4 control-label">Unit Price: </label>
                     
                     <div class="col-lg-8">
-                        <input type="text" class="form-control" name="product_unitprice" placeholder="Unit Price" value="<?php echo $product_unitprice;?>">
+                        <input type="text" class="form-control" name="product_unitprice" placeholder="Unit Price" value="<?php echo $product_unitprice;?>" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Insurance Unit Price: </label>
+                    
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" name="product_unitprice_insurance" placeholder="Insurance Unit Price" value="<?php echo $product_unitprice_insurance;?>" >
                     </div>
                 </div>
 

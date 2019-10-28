@@ -308,7 +308,7 @@ else if($order_approval_status == 2 || $order_approval_status == 3)
         			$result_suppliers .= 
         				'<div class="row">
 								<div class="col-md-12">
-									<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+									<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 									  <thead>
 										<tr>
 										  <th class="table-sortable:default table-sortable" title="Click to sort">#</th>
@@ -527,7 +527,7 @@ else if($order_approval_status == 2 || $order_approval_status == 3)
 				'
 				<div class="row">
 					<div class="col-md-12">
-						<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+						<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 						  <thead>
 							<tr>
 							  <th class="table-sortable:default table-sortable" title="Click to sort">#</th>
@@ -604,7 +604,7 @@ else if($order_approval_status == 2 || $order_approval_status == 3)
 																// var_dump($items_rs); die();
 									 			 		 $result .= '<div class="col-md-6">
 									 			 		 				<h4 style="margin-bottom:10px;">'.$creditor_name.' <a class="btn btn-primary btn-sm fa fa-print pull-right" taget="_blank" href="'.base_url().'inventory/generate-lpo/'.$order_id.'/'.$creditor_id.'" onclick="return confirm(\'Do you want to view the LPO?\');"> View LPO </a></h4> 
-									 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+									 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 																		  <thead>
 																			<tr>
 																			  <th >#</th>
@@ -660,7 +660,7 @@ else if($order_approval_status == 2 || $order_approval_status == 3)
 									 			 	<div class="col-md-12">';
 									 			 	$creditor_items = $this->orders_model->get_supplied_list($order_id);
 									 			 	$result .= '
-							 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+							 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 																  <thead>
 																	<tr>
 																	  <th >#</th>
@@ -783,7 +783,7 @@ else if($order_approval_status == 2 || $order_approval_status == 3)
 									 			 	<div class="col-md-12">';
 									 			 	$creditor_items = $this->orders_model->get_supplied_list($order_id);
 									 			 	$result .= '
-							 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table table-hover table-bordered " id="TABLE_2">
+							 			 		 				<table class="example table-autosort:0 table-stripeclass:alternate table  table-bordered " id="TABLE_2">
 																  <thead>
 																	<tr>
 																	  <th >#</th>

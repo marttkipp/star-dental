@@ -56,7 +56,7 @@
 								$charge_time = $row->charge_time;
 								
 								$visit_charge_amount = $row->visit_charge_amount;
-								$visit_charge_qty = $row->visit_charge_qty;
+								$visit_charge_units = $row->visit_charge_units;
 		                        
 								$visit_date = date('jS M Y',strtotime($charge_date));
 								$button = '';
@@ -124,9 +124,9 @@
 										<td>'.$count.'</td>
 										<td>'.$visit_date.'</td>
 										<td>'.$patient_surname.' '.$patient_othernames.'</td>
-										<td>'.$visit_charge_qty.'</td>
+										<td>'.$visit_charge_units.'</td>
 										<td>'.$visit_charge_amount.'</td>
-										<td>'.$visit_charge_amount*$visit_charge_qty.'</td>		
+										<td>'.$visit_charge_amount*$visit_charge_units.'</td>		
 		                                <td>'.$created_by.'</td>
 		                                <td>'.$dispensed_by.'</td>
 									</tr> 

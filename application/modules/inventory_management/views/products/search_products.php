@@ -52,22 +52,22 @@
 		                             <select name="brand_id" id="brand_id" class="form-control">
 		                                <?php
 		                                echo '<option value="0">No Brand</option>';
-		                                if($all_brands->num_rows() > 0)
-		                                {
-		                                    $result = $all_brands->result();
+		                                // if($all_brands->num_rows() > 0)
+		                                // {
+		                                //     $result = $all_brands->result();
 		                                    
-		                                    foreach($result as $res)
-		                                    {
-		                                        if($res->brand_id == set_value('brand_id'))
-		                                        {
-		                                            echo '<option value="'.$res->brand_id.'" selected>'.$res->brand_name.'</option>';
-		                                        }
-		                                        else
-		                                        {
-		                                            echo '<option value="'.$res->brand_id.'">'.$res->brand_name.'</option>';
-		                                        }
-		                                    }
-		                                }
+		                                //     foreach($result as $res)
+		                                //     {
+		                                //         if($res->brand_id == set_value('brand_id'))
+		                                //         {
+		                                //             echo '<option value="'.$res->brand_id.'" selected>'.$res->brand_name.'</option>';
+		                                //         }
+		                                //         else
+		                                //         {
+		                                //             echo '<option value="'.$res->brand_id.'">'.$res->brand_name.'</option>';
+		                                //         }
+		                                //     }
+		                                // }
 		                                ?>
 		                            </select>
 		                        </div>
@@ -79,22 +79,22 @@
 		                             <select name="generic_id" id="generic_id" class="form-control">
 		                                <?php
 		                                echo '<option value="0">No generic</option>';
-		                                if($all_generics->num_rows() > 0)
-		                                {
-		                                    $result = $all_generics->result();
+		                                // if($all_generics->num_rows() > 0)
+		                                // {
+		                                //     $result = $all_generics->result();
 		                                    
-		                                    foreach($result as $res)
-		                                    {
-		                                        if($res->generic_id == set_value('generic_id'))
-		                                        {
-		                                            echo '<option value="'.$res->generic_id.'" selected>'.$res->generic_id.'</option>';
-		                                        }
-		                                        else
-		                                        {
-		                                            echo '<option value="'.$res->generic_id.'">'.$res->generic_name.'</option>';
-		                                        }
-		                                    }
-		                                }
+		                                //     foreach($result as $res)
+		                                //     {
+		                                //         if($res->generic_id == set_value('generic_id'))
+		                                //         {
+		                                //             echo '<option value="'.$res->generic_id.'" selected>'.$res->generic_id.'</option>';
+		                                //         }
+		                                //         else
+		                                //         {
+		                                //             echo '<option value="'.$res->generic_id.'">'.$res->generic_name.'</option>';
+		                                //         }
+		                                //     }
+		                                // }
 		                                ?>
 		                            </select>
 		                        </div>
@@ -189,6 +189,32 @@
                                     </div>
                             	</div>
                             </div>
+
+
+                           <!--  <div class="form-group">
+		                        <label class="col-md-5 control-label">Stock Take: </label>
+		                        
+		                        <div class="col-md-7">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="stock_taken" id="optionsRadios1" value="0">
+                                            Not done
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="stock_taken" id="optionsRadios2" value="1">
+                                            Done
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="stock_taken" id="optionsRadios2" value="2" checked="checked">
+                                            All
+                                        </label>
+                                    </div>
+                            	</div>
+                            </div> -->
 		                </div>
 		              </div>
 	            </div>

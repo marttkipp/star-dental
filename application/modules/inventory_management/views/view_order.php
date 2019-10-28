@@ -29,6 +29,7 @@
         <!-- Widget content -->
         <div class="panel-body">
             <div class="padd">
+                <input type="hidden" class="form-control" name="redirect_url" id="redirect_url" placeholder="" autocomplete="off" value="<?php echo $this->uri->uri_string()?>">
               <div class="center-align">
                 <?php
                     $error = $this->session->userdata('error_message');
@@ -75,15 +76,22 @@
                                     $product_deduction_pack_size = $rs10->product_deductions_pack_size;
                                     $product_deduction_quantity = $rs10->product_deductions_quantity;
                                     $product_id = $rs10->product_id;
-                                    $parent_store_qty = $this->inventory_management_model->get_total_products($product_id);
+                                    $store_id = $rs10->store_id;
+                                    $parent_id = $this->inventory_management_model->get_parent_store($store_id);
+                                    // $parent_store_qty = $this->inventory_management_model->get_total_products($product_id);
+                                    $parent_store_qty = $this->inventory_management_model->get_parent_store_inventory_quantity($parent_id,$product_id);
                                     $quantity_requested = $rs10->quantity_requested;
                                     $quantity_received = $rs10->quantity_received;
                                     $quantity_given = $rs10->quantity_given;
                                     $store_name = $rs10->store_name;
                                     $product_name = $rs10->product_name;
                                     $product_deductions_status = $rs10->product_deductions_status;
-                                    $store_id = $rs10->store_id;
-                                    $sub_store_quantity = $this->inventory_management_model->get_store_inventory_quantity($store_id,$product_id);
+                                   
+                                    // $sub_store_quantity = $this->inventory_management_model->get_store_inventory_quantity($store_id,$product_id);
+                                    $inventory_start_date = $this->inventory_management_model->get_inventory_start_date();
+                                    $store_id = 6;
+                                    $sub_store_quantity = $this->inventory_management_model->child_store_stock($inventory_start_date, $product_id,$store_id);
+                                    $parent_store_stock = $this->inventory_management_model->parent_store_stock($inventory_start_date, $product_id,$store_id);
 
                                     // calculate the current stoe
                                     if($product_deductions_status == 0)
@@ -92,7 +100,7 @@
                                         $input_filed = 
                                         '
                                          <td><input type="text" class="form-control" id="quantity_given'.$product_deduction_id.'" name="quantity_given'.$product_deduction_id.'" size="1" value="'.$quantity_given.'"></td>
-                                            <td><a id="update_action_point_form"  onclick="update_quantity('.$product_deduction_id.','.$store_id.')" class="btn btn-sm btn-warning fa fa-pencil"> Award</a></td>
+                                            <td><a id="update_action_point_form"  onclick="update_quantity('.$product_deduction_id.','.$store_id.','.$parent_id.','.$product_id.')" class="btn btn-sm btn-warning fa fa-pencil"> Award</a></td>
                                         ';
                                     }
                                     //create activated status display
@@ -102,7 +110,7 @@
                                         $input_filed = 
                                             '
                                             <td><input type="text" class="form-control" id="quantity_given'.$product_deduction_id.'" name="quantity_given'.$product_deduction_id.'" size="1" value="'.$quantity_given.'"></td>
-                                            <td><a id="update_action_point_form"  onclick="update_quantity('.$product_deduction_id.','.$store_id.')" class="btn btn-sm btn-warning fa fa-pencil">Update Award</a></td>
+                                            <td><a id="update_action_point_form"  onclick="update_quantity('.$product_deduction_id.','.$store_id.','.$parent_id.','.$product_id.')" class="btn btn-sm btn-warning fa fa-pencil">Update Award</a></td>
                                             ';
                                     }
                                     else if($product_deductions_status == 2)
@@ -134,6 +142,12 @@
                     	</div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12 center-align">
+                        <td><a href="<?php echo site_url().'approve-request-order/'.$order_id;?>" class="btn btn-sm btn-success " onclick="return confirm('Do you want to approve this order ? ')">Approve Request</a></td>
+                    </div>
+                    
+                </div>
             
             </div>
         </div>
@@ -146,13 +160,14 @@
 </section>
 <script type="text/javascript">
     
-    function update_quantity(product_deductions_id,store_id)
+    function update_quantity(product_deductions_id,store_id,parent_id,product_id)
     {
       
        //var product_deductions_id = $(this).attr('href');
+       var redirect_url = $('#redirect_url').val();
        var quantity = $('#quantity_given'+product_deductions_id).val();
-       var url = "<?php echo base_url();?>inventory/award-store-order/"+product_deductions_id+'/'+quantity;
-  
+       var url = "<?php echo base_url();?>inventory/award-store-order/"+product_deductions_id+'/'+quantity+'/'+parent_id+'/'+product_id;
+        // alert(url);
         $.ajax({
            type:'POST',
            url: url,
@@ -164,7 +179,8 @@
            success:function(data){
             
             window.alert(data.result);
-            window.location.href = "<?php echo base_url();?>inventory/manage-orders";
+            var config_url = document.getElementById("config_url").value;
+            window.location.href = config_url+redirect_url;
            },
            error: function(xhr, status, error) {
             alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);

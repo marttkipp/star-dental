@@ -55,32 +55,23 @@
                             <input type="text" class="form-control" name="product_deduction_pack_size" placeholder="Pack Size" value="<?php echo set_value('product_deduction_pack_size');?>">
                         </div>
                     </div>
-                   
-                   <div class="form-group">
-                        <label class="col-lg-4 control-label">Container Type: </label>
-                        <?php //var_dump($container_types);die();?>
+                     <div class="form-group">
+                        <label class="col-lg-4 control-label">Deduction Date: </label>
+                        
                         <div class="col-lg-8">
-                            <select name="container_type_id" id="container_type_id" class="form-control">
-                            	<?php
-								echo '<option value="0">Select Container</option>';
-								if($container_types->num_rows() > 0)
-								{
-									$result = $container_types->result();
-									
-									foreach($container_types->result() as $res_store)
-									{
-										if($res_store->container_type_id == set_value('container_type_id'))
-										{
-											echo '<option value="'.$res_store->container_type_id.'" selected>'.$res_store->container_type_name.'</option>';
-										}
-										else
-										{
-											echo '<option value="'.$res_store->container_type_id.'">'.$res_store->container_type_name.'</option>';
-										}
-									}
-								}
-								?>
-							</select>
+                          <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                                <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="deduction_date" value="<?php echo date('Y-m-d')?>" placeholder="Date"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Deducted Reason: </label>
+                        
+                        <div class="col-lg-8">
+                          <textarea class="form-control" name="deduction_description"><?php echo set_value('deduction_description');?></textarea>
                         </div>
                     </div>
                 </div>

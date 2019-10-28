@@ -1469,3 +1469,85 @@ $route['view-creditor-invoice/(:num)'] = 'finance/creditors/print_creditor_invoi
 
 
 $route['print-quotation/(:num)'] = 'accounts/print_quote/$1';
+
+// $route['inventory/drug-trail'] = 'inventory_management/drug_trail';
+$route['inventory/drug-trail/(:num)'] = 'inventory_management/drug_trail/$1';
+$route['print-drug-trail/(:num)'] = 'inventory_management/print_drug_trails/$1';
+
+
+
+$route['inventory/product-deductions'] = 'inventory_management/all_product_deductions';
+$route['inventory/deduction-product/(:num)'] = 'inventory_management/product_deductions/$1';
+$route['inventory/edit-product-deduction/(:num)/(:num)'] = 'inventory_management/edit_product_deduction/$1/$2';
+
+
+$route['inventory/deduction-product/(:num)/(:num)'] = 'inventory_management/product_deductions/$1/$2';
+$route['inventory/edit-product-deduction/(:num)/(:num)'] = 'inventory_management/edit_product_deduction/$1/$2';
+
+$route['search-pharmacy-sales'] = 'pharmacy/search_drugs_sales';
+$route['deductions/(:num)/(:num)'] = 'inventory_management/products/deductions/$1/$2';
+$route['inventory/deduct-product/(:num)/(:num)'] = 'inventory_management/deduct_product/$1/$2';
+$route['inventory/return-product/(:num)/(:num)'] = 'inventory_management/return_product/$1/$2';
+$route['approve-request-order/(:num)'] = 'inventory_management/approve_request_order/$1';
+$route['inventory/print-product-out-stock'] = 'inventory_management/out_of_stock';
+$route['import/product-codes'] = 'inventory_management/products/import_product_codes';
+$route['import/import_product_codes-template'] = 'inventory_management/products/import_product_codes_template';
+
+
+
+$route['procurement/general-orders'] = 'inventory/orders/index';
+$route['procurement/general-orders/(:num)'] = 'inventory/orders/index/$1';
+$route['remove-item/(:num)/(:any)/(:num)'] = 'inventory/orders/remove_supplier_order/$1/$2/$3';
+$route['inventory/delete-product/(:num)'] = 'inventory_management/delete_product/$1';
+$route['inventory/import-products'] = 'inventory_management/products/import_products';
+$route['inventory/export-products'] = 'inventory_management/products/export_products';
+
+$route['procurement/drug-transfers'] = 'inventory/orders/drug_transfers';
+$route['procurement/drug-transfers/(:num)'] = 'inventory/orders/drug_transfers/$1';
+$route['procurement/order-invoice-detail/(:num)'] = 'inventory/orders/order_invoice_detail/$1';
+$route['procurement/delete-invoices/(:num)'] = 'inventory/orders/suppliers_invoices/$1';
+$route['update-invoice-date/(:num)'] = 'inventory/orders/update_orders_date/$1';
+$route['delete-order-item/(:num)/(:num)/(:num)'] = 'inventory/orders/delete_supplier_order_item/$1/$2/$3';
+
+
+$route['add-to-store/(:num)/(:num)'] = 'inventory_management/add_product_to_store/$1/$2';
+$route['delete-transfer-item/(:num)/(:num)'] = 'inventory/orders/delete_transfer_order_item/$1/$2/$3';
+
+$route['inventory/finish-transfer-order/(:num)'] = 'inventory/orders/finish_transfer_order/$1';
+$route['goods-transfered-notes/(:num)'] = 'inventory/orders/goods_transfered/$1';
+$route['search-products-purchased'] = 'inventory/orders/search_products_purchased';
+$route['close-product-purchased-search'] = 'inventory/orders/close_product_purchased_search';
+$route['regenerate-product/(:num)'] = 'inventory_management/products/regenerate_product/$1';
+
+
+$route['inventory/s11'] = 'inventory_management/view_ordered_items';
+$route['inventory/s11/(:num)'] = 'inventory_management/view_ordered_items/$1';
+$route['reject-request/(:num)'] =  'inventory_management/reject_deduction/$1';
+
+$route['procurement/store-orders'] = 'inventory_management/manage_store';
+$route['procurement/store-orders/(:num)'] = 'inventory_management/manage_store/$1';
+$route['inventory/store-deductions'] = 'inventory_management/view_all_product_deductions';
+$route['inventory/store-deductions/(:num)'] = 'inventory_management/view_all_product_deductions/$1';
+$route['inventory/search-instant-orders'] = 'inventory_management/search_orders_requested';
+$route['inventory/search-store-deductions'] = 'inventory_management/search_store_deductions';
+$route['inventory/drug-prices'] = 'inventory_management/drug_prices';
+$route['inventory/drug-prices/(:num)'] = 'inventory_management/drug_prices/$1';
+$route['inventory/search-product-prices'] = 'inventory_management/search_product_requested';
+
+
+$route['procurement/general-orders'] = 'inventory/orders/general_orders';
+$route['procurement/general-orders/(:num)'] = 'inventory/orders/general_orders/$1';
+$route['remove-item/(:num)/(:any)/(:num)'] = 'inventory/orders/remove_supplier_order/$1/$2/$3';
+$route['delete-product/(:num)'] = 'inventory_management/delete_product/$1';
+$route['inventory/import-products'] = 'inventory_management/products/import_products';
+$route['inventory/export-products'] = 'inventory_management/products/export_products';
+$route['inventory/add-general-order'] = 'inventory/orders/add_general_order';
+$route['inventory/add-general-order-item/(:num)/(:any)'] = 'inventory/orders/add_general_order_item/$1/$2';
+$route['inventory/delete-general-order-item/(:num)/(:num)/(:any)'] = 'inventory/orders/delete_general_order_item/$1/$2/$3';
+
+$route['inventory/update-general-order-item/(:num)/(:any)/(:num)'] = 'inventory/orders/update_general_order_item/$1/$2/$3';
+$route['inventory/send-general-order-for-approval/(:num)/(:num)'] = 'inventory/orders/send_general_order_for_approval/$1/$2';
+
+$route['inventory/print-general-order/(:num)'] = 'inventory/orders/print_general_order/$1';
+
+

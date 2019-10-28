@@ -14,7 +14,7 @@ class Orders_model extends CI_Model
 		$this->db->from($table);
 		$this->db->select('orders.*,order_status.order_status_name,store.store_id, store.store_name');
 		$this->db->where($where);
-		$this->db->order_by('orders.order_id,order_approval_status','ASC');
+		$this->db->order_by('orders.order_id','DESC');
 		$this->db->join('store', 'store.store_id = orders.store_id','left');
 		$query = $this->db->get('', $per_page, $page);
 		
@@ -28,6 +28,19 @@ class Orders_model extends CI_Model
 		$this->db->select('product.product_name, order_item.*');
 		$this->db->where($where);
 		$this->db->order_by('order_item.order_item_id','ASC');
+		// $this->db->join('store', 'store.store_id = orders.store_id','left');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+
+	public function get_all_order_order_items($table, $where, $per_page, $page)
+	{
+		//retrieve all orders
+		$this->db->from($table);
+		$this->db->select('product.product_name, product_deductions.*,product.*');
+		$this->db->where($where);
+		$this->db->order_by('product_deductions.product_deductions_id','ASC');
 		// $this->db->join('store', 'store.store_id = orders.store_id','left');
 		$query = $this->db->get('', $per_page, $page);
 		
@@ -56,6 +69,21 @@ class Orders_model extends CI_Model
 		
 		return $query;
 	}
+
+	public function get_all_expiry_items($table, $where, $per_page, $page)
+	{
+
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('order_item.*, order_supplier.*,orders.supplier_invoice_date,orders.supplier_invoice_number,orders.order_status_id,product_category.product_category_name, product.product_id,product.product_name,product.product_status,product.product_deleted, product.reorder_level,product.product_unitprice,product.store_id,product.quantity AS opening_quantity,creditor.creditor_name');
+		$this->db->where($where);
+		$this->db->order_by('order_supplier.expiry_date,product.product_name');
+		$this->db->join('product_category', 'product_category.product_category_id = product.category_id','left');
+		$this->db->join('creditor', 'creditor.creditor_id = orders.supplier_id','left');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
 	
 
 	public function get_all_orders_suppliers($table, $where, $per_page, $page)
@@ -64,7 +92,7 @@ class Orders_model extends CI_Model
 		$this->db->from($table);
 		$this->db->select('orders.*,order_status.order_status_name,store.store_id, store.store_name,creditor.creditor_id,creditor.creditor_name');
 		$this->db->where($where);
-		$this->db->order_by('order_approval_status','ASC');
+		$this->db->order_by('orders.orders_date','DESC');
 		$this->db->join('store', 'store.store_id = orders.store_id','left');
 		$this->db->join('creditor', 'creditor.creditor_id = orders.supplier_id','left');
 		$query = $this->db->get('', $per_page, $page);
@@ -109,6 +137,15 @@ class Orders_model extends CI_Model
 		return $query;
 	}
 
+
+	public function get_suppliers()
+	{
+		$this->db->where('creditor.creditor_id > 0 ');
+		$query = $this->db->get('creditor');
+		
+		return $query;
+	}
+
 	public function get_order_items_supplier($order_id,$creditor_id)
 	{
 		$this->db->select('order_supplier.quantity AS supplying,order_supplier.unit_price AS single_price, product.*,order_supplier.*,order_item.*');
@@ -130,9 +167,9 @@ class Orders_model extends CI_Model
 
 	}
 	
-	public function get_supplier_order_details($supplier_order_id)
+	public function get_supplier_order_details($supplier_order_id,$creditor_id)
 	{
-		$this->db->where('creditor.creditor_id = supplier_order.supplier_id AND orders.order_id = supplier_order.order_id AND supplier_order.supplier_order_id = '.$supplier_order_id);
+		$this->db->where('creditor.creditor_id = supplier_order.supplier_id AND orders.order_id = supplier_order.order_id AND supplier_order.order_id = '.$supplier_order_id.' AND creditor.creditor_id = '.$creditor_id);
 		$query = $this->db->get('creditor,supplier_order,orders');
 		
 		return $query;
@@ -198,7 +235,17 @@ class Orders_model extends CI_Model
 		
 		return $query;
 	}
-	
+	public function get_creditors_detail_summary($where, $table)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('*');
+		$this->db->where($where);
+		// $this->db->order_by('creditor_name', 'ASC');
+		$query = $this->db->get('');
+		
+		return $query;
+	}
 	/*
 	*	Create order number
 	*
@@ -207,7 +254,7 @@ class Orders_model extends CI_Model
 	{
 		//select product code
 		$this->db->from('orders');
-		$this->db->where("order_number LIKE '".$this->session->userdata('branch_code')."".date('y')."-%'");
+		$this->db->where("order_number LIKE 'OSH".date('y')."-%'");
 		$this->db->select('MAX(order_number) AS number');
 		$query = $this->db->get();
 		
@@ -218,11 +265,11 @@ class Orders_model extends CI_Model
 			$number++;//go to the next number
 			
 			if($number == 1){
-				$number = "".$this->session->userdata('branch_code')."".date('y')."-001";
+				$number = "OSH".date('y')."-001";
 			}
 		}
 		else{//start generating receipt numbers
-			$number = "".$this->session->userdata('branch_code')."".date('y')."-001";
+			$number = "OSH".date('y')."-001";
 		}
 		
 		return $number;
@@ -326,6 +373,77 @@ class Orders_model extends CI_Model
 		}
 	}
 
+	public function add_transfer_order()
+	{
+		$order_number = $this->create_order_number();
+		
+		$data = array(
+				'order_number'=>$order_number,
+				'created_by'=>$this->input->post('personnel_id'),
+				'order_status_id'=>1,
+				'order_instructions'=>$this->input->post('order_instructions'),
+				'created'=>date('Y-m-d H:i:s'),
+				'modified_by'=>$this->session->userdata('personnel_id'),
+				'store_id'=>$this->input->post('store_id'),
+				'supplier_id'=>$this->input->post('supplier_id'),
+				'is_store'=>2
+			);
+			
+		if($this->db->insert('orders', $data))
+		{
+			$order_id = $this->db->insert_id();
+			$insert_data = array(
+					'order_id'=>$order_id,
+					'order_level_status_status'=>0,
+					'created'=>date("Y-m-d H:i:s"),
+					'created_by' => $this->session->userdata('personnel_id'),
+					'modified_by' =>$this->session->userdata('personnel_id')
+				);
+
+			$this->db->insert('order_level_status', $insert_data);
+			return $order_id;
+		}
+		else{
+			return FALSE;
+		}
+	}
+
+
+	public function add_credit_note_order()
+	{
+		$order_number = $this->create_order_number();
+		
+		$data = array(
+				'order_number'=>$order_number,
+				'created_by'=>$this->input->post('personnel_id'),
+				'order_status_id'=>1,
+				'order_instructions'=>$this->input->post('order_instructions'),
+				'created'=>date('Y-m-d H:i:s'),
+				'modified_by'=>$this->session->userdata('personnel_id'),
+				'store_id'=>$this->input->post('store_id'),
+				'supplier_id'=>$this->input->post('supplier_id'),
+				'is_store'=>3
+			);
+			
+		if($this->db->insert('orders', $data))
+		{
+			$order_id = $this->db->insert_id();
+			$insert_data = array(
+					'order_id'=>$order_id,
+					'order_level_status_status'=>0,
+					'created'=>date("Y-m-d H:i:s"),
+					'created_by' => $this->session->userdata('personnel_id'),
+					'modified_by' =>$this->session->userdata('personnel_id')
+				);
+
+			$this->db->insert('order_level_status', $insert_data);
+			return $order_id;
+		}
+		else{
+			return FALSE;
+		}
+	}
+
 	public function add_supplier_items()
 	{
 		$creditor_id = $this->input->post('creditor_id');
@@ -366,17 +484,17 @@ class Orders_model extends CI_Model
 		else
 		{
 
-			$data['quantity']=$quantity;
-			$data['unit_price']=$unit_price;
+		$data['quantity']=$quantity;
+		$data['unit_price']=$unit_price;
 
-			if($this->db->insert('order_supplier',$data))
-			{
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
+		if($this->db->insert('order_supplier',$data))
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
 
 		}
 	}
@@ -476,7 +594,7 @@ class Orders_model extends CI_Model
 		if($query->num_rows() > 0)
 		{
 			$result = $query->row();
-			$qty = $result->quantity;
+			$qty = $result->purchase_quantity;
 			
 			$quantity += $qty;
 			
@@ -605,7 +723,7 @@ class Orders_model extends CI_Model
 	public function check_assigned_next_approval($next_level_status)
 	{
 		$this->db->select('*');
-		$this->db->where('approval_status_id = '.($next_level_status+1).' AND personnel_id = '.$this->session->userdata('personnel_id').'');
+		$this->db->where('approval_status_id = '.($next_level_status+1).'');
 		$query = $this->db->get('personnel_approval');
 		
 		if($query->num_rows() > 0)
@@ -761,23 +879,89 @@ class Orders_model extends CI_Model
 	public function update_invoice_charges()
 	{
 		$invoice_number = $this->input->post('invoice_number');
-		$mark_up = $this->input->post('mark_up');
+		$mark_up = 33;//$this->input->post('mark_up');
 		$quantity_received = $this->input->post('quantity_received');
+		$discount = $this->input->post('discount');
+		$vat = $this->input->post('vat');
 		$order_supplier_id = $this->input->post('order_supplier_id');
 		$product_name = $this->input->post('product_name');
 		$total_amount = $this->input->post('total_amount');
 		$expiry_date = $this->input->post('expiry_date');
 		$creditor_id = $this->input->post('creditor_id');
 		$pack_size = $this->input->post('pack_size');
+		$discount = $this->input->post('discount');
+		$vat = $this->input->post('vat');
+		$product_id = $this->input->post('product_id');
+		$product_unitprice = $this->input->post('product_unitprice');
+		$buying_price_vat = $this->input->post('buying_price_vat');
 		
 		$total_purchases = $quantity_received * $pack_size;
+		
+		$this->db->where('product_id',$product_id);
+		$product_query = $this->db->get('product');
+		$category_id = 2;
+		if($product_query->num_rows() > 0)
+		{
+			foreach ($product_query->result() as $key => $value) {
+				# code...
+				$category_id = $value->category_id;
+			}
+		}
+		// single unit price
+		if($vat > 0 AND $buying_price_vat == 0 AND $category_id == 2)
+		{
+			$total_amount = 1.16 * $total_amount;
+		}
+		else if($vat > 0 AND $buying_price_vat == 0 AND $category_id == 3)
+		{
+			$total_amount = 5.33 * $total_amount;
+		}
+		// var_dump($total_amount); die();
+		$buying_price = $total_amount / $pack_size;
 
-		$buying_price = $total_amount / $total_purchases;
 
+		$total_purchase_amount = $buying_price;
+
+
+
+		
+		
+		if($vat > 0)
+		{
+			$total_price_vat = $total_purchase_amount +  (($vat/100)*$total_purchase_amount);
+			$array_product['vatable'] = 1;
+			$array_charge['vatable'] = 1;
+		}
+		else
+		{
+			$array_product['vatable'] = 0;
+			$array_charge['vatable'] = 0;
+			$total_price_vat = 0;
+		}
+
+		if($discount > 0)
+		{
+			$total_purchase_amount = $total_purchase_amount - (($discount/100)*$total_purchase_amount);
+			
+
+		}
+		// if($total_price_vat > 0)
+		// {
+		// 	$buying_price = $total_price_vat;
+		// }
+
+		// $gross_amount = $total_purchase_amount * ($quantity_received*$pack_size);
 		$selling_price = ((($mark_up/100) * $buying_price) + $buying_price);
+		
 
-		// $form_id = $this->input->post('form_id');
+	
+		$gross_amount = $buying_price * ($quantity_received*$pack_size);
 
+		
+
+		$less_vat = $gross_amount * ((100 - $discount)/100);
+		$gross_amount = $less_vat * ((100+$vat)/100);
+		// var_dump($less_vat); die();
 
 		$data = array(
 						'invoice_number'=>$invoice_number,
@@ -787,101 +971,40 @@ class Orders_model extends CI_Model
 						'selling_unit_price'=>$selling_price,
 						'pack_size'=>$pack_size,
 						'unit_price'=>$total_amount,
+						'discount'=>$discount,
+						'buying_price_vat'=>$buying_price_vat,
+						'vat'=>$vat,
 						'created'=>date('Y-m-d'),
+						'total_amount'=> $gross_amount,
+						'less_vat'=> $less_vat,
 						'modified_by'=>$this->session->userdata('personnel_id')
 					);
-		// $form_id = $this->input->post('form_id');
 
-		// if(!empty($form_id))
-		// {
-		// 	$data['unit_price']=$buying_unit_price;
-		// }
+
 		$this->db->where('order_supplier_id', $order_supplier_id);
 		if($this->db->update('order_supplier', $data))
 		{
 
-			$this->db->where('order_supplier_id = '.$order_supplier_id.' AND creditor_id = '.$creditor_id.' AND transaction_code = "'.$invoice_number.'"');
-			$query = $this->db->get('creditor_account');
+			// $this->db->where('product_id',$product_id);
+			// $query =$this->db->get('product');
+			// $product_row = $query->row();
 
-			if($query->num_rows() > 0)
+			if(!empty($product_id) AND $selling_price > 0)
 			{
-				// uppdate the credor
-				$data_array = array('transaction_code'=>$invoice_number,
-									'creditor_id'=> $creditor_id,
-									'order_supplier_id'=>$order_supplier_id,
-									'creditor_account_description'=> 'Delivery of '.$product_name.'',
-									'creditor_account_amount'=> $total_amount,
-									'creditor_account_date'=>date('Y-m-d'),
-									'creditor_account_status'=>1,
-									'transaction_type_id'=>2,
-									// 'expense_account'=>4,
-									'created_by'=>$this->session->userdata('personnel_id')
-									);
-				$this->db->where('order_supplier_id = '.$order_supplier_id.' AND creditor_id = '.$creditor_id.' AND transaction_code = "'.$invoice_number.'"');
-				if($this->db->update('creditor_account',$data_array))
-				{
+				$array_product['product_unitprice'] = $selling_price;
+				$this->db->where('product_id',$product_id);
+				$this->db->update('product',$array_product);
 
-					$data_array = array('transaction_code'=>$invoice_number,
-										// 'creditor_id'=> $creditor_id,
-										'order_supplier_id'=>$order_supplier_id,
-										'creditor_account_description'=> 'Delivery of '.$product_name.'',
-										'creditor_account_amount'=> $total_amount,
-										'creditor_account_date'=>date('Y-m-d'),
-										'creditor_account_status'=>1,
-										'transaction_type_id'=>1,
-										'expense_account'=>4,
-										'created_by'=>$this->session->userdata('personnel_id')
-									);
-					if($this->db->insert('creditor_account',$data_array))
-					{
-						
-						return TRUE;	
-					}
-					else
-					{
-						return FALSE;
-					}
+				$this->db->where('product_id',$product_id);
+				$array_charge['service_charge_amount'] = $selling_price;
+				$this->db->update('service_charge',$array_charge);
+		
 
-				}
 			}
-			else
-			{
-				// insert  
-				$data_array = array('transaction_code'=>$invoice_number,
-									'creditor_id'=> $creditor_id,
-									'order_supplier_id'=>$order_supplier_id,
-									'creditor_account_description'=> 'Delivery of '.$product_name.'',
-									'creditor_account_amount'=> $total_amount,
-									'creditor_account_date'=>date('Y-m-d'),
-									'creditor_account_status'=>1,
-									'transaction_type_id'=>2,
-									// 'expense_account'=>4,
-									'created_by'=>$this->session->userdata('personnel_id')
-									);
-				if($this->db->insert('creditor_account',$data_array))
-				{
-					$data_array = array('transaction_code'=>$invoice_number,
-										// 'creditor_id'=> $creditor_id,
-										'order_supplier_id'=>$order_supplier_id,
-										'creditor_account_description'=> 'Delivery of '.$product_name.'',
-										'creditor_account_amount'=> $total_amount,
-										'creditor_account_date'=>date('Y-m-d'),
-										'creditor_account_status'=>1,
-										'transaction_type_id'=>1,
-										'expense_account'=>4,
-										'created_by'=>$this->session->userdata('personnel_id')
-									);
-					if($this->db->insert('creditor_account',$data_array))
-					{
-						
-						return TRUE;	
-					}
-					else
-					{
-						return FALSE;
-					}
-				}
-			}
+
+			
+
+				return TRUE;
 
 		}
 		else{
@@ -903,7 +1026,7 @@ class Orders_model extends CI_Model
 		if($query->num_rows() > 0)
 		{
 			$result = $query->row();
-			$qty = $result->quantity;
+			$qty = $result->order_item_quantity;
 			
 			$quantity += $qty;
 			
@@ -932,29 +1055,29 @@ class Orders_model extends CI_Model
 						'created'=>$created				
 					);
 
-				$this->db->where($data);
-				$query = $this->db->get('order_supplier');
+				// $this->db->where($data);
+				// $query = $this->db->get('order_supplier');
 
-				if($query->num_rows() > 0)
-				{
-					// $this->db->where($data);
-					if($this->db->delete('order_supplier',$data))
-					{
-						$data['quantity']=$quantity;
-						$data['unit_price']=0;
+				// if($query->num_rows() > 0)
+				// {
+				// 	// $this->db->where($data);
+				// 	if($this->db->delete('order_supplier',$data))
+				// 	{
+				// 		$data['quantity']=$quantity;
+				// 		$data['unit_price']=0;
 
-						if($this->db->insert('order_supplier',$data))
-						{
-							return TRUE;
-						}
-						else
-						{
-							return FALSE;
-						}
-					}
-				}
-				else
-				{
+				// 		if($this->db->insert('order_supplier',$data))
+				// 		{
+				// 			return TRUE;
+				// 		}
+				// 		else
+				// 		{
+				// 			return FALSE;
+				// 		}
+				// 	}
+				// }
+				// else
+				// {
 
 					$data['quantity']=$quantity;
 					$data['unit_price']=0;
@@ -968,7 +1091,7 @@ class Orders_model extends CI_Model
 						return FALSE;
 					}
 
-				}
+				// }
 				// return TRUE;
 			}
 			else{
@@ -1003,29 +1126,29 @@ class Orders_model extends CI_Model
 						'created'=>$created				
 					);
 
-				$this->db->where($data);
-				$query = $this->db->get('order_supplier');
+				// $this->db->where($data);
+				// $query = $this->db->get('order_supplier');
 
-				if($query->num_rows() > 0)
-				{
-					// $this->db->where($data);
-					if($this->db->delete('order_supplier',$data))
-					{
-						$data['quantity']=$quantity;
-						$data['unit_price']=0;
+				// if($query->num_rows() > 0)
+				// {
+				// 	// $this->db->where($data);
+				// 	if($this->db->delete('order_supplier',$data))
+				// 	{
+				// 		$data['quantity']=$quantity;
+				// 		$data['unit_price']=0;
 
-						if($this->db->insert('order_supplier',$data))
-						{
-							return TRUE;
-						}
-						else
-						{
-							return FALSE;
-						}
-					}
-				}
-				else
-				{
+				// 		if($this->db->insert('order_supplier',$data))
+				// 		{
+				// 			return TRUE;
+				// 		}
+				// 		else
+				// 		{
+				// 			return FALSE;
+				// 		}
+				// 	}
+				// }
+				// else
+				// {
 
 					$data['quantity']=$quantity;
 					$data['unit_price']=0;
@@ -1039,11 +1162,63 @@ class Orders_model extends CI_Model
 						return FALSE;
 					}
 
-				}
+				// }
 			}
 			else{
 				return FALSE;
 			}
+		}
+	}
+
+	public function get_ordered_list($order_id)
+	{
+		$this->db->select('product_deductions.quantity_requested AS supplying,product.product_unitprice AS single_price,product.product_packsize AS pack_size,product.product_unitprice, product.*,product_deductions.*,product_deductions.product_deductions_id AS item_id,product_deductions.quantity_requested AS order_item_quantity');
+		$this->db->where('product_deductions.order_id = '.$order_id.'  AND product_deductions.product_id = product.product_id ');
+		$this->db->order_by('product_deductions_id');
+		$query = $this->db->get('product_deductions,product');
+		
+		return $query;
+
+	}
+
+
+
+	public function add_order_item_supplied($order_id)
+	{
+		$product_id = $this->input->post('product_id');
+		$quantity = 0;//$this->input->post('quantity');
+		$in_stock = $this->input->post('in_stock');
+		// var_dump($in_stock); die();
+		//Check if item exists
+		$this->db->select('*');
+		$this->db->where('product_id = '.$product_id.' AND order_id = '.$order_id);
+		$query = $this->db->get('product_deductions');
+		
+		if($query->num_rows() > 0)
+		{
+			return true;
+		}
+		
+		else
+		{
+
+			$data = array(
+						  'order_id' => $order_id, 
+						  'product_id'=> $product_id,
+						  'date_requested'=>date('Y-m-d H:i:s'),
+						  'search_date'=>date('Y-m-d'),
+						  'requested_by'=>$this->session->userdata('personnel_id')
+						);
+			if($this->db->insert('product_deductions', $data))
+			{
+				$product_deductions_id = $this->db->insert_id();
+				return $product_deductions_id;
+			}
+			else
+			{
+				return FALSE;
+			}
+			
 		}
 	}
 }
