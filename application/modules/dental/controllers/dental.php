@@ -378,6 +378,45 @@ class Dental extends auth
 
 		$this->load->view('view_billing',$data);
 	}
+	public function view_quotation($visit_id)
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+		
+		$this->db->where('visit_id ='.$visit_id.' AND personnel_id ='.$personnel_id.' AND visit.close_card = 4');
+		$query = $this->db->get('visit');
+		$personnel_check = FALSE;
+		if($query->num_rows() == 1)
+		{
+			$personnel_check = TRUE;
+		}
+		$data = array('visit_id'=>$visit_id,'personnel_check'=>$personnel_check);
+
+		$this->load->view('view_quotation',$data);
+	}
+
+	public function view_patients_quotation($visit_id)
+	{
+		$personnel_id = $this->session->userdata('personnel_id');
+			
+
+		$visit_rs = $this->accounts_model->get_visit_details($visit_id);
+		$visit_type_id = 0;
+		if($visit_rs->num_rows() > 0)
+		{
+			foreach ($visit_rs->result() as $key => $value) {
+				# code...
+				$patient_id = $value->patient_id;
+			}
+		}
+
+		
+		$this->db->where('patient_id ='.$patient_id.' AND visit.visit_id IN (SELECT visit_id FROM visit_quotation) ');
+		$query = $this->db->get('visit');
+		
+		$data = array('visit_id'=>$visit_id,'query'=>$query,'patient_id'=>$patient_id);
+
+		$this->load->view('view_patient_quotations',$data);
+	}
 	function billing_service($service_id,$visit_id,$suck){
 		$data = array('procedure_id'=>$service_id,'visit_id'=>$visit_id,'suck'=>$suck);
 		$this->load->view('billing/billing',$data);	

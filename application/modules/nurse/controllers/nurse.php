@@ -688,6 +688,11 @@ class Nurse extends auth
 		$data = array('procedure_id'=>$procedure_id,'visit_id'=>$visit_id,'suck'=>$suck);
 		$this->load->view('procedure',$data);	
 	}
+
+	function quote($procedure_id,$visit_id,$suck){
+		$data = array('procedure_id'=>$procedure_id,'visit_id'=>$visit_id,'suck'=>$suck);
+		$this->load->view('quote',$data);	
+	}
 	function delete_procedure($procedure_id)
 	{
 		// $this->db->where(array("visit_charge_id"=>$procedure_id));
@@ -697,6 +702,17 @@ class Nurse extends auth
 
 		$this->db->where(array("visit_charge_id"=>$procedure_id));
 		$this->db->update('visit_charge', $visit_data);
+	}
+
+	function delete_quote($procedure_id)
+	{
+		// $this->db->where(array("visit_charge_id"=>$procedure_id));
+		// $this->db->delete('visit_charge', $visit_data);
+
+		$visit_data = array('visit_charge_delete'=>1,'deleted_by'=>$this->session->userdata("personnel_id"),'deleted_on'=>date("Y-m-d"),'modified_by'=>$this->session->userdata("personnel_id"),'date_modified'=>date("Y-m-d"));
+
+		$this->db->where(array("visit_charge_id"=>$procedure_id));
+		$this->db->update('visit_quotation', $visit_data);
 	}
 	function delete_vaccine($vaccine_id)
 	{

@@ -1466,3 +1466,6 @@ $route['view-creditor-invoice/(:num)'] = 'finance/creditors/print_creditor_invoi
 
 
 // $route['online-diary'] = 'admin/uhdc_calendar';
+
+
+$route['print-quotation/(:num)'] = 'accounts/print_quote/$1';

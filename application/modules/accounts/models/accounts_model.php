@@ -984,6 +984,8 @@ class Accounts_model extends CI_Model
 		return $result;
 	}
 
+
+
 	function get_visit_procedure_charges_as_services($v_id)
 	{
 		$table = "visit_charge, service_charge, service";
@@ -1735,5 +1737,59 @@ class Accounts_model extends CI_Model
 		return $result;
 	}
 
+
+
+
+	public function get_patient_visit_quote_items_tree($visit_id)
+	{
+		$table = "visit_quotation, service_charge, service";
+		$where = "visit_quotation.visit_charge_units <> 0 AND service_charge.service_id = service.service_id AND visit_quotation.visit_charge_delete = 0 AND visit_quotation.charged = 1 AND service.service_name <> 'Others' AND visit_quotation.service_charge_id = service_charge.service_charge_id AND visit_quotation.visit_id =". $visit_id;
+		$items = "service.service_id,service.service_name,service_charge.service_charge_name,visit_quotation.service_charge_id,visit_quotation.visit_charge_units, visit_quotation.visit_charge_amount, visit_quotation.visit_charge_timestamp,visit_quotation.visit_charge_id,visit_quotation.created_by, visit_quotation.personnel_id";
+		$order = "service.service_name";
+		$this->db->where($where);
+		$this->db->select($items);
+		$this->db->group_by('service.service_name');
+		$this->db->order_by('visit_quotation.date');
+		$result = $this->db->get($table);
+		
+		return $result;
+	}
+
+	function get_visit_quote_charges_per_service($v_id,$service_id,$visit_type_id = null)
+	{
+		$adding = '';
+		if(!empty($visit_type_id))
+		{
+			$adding = ' AND visit_quotation.charge_to = '.$visit_type_id;
+		}
+		// var_dump($visit_type_id)
+		$table = "visit_quotation, service_charge, service";
+		$where = "visit_quotation.visit_charge_delete = 0 AND visit_quotation.visit_id = $v_id AND visit_quotation.service_charge_id = service_charge.service_charge_id AND service.service_id = service_charge.service_id AND service.service_id = $service_id AND visit_quotation.visit_charge_amount > 0 ".$adding;
+		$items = "visit_quotation.created_by AS charge_creator, visit_quotation.*,service_charge.*,service.*";
+		$order = "visit_quotation.date";
+
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		return $result;
+	}
+
+	public function get_visit_quote_amount($visit_id)
+	{
+
+		$this->db->where('visit.visit_id = visit_quotation.visit_id AND visit_quotation.visit_charge_delete = 0 and charged = 1 AND visit_quotation.visit_id ='.$visit_id);
+		$this->db->select('sum(visit_quotation.visit_charge_amount * visit_quotation.visit_charge_units) AS total_amount');
+
+		$query_invoice = $this->db->get('visit,visit_quotation');
+
+		$total_amount = 0;
+		if($query_invoice->num_rows() > 0)
+		{
+			foreach ($query_invoice->result() as $key => $wiver_value) {
+				# code...
+				$total_amount = $wiver_value->total_amount;
+			}
+		}
+
+		return $total_amount;
+	}
 }
 ?>

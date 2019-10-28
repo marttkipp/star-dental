@@ -1453,6 +1453,28 @@ class Accounts extends MX_Controller
 		}
 		echo json_encode($response);
 	}
+
+
+	public function update_quotation_total($procedure_id,$units,$amount,$visit_id){
+
+		$status = $this->accounts_model->check_if_visit_active($visit_id);
+		if($status)
+		{
+			$notes = $this->input->post('notes');
+			$visit_data = array('visit_charge_units'=>$units,'visit_charge_notes'=>$notes,'visit_charge_amount'=>$amount, 'modified_by'=>$this->session->userdata("personnel_id"),'date_modified'=>date("Y-m-d"));
+			$this->db->where(array("visit_charge_id"=>$procedure_id));
+			$this->db->update('visit_quotation', $visit_data);
+
+			$response['status'] = "success";
+			$response['message'] = "You have successfully updated the charge";
+		}
+		else
+		{
+			$response['status'] = "success";
+			$response['message'] = "Sorry the visit has been ended";
+		}
+		echo json_encode($response);
+	}
 	public function delete_service_billed($procedure_id,$visit_id)
 	{
 
@@ -2361,6 +2383,18 @@ class Accounts extends MX_Controller
 		// 	$response['message'] = "Sorry the visit has been ended";
 		// }
 		echo json_encode($response);
+	}
+
+
+	public function print_quote($visit_id,$page_item = NULL)
+	{
+		$data = array('visit_id'=>$visit_id);
+		$data['contacts'] = $this->site_model->get_contacts();
+		$data['page_item'] = $page_item;
+		$patient = $this->reception_model->patient_names2(NULL, $visit_id);
+		$data['patient'] = $patient;
+		$this->load->view('quote', $data);
+
 	}
 
 }

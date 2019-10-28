@@ -379,6 +379,27 @@ class Nurse_model extends CI_Model
 		$this->db->insert('visit_charge', $visit_data);
 	}
 
+	function visit_quote_insert($v_id,$procedure_id,$suck){
+
+
+		$service_charge_rs = $this->get_service_charge($procedure_id);
+
+		foreach ($service_charge_rs as $key) :
+			# code...
+			$visit_charge_amount = $key->service_charge_amount;
+		endforeach;
+		$rs = $this->check_visit_type($v_id);
+		if(count($rs)>0){
+		  foreach ($rs as $rs1) {
+			# code...
+			  $visit_t = $rs1->visit_type;
+		  }
+		}
+
+		$visit_data = array('service_charge_id'=>$procedure_id,'visit_id'=>$v_id,'visit_charge_amount'=>$visit_charge_amount,'visit_charge_units'=>$suck,'charge_to'=>$visit_t,'created_by'=>$this->session->userdata("personnel_id"),'date'=>date("Y-m-d"),'charged'=>1);
+		$this->db->insert('visit_quotation', $visit_data);
+	}
+
 
 	function get_visit_procedure_charges_old($v_id){
 		$table = "visit_charge";
@@ -405,9 +426,35 @@ class Nurse_model extends CI_Model
 		return $result;
 	}
 
+	function get_visit_procedure_quotation_list($v_id)
+	{
+		$table = "visit_quotation,service_charge";
+		$where = "visit_quotation.service_charge_id = service_charge.service_charge_id AND visit_charge_delete = 0 AND visit_id = $v_id";
+		$items = "*";
+		$order = "visit_id";
+
+		$this->db->where($where);
+		// $this->db->table($table);
+		$this->db->select($items);
+		$this->db->join('visit_type','visit_type.visit_type_id = visit_quotation.charge_to','left');
+		$result = $this->db->get($table);
+		return $result;
+	}
+
 	function get_visit_procedure_charges($v_id){
 		$table = "visit_charge,service_charge";
 		$where = "visit_charge.service_charge_id = service_charge.service_charge_id AND visit_charge_delete = 0 AND visit_id = $v_id";
+		$items = "*";
+		$order = "visit_id";
+
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		return $result;
+	}
+
+
+	function get_visit_quotation_charges($v_id){
+		$table = "visit_quotation,service_charge";
+		$where = "visit_quotation.service_charge_id = service_charge.service_charge_id AND visit_charge_delete = 0 AND visit_id = $v_id";
 		$items = "*";
 		$order = "visit_id";
 

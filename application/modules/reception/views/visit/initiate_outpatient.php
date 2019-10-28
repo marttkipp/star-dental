@@ -157,47 +157,7 @@ if($patient_data->num_rows() > 0)
 				</div>
 			</div>
 				
-			<div class="form-group">
-				<label class="col-lg-4 control-label">Select service: </label>
-				
-				<div class="col-lg-8">
-					<select name="service_id" class="form-control" id="department_services">
-						
-					</select>
-				</div>
-			</div>
-				
-			<div class="form-group">
-				<label class="col-lg-4 control-label">Select charge: </label>
-				
-				<div class="col-lg-8">
-					<select name="service_charge_name" class="form-control custom-select" id="services_charges">
-						
-					</select>
-				</div>
-			</div>
-
-
-			<div class="form-group">
-				<label class="col-lg-4 control-label">Normal Visit OR Billing? </label>
-	            <div class="col-lg-4">
-	                <div class="radio">
-	                    <label>
-	                        <input id="optionsRadios1" type="radio" name="dental_visit" value="0" checked="checked" >
-	                        Normal
-	                    </label>
-	                </div>
-	            </div>
-	            
-	            <div class="col-lg-4">
-	                <div class="radio">
-	                    <label>
-	                        <input id="optionsRadios1" type="radio" name="dental_visit" value="1">
-	                        Billing Only
-	                    </label>
-	                </div>
-	            </div>
-			</div>
+			
 		
 	   </div>
 		<input type="hidden" name="patient_type_id" value="<?php echo $patient_type_id;?>">
@@ -205,9 +165,54 @@ if($patient_data->num_rows() > 0)
 	<!--end left -->
 	<!-- start right -->
 	<div class="col-md-6">
-		<h4 class="center-align" style="margin-bottom:10px;">Appointment details</h4>
-        
+
 		<div class="form-group">
+			<label class="col-lg-4 control-label">Select service: </label>
+			
+			<div class="col-lg-8">
+				<select name="service_id" class="form-control" id="department_services">
+					
+				</select>
+			</div>
+		</div>
+			
+		<div class="form-group">
+			<label class="col-lg-4 control-label">Select charge: </label>
+			
+			<div class="col-lg-8">
+				<select name="service_charge_name" class="form-control custom-select" id="services_charges">
+					
+				</select>
+			</div>
+		</div>
+
+
+		<div class="form-group">
+			<label class="col-lg-4 control-label">Normal Visit OR Billing? </label>
+            <div class="col-lg-4">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios1" type="radio" name="dental_visit" value="0" checked="checked" >
+                        Normal
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios1" type="radio" name="dental_visit" value="1">
+                        Billing Only
+                    </label>
+                </div>
+            </div>
+		</div>
+
+
+
+		<!-- <h4 class="center-align" style="margin-bottom:10px;">Appointment details</h4> -->
+        
+		<div class="form-group" style="display:none;">
 			<label class="col-lg-4 control-label">Visit date: </label>
 			
 			<div class="col-lg-8">
@@ -220,7 +225,7 @@ if($patient_data->num_rows() > 0)
 			</div>
 		</div>
   		
-        <div class="form-group">
+        <div class="form-group" style="display:none;">
 			<label class="col-lg-4 control-label">Schedule appointment? </label>
             <div class="col-lg-4">
                 <div class="radio">
@@ -296,12 +301,15 @@ if($patient_data->num_rows() > 0)
 	<!-- end right -->
 </div>
 <!-- end of row -->
+<br>
+<br>
+<br>
 <div class="center-align">
 	<input type="submit" value="Initiate Visit" class="btn btn-info btn-sm"/>
 </div>
-<div class="center-align">
+<!-- <div class="center-align">
 	<div class="alert alert-info center-align">Note: For Appointments ensure that you have filled in both sections on this page.</div>
-</div>
+</div> -->
 <?php echo form_close();?>
 				 <!-- end of form -->
         

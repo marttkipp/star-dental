@@ -1158,7 +1158,7 @@ class Reception_model extends CI_Model
 	public function get_services_per_department($department_id)
 	{
 		$table = "service";
-		$where = "department_id = $department_id AND service_status = 1";
+		$where = "department_id = $department_id AND service_status = 1 AND report_distinct = 1";
 		$items = "*";
 		$order = "department_id";
 			//echo $sql;

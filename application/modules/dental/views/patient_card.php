@@ -62,8 +62,8 @@ foreach ($visit_rs as $key) {
 				<li><a href="#prescription" data-toggle="tab">Prescription</a></li>
 				<li><a href="#history-patients" data-toggle="tab">Sick Leave</a></li>
 				<li><a href="#diary" data-toggle="tab">Patient's Appointments</a></li>
-				<li><a href="#uploads" data-toggle="tab">Uploads</a></li>
-
+				<li><a href="#uploads" data-toggle="tab">Uploads</a></li>				
+				<li><a href="#quotation-form" data-toggle="tab">Quotation</a></li>
 				<li><a href="#billing-form" data-toggle="tab">Visit Billing</a></li>
 				<li><a href="#patient_details" data-toggle="tab">Patient Details</a></li>
 				<li><a href="#visit_trail" data-toggle="tab">Visit Trail</a></li>
@@ -99,6 +99,10 @@ foreach ($visit_rs as $key) {
 				<div class="tab-pane" id="billing-form">
 
 					<?php echo $this->load->view("billing", '', TRUE);?>
+				</div>
+				<div class="tab-pane" id="quotation-form">
+
+					<?php echo $this->load->view("quotation", '', TRUE);?>
 				</div>
 				<div class="tab-pane" id="visit_trail">
 					<?php echo $this->load->view("visit_trail", '', TRUE);?>
