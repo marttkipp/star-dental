@@ -40,20 +40,19 @@ class Reporting extends Accounts
 		$receiver['name'] = $subject;
 		// $payslip = $title;
 
-		$sender_email = $sender_email;
-		$tenant_email .= $this->config->item('recepients_email');;
-		// var_dump($sender_email); die();
-		$email_array = explode('/', $tenant_email);
-		$total_rows_email = count($email_array);
+		// $sender_email = $sender_email;
+		// $tenant_email .= $this->config->item('recepients_email');
+		// $email_array = explode('/', $tenant_email);
+		// $total_rows_email = count($email_array);
 
-		for($x = 0; $x < $total_rows_email; $x++)
-		{
-			$receiver['email'] = $email_tenant = $email_array[$x];
+		// for($x = 0; $x < $total_rows_email; $x++)
+		// {
+		// 	$receiver['email'] = $email_tenant = $email_array[$x];
 
-			$this->email_model->send_sendgrid_mail($receiver, $sender, $message, NULL);	
+		// 	$this->email_model->send_sendgrid_mail($receiver, $sender, $message, NULL);	
 			
 
-		}
+		// }
 
 		$response['status'] = 'success';
 
