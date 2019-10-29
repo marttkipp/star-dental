@@ -1,7 +1,7 @@
 <?php
 
 
-$url = 'http://simplex-financials.com/star-dental/reporting/daily_report';
+$url = 'https://simplex-financials.com/star-dental/reporting/daily_report';
 //Encode the array into JSON.
 $patient_details = array();
 //The JSON data.
