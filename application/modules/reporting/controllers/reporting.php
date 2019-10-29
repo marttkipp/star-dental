@@ -55,9 +55,12 @@ class Reporting extends Accounts
 
 		}
 
-		echo '<script language="JavaScript">';
-		echo 'window.self.close();';
-		echo '</script>';
+		$response['status'] = 'success';
+
+		echo json_encode($response);
+		// echo '<script language="JavaScript">';
+		// echo 'window.self.close();';
+		// echo '</script>';
 
 	}
 
