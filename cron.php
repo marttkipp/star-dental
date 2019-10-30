@@ -21,7 +21,7 @@ try{
 	);
 	$result = curl_exec($ch);
 
-	var_dump($result);die();
+	// var_dump($result);die();
 	curl_close($ch);
 }
 catch(Exception $e)
