@@ -113,4 +113,3 @@ class Reporting extends Accounts
 	}
 }
 ?>
-	
