@@ -41,8 +41,7 @@ class Reporting extends Accounts
 		// $payslip = $title;
 
 		$sender_email = $sender_email;
-		$tenant_email .= $this->config->item('recepients_email');;
-		// var_dump($sender_email); die();
+		$tenant_email .= $this->config->item('recepients_email');
 		$email_array = explode('/', $tenant_email);
 		$total_rows_email = count($email_array);
 
