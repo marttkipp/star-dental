@@ -393,11 +393,18 @@ class Reception_model extends CI_Model
 		// }
 
 		$patient_number = $this->input->post('patient_number');
+		$is_numeric =	is_numeric($patient_number[0]);
 
+		if($is_numeric)
+		{
+			$patient_number = 'N'.$patient_number;
+		}
 		$branch_code = $patient_number[0];
 
 		$patient_number = str_replace($branch_code, '', $patient_number);
 		$explode = explode('/', $patient_number);
+
+		// var_dump($patient_number);die();
 
 
 
