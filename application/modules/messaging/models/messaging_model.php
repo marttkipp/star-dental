@@ -834,6 +834,7 @@ class Messaging_model extends CI_Model
 				}
 			}
 
+
 			$visit_data = array(
 					"message_batch_code" => $this->create_batch_code(),
 					"search_title" => $this->session->userdata('search_template'),
@@ -847,9 +848,10 @@ class Messaging_model extends CI_Model
 			$message_batch_id = $this->db->insert_id();
 
 			// var_dump($message_template_description); die();
-			$where = 'patient_status  = 1';
+			$where = 'patient_delete  = 0';
 			$this->db->where($where);
 			$query = $this->db->get('patients');
+			// var_dump($query);die();
 
 
 			$where = 'entryid > 0';
