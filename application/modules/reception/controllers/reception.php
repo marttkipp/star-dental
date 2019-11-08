@@ -3019,9 +3019,9 @@ public function save_visit2($patient_id)
 			}
 		}
 		// redirect('appointments');
-		echo '<script language="JavaScript">';
-		echo 'window.self.close();';
-		echo '</script>';
+		// echo '<script language="JavaScript">';
+		// echo 'window.self.close();';
+		// echo '</script>';
 	}
 	public function send_reminders()
 	{
