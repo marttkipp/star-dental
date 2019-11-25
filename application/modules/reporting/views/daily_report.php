@@ -4,7 +4,7 @@
 		$visit_date = date('jS M Y',strtotime($date_tomorrow));
 
 		$date_tomorrow = date('Y-m-d');
-		// $date_tomorrow = date("Y-m-d", strtotime("-1 day", strtotime($date_tomorrow)));
+		$date_tomorrow = date("Y-m-d", strtotime("-1 day", strtotime($date_tomorrow)));
 
 
 		$branch = $this->config->item('branch_name');
