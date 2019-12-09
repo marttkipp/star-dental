@@ -3,7 +3,7 @@
 $row = $query->row();
 $invoice_date = date('jS M Y H:i a',strtotime($row->debtor_invoice_created));
 $debtor_invoice_id = $row->debtor_invoice_id;
-// $visit_type_name = $row->visit_type_name;
+$visit_type_name = $row->visit_type_name;
 $visit_type_id = $row->visit_type_id;
 //$patient_insurance_number = $row->patient_insurance_number;
 $batch_no = $row->batch_no;
@@ -11,8 +11,7 @@ $status = $row->debtor_invoice_status;
 $personnel_id = $row->debtor_invoice_created_by;
 $date_from = date('jS M Y',strtotime($row->date_from));
 $date_to = date('jS M Y',strtotime($row->date_to));
-$total_invoiced = number_format($this->reports_model->calculate_debt_total($debtor_invoice_id, $where, $table,$visit_type_id), 2);
-// var_dump($total_invoiced); die();
+$total_invoiced = number_format($this->reports_model->calculate_debt_total($debtor_invoice_id, $where, $table), 2);
 
 //creators and editors
 if($personnel_query->num_rows() > 0)
@@ -45,7 +44,7 @@ else
     <div class="col-md-12">
         <section class="panel panel-featured">
             <header class="panel-heading">
-            	<h2 class="panel-title">Debtor's reports for </h2>
+            	<h2 class="panel-title">Debtor's reports for <?php echo $visit_type_name;?></h2>
             </header>             
         
             <!-- Widget content -->
@@ -82,16 +81,6 @@ else
                             <tbody> 
                                 <?php
                                 $total_amount = 0;
-                                $total_waiver = 0;
-                                $total_payments = 0;
-                                $total_invoice = 0;
-                                $total_balance = 0;
-                                $total_rejected_amount = 0;
-                                $total_cash_balance = 0;
-                                $total_insurance_payments =0;
-                                $total_insurance_invoice =0;
-                                $total_payable_by_patient = 0;
-                                $total_payable_by_insurance = 0;
                                 if($debtor_invoice_items->num_rows() > 0)
                                 {
                                     $count = 0;
@@ -107,11 +96,7 @@ else
 										$debtor_invoice_item_status = $res->debtor_invoice_item_status;
 										$debtor_invoice_item_id = $res->debtor_invoice_item_id;
                                         $rejected_amount = $res->rejected_amount;
-                                        $invoice_number = $res->invoice_number;
-                                        $visit_type_id  = $visit_type = $res->visit_type;
                                         $visit_id = $res->visit_id;
-                                         $parent_visit = $res->parent_visit;
-                                         $invoice_amount = $res->invoice_amount;
                                         $visit_date = date('jS F Y',strtotime($res->visit_date));
                               
 										
@@ -129,64 +114,20 @@ else
 										}
 
 
-                                            // $payments_value = $this->accounts_model->total_payments($visit_id);
+                                            $payments_value = $this->accounts_model->total_payments($visit_id);
 
-                                            // $invoice_total = $amount_payment = $this->accounts_model->total_invoice($visit_id);
+                                            $invoice_total = $this->accounts_model->total_invoice($visit_id);
 
+                                            $balance = $this->accounts_model->balance($payments_value,$invoice_total);
 
-                                            // $rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type);
-                                            // $total_rejected = 0;
-                                            // if(count($rs_rejection) >0){
-                                            //   foreach ($rs_rejection as $r2):
-                                            //     # code...
-                                            //     $total_rejected = $r2->total_rejected;
-
-                                            //   endforeach;
-                                            // }
-
-                                            // $rejected_amount += $total_rejected;
-
-
-
-                                            // if($visit_type > 1 AND $total_rejected > 0)
-                                            // {
-                                            //     $payable_by_patient = $rejected_amount;
-                                            //     $payable_by_insurance = $invoice_total - $payments_value;
-                                            // }
-                                            // else if($visit_type > 1 AND $total_rejected == 0)
-                                            // {
-                                            //     $payable_by_patient = $invoice_total;
-                                            //     $payable_by_insurance = $invoice_total - $payments_value;
-                                            // }
-                                            // else
-                                            // {
-                                            //     $payable_by_patient = $invoice_total - $payments_value;
-                                            //     $payable_by_insurance = 0;
-                                            // }
-                                            // $balance  = $this->accounts_model->balance($payments_value,$invoice_total);
-                                            // $total_insurance_payments += $payments_value;
-                                            // $total_balance += $payable_by_insurance;
-                                            // // $total_rejected_amount += $billed_amount;               
-                                            // $total_invoice += $invoice_total;
-                                            // $total_payable_by_insurance += $payable_by_insurance;
-                                            // $total_payable_by_patient += $payable_by_patient;
-                                            
-                                            // $balance = ($invoice_total) - ($payments_value);
-
-                                            if($invoice_amount > 0)
+                                            $invoice_total = $invoice_total - $payments_value;
+                                            $cash_balance = 0;
+                                            if(!empty($rejected_amount))
                                             {
-                                                
-                                            $total_balance += $invoice_amount;
+                                                $cash_balance = $rejected_amount;
                                             }
-
-                                            
-                                            $count++;
-                                            
-                                            //payment data
-                                            $charges = '';
-                                            
-                                            
-
+                                            $invoice_total -= $cash_balance;
+                                            $total_amount += $invoice_total;
 
                                         $print_invoice = '<a href="'.site_url().'accounts/print_invoice_new/'.$visit_id.'" class="btn btn-sm btn-success" target="_blank">Print Invoice</a>';
                                         ?>
@@ -195,8 +136,8 @@ else
                                             <td><?php echo $visit_date;?></td>
                                             <td><?php echo $patient_insurance_number;?></td>
                                             <td><?php echo $patient_surname;?> <?php echo $patient_othernames;?></td>
-                                            <td><?php echo $invoice_number; ?></td>
-                                            <td><?php echo number_format($invoice_amount, 2);?></td>
+                                            <td><?php echo $visit_id; ?></td>
+                                            <td><?php echo number_format($invoice_total, 2);?></td>
                                             <td><?php echo $buttons;?></td>
                                             <td><?php echo $print_invoice;?></td>
                                         </tr>
@@ -206,7 +147,7 @@ else
                                 ?>
                                 <tr>
                                     <th colspan="5" align="right">Total</th>
-                                    <th><?php echo number_format($total_balance, 2);?></th>
+                                    <th><?php echo number_format($total_amount, 2);?></th>
                                     <td></td>
                                 </tr>
                             </tbody>

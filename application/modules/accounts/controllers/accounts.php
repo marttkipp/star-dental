@@ -1,5 +1,5 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-// error_reporting(0);
+error_reporting(0);
 class Accounts extends MX_Controller
 {
 	function __construct()
@@ -1140,14 +1140,14 @@ class Accounts extends MX_Controller
 			if($response == "Success" OR $response == "success")
 			{
 
-				$service_charge_update = array('message_status' => 1,'delivery_message'=>'Success','sms_cost'=>3);
+				$service_charge_update = array('message_status' => 1,'delivery_message'=>'Success','sms_cost'=>3,'message_type'=>'Thank You Note');
 				$this->db->where('message_id',$message_id);
 				$this->db->update('messages', $service_charge_update);
 
 			}
 			else
 			{
-				$service_charge_update = array('message_status' => 0,'delivery_message'=>'Success','sms_cost'=>0);
+				$service_charge_update = array('message_status' => 0,'delivery_message'=>'Success','sms_cost'=>0,'message_type'=>'Thank You Note');
 				$this->db->where('message_id',$message_id);
 				$this->db->update('messages', $service_charge_update);
 
@@ -1294,6 +1294,8 @@ class Accounts extends MX_Controller
 		{
 			$this->session->set_userdata("error_message", validation_errors());
 		}
+
+		redirect('receipt-payment/'.$visit_id.'/1');
 	}
 	public function view_patient_bill($visit_id,$page=NULL)
 	{

@@ -30,26 +30,6 @@
                             </select>
                         </div>
                     </div>
-                     <!-- Activate checkbox -->
-                    <div class="form-group">
-                        <label class="col-lg-4 control-label">Invoice Status</label>
-                        <div class="col-lg-8">
-                            <div class="radio">
-                                <label>
-                                    <input  type="radio" checked value="0" name="invoice_status" id="invoice_status">
-                                    All
-                                </label>
-                                <label>
-                                    <input  type="radio"  value="4" name="invoice_status" id="invoice_status">
-                                    Not Approved
-                                </label>
-                                <label>
-                                    <input  type="radio" value="2" name="invoice_status" id="invoice_status">
-                                    Approved
-                                </label>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
 

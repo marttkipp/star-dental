@@ -28,7 +28,9 @@
 							  <th>#</th>
 							  <th>Doctor\'s name</th>
 							  <th>Patients seen</th>
-							  <th>Total collection</th>
+							  <th>Total Cash</th>
+							  <th>Total Insurance</th>
+							  <th>Total Collection</th>
 							  <th colspan="2">Actions</th>
 							</tr>
 						</thead>
@@ -48,6 +50,8 @@
 					
 					//get service total
 					$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to);
+					$total_invoice = $this->reports_model->get_total_collected_invoice($personnel_id, $date_from, $date_to);
+					$total_all = $this->reports_model->get_total_collected_invoice_total($personnel_id, $date_from, $date_to);
 					$patients = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to);
 					$grand_total += $total;
 					$patients_total += $patients;
@@ -96,6 +100,9 @@
 							<td>Dr. '.$personnel_fname.' '.$personnel_onames.'</td>
 							<td>'.$patients.'</td>
 							<td>'.number_format($total, 2).'</td>
+							<td>'.number_format($total_invoice, 2).'</td>
+							<td>'.number_format($total_all, 2).'</td>
+
 							<td>
 								<a href="'.site_url().'view-doctors-patients/'.$personnel_id.'" class="btn btn-warning btn-sm fa fa-folder-open"> View Patients</a>
 							</td>

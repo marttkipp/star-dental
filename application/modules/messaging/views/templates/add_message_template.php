@@ -49,6 +49,30 @@
                 <input type="text" class="form-control" name="template_code" placeholder="Template Code" value="<?php echo set_value('template_code');?>" required>
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="col-lg-4 control-label">Contact Category</label>
+            <div class="col-lg-6">
+                <select name="contact_category_id" class="form-control">
+                    <option value="0">----- All Contacts ----- </option>
+                    <?php
+                    $groups = $this->messaging_model->get_all_contact_groups();
+                    if($groups->num_rows() > 0)
+                    {
+                        foreach ($groups->result() as $key => $value) {
+                            # code...
+                            $contact_category_id = $value->contact_category_id;
+                            $contact_category_name = $value->contact_category_name;
+
+                            echo '<option value="'.$contact_category_id.'">'.$contact_category_name.'</option>';
+                        }
+                    }
+
+                    ?>
+                    
+                </select>
+            </div>
+        </div>
      	<div class="form-group">
             <label class="col-lg-4 control-label">Template Description</label>
             <div class="col-lg-6">

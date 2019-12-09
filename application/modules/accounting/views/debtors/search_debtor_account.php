@@ -1,3 +1,4 @@
+<div class="row">
  <section class="panel">
     <header class="panel-heading">
         <h2 class="panel-title">Search</h2>
@@ -10,7 +11,7 @@
             echo form_open("accounting/creditors/search_creditor_account/".$creditor_id, array("class" => "form-horizontal"));
             ?>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <div class="form-group">
                         <label class="col-md-4 control-label">Date from: </label>
                         
@@ -25,7 +26,7 @@
                     </div>
                 </div>
                 
-                <div class="col-md-6">
+                <div class="col-md-5">
                     
                     <div class="form-group">
                         <label class="col-md-4 control-label">Date to: </label>
@@ -40,14 +41,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <div class="center-align">
+                        <button type="submit" class="btn btn-info btn-sm">Search</button>
+                    </div>
+                </div>
             </div>
-            <br>
-            <div class="center-align">
-                <button type="submit" class="btn btn-info btn-sm">Search</button>
-            </div>
+            
             <?php
             echo form_close();
             ?>
         </div>
     </div>
 </section>
+</div>

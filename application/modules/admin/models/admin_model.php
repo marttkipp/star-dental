@@ -128,7 +128,7 @@ class Admin_model extends CI_Model
 		$preffix = strtoupper($trimed);
 		return $preffix;
 	}
-	public function get_all_visits_parent($table, $where, $per_page, $page, $order = NULL)
+	public function get_all_visits_parent_old($table, $where, $per_page, $page, $order = NULL)
 	{
 		//retrieve all users
 		$this->db->from($table);
@@ -136,6 +136,29 @@ class Admin_model extends CI_Model
 		$this->db->where($where);
 		$this->db->order_by('visit.time_start','ASC');
 		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+
+
+
+	public function get_all_visits_parent($table, $where, $per_page, $page, $order = NULL)
+	{
+		//retrieve all users
+		// $this->db->from($table);
+		// $this->db->select('visit.*,patients.*');
+		// $this->db->where($where);
+		// $this->db->order_by('visit.time_start','ASC');
+
+		$query = $this->db->query("SELECT
+  visit_date, TIME(STR_TO_DATE(time_start, '%l:%i %p')),patients.*,visit.*
+FROM
+  visit,patients
+where
+".$where."
+ORDER BY
+  STR_TO_DATE(time_start, '%l:%i %p')");
+		// $query = $this->db->get('', $per_page, $page);
 		
 		return $query;
 	}
@@ -151,6 +174,38 @@ class Admin_model extends CI_Model
 		{
 			return FALSE;
 		}
+	}
+	public function get_total_unsent_appointments()
+	{
+		
+		$date_tomorrow = date("Y-m-d",strtotime("tomorrow"));
+
+		$dt= $date_tomorrow;
+        $dt1 = strtotime($dt);
+        $dt2 = date("l", $dt1);
+        $dt3 = strtolower($dt2);
+    	if(($dt3 == "sunday"))
+		{
+            // echo $dt3.' is weekend'."\n";
+
+            $date_tomorrow = strtotime('+1 day', strtotime($dt));
+            $date_tomorrow = date("Y-m-d",$date_tomorrow);
+            $date_to_send = 'Monday';
+        } 
+    	else
+		{
+            // echo $dt3.' is not weekend'."\n";
+             $date_tomorrow = $dt;
+             $date_to_send = 'tomorrow';
+        }
+
+
+        // var_dump($date_tomorrow); die();
+		$this->db->select('*');
+		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND schedule_id = 0');
+		$query = $this->db->get('visit,patients');
+
+		return $query->num_rows();
 	}
 }
 ?>

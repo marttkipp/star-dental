@@ -102,24 +102,21 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 			$count = $page;
 			
 			
-				$result .= 
+			$result .= 
 			'
-				<table class="table table-bordered ">
+				<table class="table table-hover table-bordered ">
 				  <thead>
 					<tr>
 					  <th style="text-align:center" rowspan=2>Date</th>
 					  <th rowspan=2>Document Number</th>
 					  <th rowspan=2>RX</th>
-					  <th colspan=4 style="text-align:center;">Amount</th>
+					  <th colspan=2 style="text-align:center;">Amount</th>
 					
 					</tr>
 					<tr>
 					  
 					  <th style="text-align:center">Invoice</th>
-					  <th style="text-align:center">P.By Patient</th>
-					  <th style="text-align:center">P.By Insurance</th>
-					  <th style="text-align:center">Paid</th>
-					  <th style="text-align:center">Insurance Paid</th>
+					  <th style="text-align:center">Payment</th>
 					  <th style="text-align:center">Balance</th>
 					</tr>
 				  </thead>
@@ -131,19 +128,11 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 			$total_invoiced_amount = 0;
 			$total_paid_amount = 0;
 			$total_balance =0;
-			$total_payable_by_patient = 0;
-			$total_payable_by_insurance = 0;
-			$total_cash_payments = 0;
-			$total_insurance_payments = 0;
 			foreach ($query->result() as $row)
 			{
 				$visit_id = $row->visit_id;
 				$visit_date = $row->visit_date;
 				$visit_date = $row->visit_date;
-				$visit_type_name = $row->visit_type_name;
-				$visit_type = $row->visit_type;
-				$rejected_amount = $row->rejected_amount;
-				$preauth = $row->preauth;
 				$total_invoice = $this->accounts_model->total_invoice($visit_id);
 				$total_payments = $this->accounts_model->total_payments($visit_id);
 
@@ -179,7 +168,6 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 
                             $payments_made .='<tr>
 												<td>'.$payment_created.'</td>
-												<td>'.$payment_method.'</td>
 												<td>'.number_format($amount_paid).'</td>
 											</tr>';
                         }
@@ -191,15 +179,12 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
                 else
                 {
                 	 $payments_made .='<tr>
-											<td colspan=3>No Payments Done</td>
+											<td colspan=2>No Payments Done</td>
 										</tr>';
                 }
-                $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
-                $credit_note_amount = $this->accounts_model->get_sum_credit_notes($visit_id);
+
 				$item_invoiced_rs = $this->accounts_model->get_patient_visit_charge_items($visit_id);
-				$charged_services = '
-									<p><strong>'.strtoupper($visit_type_name).'</strong><p>
-									<table class="table">
+				$charged_services = '<table class="table">
 									  <thead>
 										<tr>
 										  <th >Name</th>
@@ -233,16 +218,8 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 						
 					endforeach;
 					$charged_services .=  '<tr>
-													<td colspan=3>Debit Note</td>
-													<td> ('.number_format($debit_note_amount,2).')</td>
-												</tr>';
-					$charged_services .=  '<tr>
-													<td colspan=3>Waiver / Discount</td>
-													<td> ('.number_format($credit_note_amount,2).')</td>
-												</tr>';
-					$charged_services .=  '<tr>
-													<td colspan=3>Total Invoice</td>
-													<td> '.number_format($total_invoice,2).'</td>
+													<td colspan=3>TOTAL</td>
+													<td> '.number_format($total,2).'</td>
 												</tr>';
 				}
 				$charged_services .= '</tbody>
@@ -263,65 +240,21 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 
 
 				$count++;
-				$rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type);
-				$total_rejected = 0;
-				if(count($rs_rejection) >0){
-				  foreach ($rs_rejection as $r2):
-				    # code...
-				    $total_rejected = $r2->total_rejected;
-
-				  endforeach;
-				}
-
-
-				$rejected_amount += $total_rejected;
-
-				if($preauth == 1)
-				{
-					$color = 'warning';
-				}
-				else
-				{
-					$color = '';
-				}
 				if($total_invoice > 0)
 				{
 					$balance = $total_invoice - $total_payments;
 					$total_balance += $balance;
-					if($visit_type > 1 AND $total_rejected > 0)
-					{
-						$payable_by_patient = $rejected_amount;
-						$payable_by_insurance = $total_invoice - $rejected_amount;
-					}
-					else if($visit_type > 1 AND empty($total_rejected))
-					{
-						$payable_by_patient = 0;
-						$payable_by_insurance = $total_invoice;
-					}
-					else
-					{
-						$payable_by_patient = $total_invoice;
-						$payable_by_insurance = 0;
-					}
-					$cash_payments = $this->accounts_model->get_cash_payments($visit_id);
-					$insurance_payments = $this->accounts_model->get_insurance_payments($visit_id);
-					$total_cash_payments += $cash_payments;
-					$total_insurance_payments += $insurance_payments;
 
-					$total_payable_by_patient += $payable_by_patient;
-					$total_payable_by_insurance += $payable_by_insurance;
+
 					$result .= 
 					'
-						<tr class="'.$color.'">
+						<tr>
 							<td style="text-align:center">'.$visit_date.'</td>
 							<td>'.$invoice_number.'</td>
 							<td>'.$charged_services.'</td>
 							<td style="text-align:center">'.number_format($total_invoice,2).'</td>
-							<td style="text-align:center">'.number_format($payable_by_patient,2).'</td>
-							<td style="text-align:center">'.number_format($payable_by_insurance,2).'</td>
-							<td style="text-align:center">'.number_format($cash_payments,2).'</td>
-							<td style="text-align:center">'.number_format($insurance_payments,2).'</td>
-							<td style="text-align:center">'.number_format($balance,2).'</td>
+							<td style="text-align:center">'.number_format($total_payments,2).'</td>
+							<td style="text-align:center">'.number_format($total_balance,2).'</td>
 						</tr> 
 					';
 				}
@@ -329,20 +262,14 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 				
 				
 			}
-
-			
-
 				$result .= 
 					'
-						<tr >
+						<tr>
 							<td></td>
 							<td></td>
 							<td style="text-align:center">Totals</td>
 							<td style="text-align:center; font-weight:bold;"> '.number_format($total_invoiced_amount,2).'</td>
-							<td style="text-align:center; font-weight:bold;">'.number_format($total_payable_by_patient,2).'</td>
-							<td style="text-align:center; font-weight:bold;">'.number_format($total_payable_by_insurance,2).'</td>
-							<td style="text-align:center; font-weight:bold;">'.number_format($total_cash_payments,2).'</td>
-							<td style="text-align:center; font-weight:bold;">'.number_format($total_insurance_payments,2).'</td>
+							<td style="text-align:center; font-weight:bold;">'.number_format($total_paid_amount,2).'</td>
 							<td style="text-align:center; font-weight:bold;">'.number_format($total_balance,2).'</td>
 						</tr> 
 					';
@@ -350,8 +277,6 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 					$result .= 
 					'
 						<tr>
-							<td></td>
-							<td></td>
 							<td></td>
 							<td></td>
 							<td style="text-align:center; font-weight:bold;">Balance</td>

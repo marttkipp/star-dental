@@ -1,5 +1,5 @@
 <!-- search -->
-<?php echo $this->load->view('search/debtor_search', '', TRUE);?>
+<?php //echo $this->load->view('search/debtor_search', '', TRUE);?>
 
 <!-- end search -->
 <section class="panel">
@@ -156,7 +156,7 @@
 							<td>'.number_format($payments_total, 2).'</td>
 							<td>'.number_format($invoice_total+$opening_balance, 2).'</td>
 							<td><a href="'.site_url().'accounting/debtor-statement/'.$visit_type_id.'" class="btn btn-sm btn-info" >Account</a></td>
-							<td><a href="'.base_url().'accounting/creditors/print_creditor_account/'.$visit_type_id.'" class="btn btn-sm btn-warning"  target="_blank"><i class="fa fa-print"></i> </a></td>
+						
 							<td><button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#book-appointment'.$visit_type_id.'"><i class="fa fa-plus"></i> Balance </button>
 								<div class="modal fade " id="book-appointment'.$visit_type_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 								    <div class="modal-dialog modal-lg" role="document">

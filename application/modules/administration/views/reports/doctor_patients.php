@@ -5,20 +5,7 @@
             <header class="panel-heading">
             	 <h2 class="panel-title"><?php echo $title;?></h2>
             	  <div class="pull-right">
-            	  	<?php
-            	  	if($type == 1)
-            	  	{
-            	  		?>
-            	  		 <a href="<?php echo site_url();?>accounting/cash-provider-statement/<?php echo $personnel_id;?>" class="btn btn-info btn-sm pull-right " style="margin-top:-25px;margin-right:5px;"><i class="fa fa-arrow-left"></i> Back to Doctors</a>
-            	  		<?php
-            	  	}
-            	  	else
-            	  	{
-            	  		?>
-            	  		 <a href="<?php echo site_url();?>accounting/provider-statement/<?php echo $personnel_id;?>" class="btn btn-info btn-sm pull-right " style="margin-top:-25px;margin-right:5px;"><i class="fa fa-arrow-left"></i> Back to Doctors</a>
-            	  		<?php
-            	  	}
-            	  	?>
+            	  	
             	   
 			    </div>
             </header>             
@@ -53,7 +40,6 @@
 						  <th>Invoice Total</th>
 						  <th>Payments</th>
 						  <th>Balance</th>
-						  <th>Approved Amount</th>
 						</tr>
 					  </thead>
 					  <tbody>
@@ -63,7 +49,6 @@
 			$total_invoice = 0;
 			$total_payments = 0;
 			$total_balance = 0;
-			$total_approved =0;
 			
 			foreach ($query->result() as $row)
 			{
@@ -108,6 +93,8 @@
 				$visit_table_visit_type = $visit_type;
 				$invoice_number = $row->invoice_number;
 				$patient_table_visit_type = $visit_type_id;
+				$coming_from = $this->reception_model->coming_from($visit_id);
+				$sent_to = $this->reception_model->going_to($visit_id);
 				$visit_type_name = $row->visit_type_name;
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
@@ -119,18 +106,6 @@
 				$invoice_total = $this->accounts_model->total_invoice($visit_id);
 
 				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
-
-				if($visit_type_id == 1)
-				{
-
-					$approved_amount  = $this->reports_model->get_doctor_approved_amount($visit_id,1);
-				}
-				else
-				{
-
-					$approved_amount  = $this->reports_model->get_doctor_approved_amount($visit_id,0);
-				}
-
 				// end of the debit and credit notes
 
 
@@ -160,7 +135,6 @@
 				{
 					$doctor = '-';
 				}
-				$total_approved += $approved_amount;
 				
 				$count++;
 				
@@ -186,7 +160,6 @@
 								<td>'.$invoice_total.'</td>
 								<td>'.$payments_value.'</td>
 								<td>'.($balance).'</td>
-								<td>'.number_format($approved_amount).'</td>
 							</tr> 
 						';
 			}
@@ -197,7 +170,6 @@
 								<td>'.$total_invoice.'</td>
 								<td>'.$total_payments.'</td>
 								<td>'.$total_balance.'</td>
-								<td>'.$total_approved.'</td>
 							</tr> 
 						';
 

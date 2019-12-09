@@ -42,7 +42,7 @@
 			
 			$result .= 
 				'
-					<table class="table table-bordered table-striped table-responsive col-md-12">
+					<table class="table table-hover table-bordered table-striped table-responsive col-md-12">
 					  <thead>
 						<tr>
 						  <th>#</th>
@@ -81,7 +81,6 @@
 				 $visit_type_id = $row->visit_type_idd;
 				$visit_type = $row->visit_type;
 				$rejected_amount = $row->rejected_amount;
-				$parent_visit = $row->parent_visit;
 				$visit_table_visit_type = $visit_type;
 				$invoice_number = $visit_id;//$row->invoice_number;
 				$patient_table_visit_type = $visit_type_id;
@@ -140,50 +139,6 @@
 											<td colspan=2>No Payments Done</td>
 										</tr>';
                 }
-
-                $rs_rejection_rs = $this->dental_model->get_visit_rejected_updates($visit_id);
-
-			
-				$total_rejected = 0;
-				if(count($rs_rejection_rs) >0){
-				  foreach ($rs_rejection_rs as $r3):
-				    # code...
-				    $visit_type_name2 = $r3->visit_type_name;
-				    $visit_id_other = $r3->visit_id;
-				    $invoice_number = $r3->invoice_number;
-				    $visit_bill_amount = $r3->visit_bill_amount;
-				    $total_rejected += $visit_bill_amount;
-
-				 
-
-				  endforeach;
-				}
-
-
-				$rejected_amount += $total_rejected;
-
-
-                if($parent_visit == 0 OR empty($parent_visit))
-				{
-					$invoiced_balance = $invoice_total - $payments_value - $rejected_amount;
-				}
-				else
-				{
-					$rejected_amount = $this->accounts_model->get_child_amount_payable($visit_id);
-					// echo $rejected_amount; die();
-					$invoiced_balance = $rejected_amount - $payments_value;
-
-
-				}
-
-				if($parent_visit == 0)
-				{
-					$payable_by_patient = $rejected_amount + $payments_value;
-				}
-				else
-				{
-					$payable_by_patient = $invoice_total - $rejected_amount;
-				}
 
 
 				$billed_charges = '<table class="table">
@@ -276,33 +231,26 @@
 													<td><strong> '.number_format($invoice_total,2).' </strong></td>
 												</tr>';
 
-					if($visit_type_id != 1 AND $rejected_amount > 0  )
+					if($visit_type_id != 1 AND $rejected_amount > 0)
 					{
 					
 						$charged_services .=  '<tr>
-													<td colspan=3>PAYABLE BY INSURANCE ('.$visit_type_name.')</td>
+													<td colspan=3>'.$visit_type_name.' BILL</td>
 													<td><strong> '.number_format($invoice_total-$rejected_amount-$payments_value,2).' </strong></td>
 												</tr>';
 					}
 					else
 					{
 						$charged_services .=  '<tr>
-													<td colspan=3>PAYABLE BY PATIENT</td>
-													<td><strong> '.number_format($rejected_amount,2).'  </strong></td>
+													<td colspan=3>'.$visit_type_name.' BILL</td>
+													<td><strong> '.number_format($invoice_total,2).' </strong></td>
 												</tr>';
 					}
 					if($visit_type_id != 1 AND $rejected_amount > 0)
 					{
 						$charged_services .=  '<tr>
-												<td colspan=3>PAYABLE BY PATIENT</td>
-												<td><strong> ('.number_format($rejected_amount,2).') </strong></td>
-											</tr>';
-					}
-					else if($visit_type_id == 1 AND $rejected_amount > 0)
-					{
-						$charged_services .=  '<tr>
-												<td colspan=3>PAYABLE BY INSURANCE</td>
-												<td><strong> ('.number_format($payable_by_patient,2).') </strong></td>
+												<td colspan=3>CASH BALANCE</td>
+												<td><strong> '.number_format($rejected_amount,2).' </strong></td>
 											</tr>';
 					}
 					$charged_services .=  '<tr>
@@ -311,7 +259,7 @@
 											</tr>';
 					$charged_services .=  '<tr>
 												<td colspan=3>BALANCE</td>
-												<td><strong> '.number_format($invoiced_balance,2).' </strong></td>
+												<td><strong> '.number_format($balance,2).' </strong></td>
 											</tr>';
 					
 				}
@@ -359,58 +307,47 @@
 						$button ='<td><a href="'.site_url().'administration/reports/end_visit_current/'.$visit_id.'"  onclick="return confirm(\'Do you want to close visit ?\');" class="btn btn-sm btn-danger" >Close Card</a></td>';
 					}
 				}
-				$buttons = '';
 
-				
 
-				$personnel_id = $this->session->userdata('personnel_id');
-				$is_cashier = $this->reception_model->check_if_admin($personnel_id,5);
-				$is_dentist = $this->reception_model->check_if_admin($personnel_id,6);
-				// $result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/1', array("class" => "form-horizontal"));
-				// var_dump($doctor_invoice_status); die();
-				if(($is_cashier OR $personnel_id == 0) AND $doctor_invoice_status == 1 OR $doctor_invoice_status == NULL)
+				if($doctor_invoice_status == 1)
 				{
-						// if($visit_type_id != 1)
-						// {
-							$result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/2', array("class" => "form-horizontal"));
-							$buttons = '<td>
-											<input type="text" name="amount'.$visit_id.'" class="form-control" value="" placeholder="Insurance amount"/> <br>
-											<input type="text" name="cash_amount'.$visit_id.'" class="form-control" value="" placeholder="Cash amount "/> <br>
-											<button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'Do you want to update the charge ?\');" > Update Charge </button>
-										</td>';
-						// }
-						// else
-						// {
-						// 	$result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/1', array("class" => "form-horizontal"));
-						// 	$buttons = '<td>
-						// 		<input type="text" name="cash_amount'.$visit_id.'" class="form-control" value="" placeholder="Cash amount "/> <br>
-						// 		<button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'Do you want to update the charge ?\');" > Update Charge </button></td>';
-						// }
-						
-					 
-				
-
-
-					$buttons .='<td><a href="'.site_url().'administration/reports/approve_payment/'.$visit_id.'" class="btn btn-sm btn-danger"  onclick="return confirm(\'You are about to approve this charge. Continue?\');">Approve </a></td>';
+					$buttons = '';
 				}
-				if(($is_dentist OR $personnel_id == 0) AND $doctor_invoice_status < 2 AND  $doctor_invoice_status != NULL)
+				else
 				{
-					// if($visit_type_id != 1)
+
+					// if($visit_type_id != 1 AND $rejected_amount > 0)
 					// {
 						$result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/2', array("class" => "form-horizontal"));
-						$buttons = '<td>
-										<input type="text" name="amount'.$visit_id.'" class="form-control" value="" placeholder="Insurance amount"/> <br>
-										<input type="text" name="cash_amount'.$visit_id.'" class="form-control" value="" placeholder="Cash amount "/> <br>
-										<button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'Do you want to update the charge ?\');" > Update Charge </button>
-									</td>';
+						$buttons = '<td><input type="text" name="amount'.$visit_id.'" class="form-control" value="" placeholder="insurance charge"/> <br>
+								
+							
+								<input type="text" name="cash_amount'.$visit_id.'" class="form-control" value="" placeholder="cash charge"/> <br>
+								<button type="submit" class="btn btn-sm btn-success" onclick="return confirm(\'Do you want to update the charge ?\');" >UPDATE CHARGE </button></td>
+								';
 					// }
+					// else if($visit_type_id != 1 AND empty($rejected_amount))
+					// {
+					// 	$result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/0', array("class" => "form-horizontal"));
+					// 	$buttons = '<td><input type="text" name="amount'.$visit_id.'" class="form-control" value=""/> <br>
+					// 			<button type="submit" class="btn btn-sm btn-warning" onclick="return confirm(\'Do you want to update the charge ?\');" >Insurance Charge </button></td>';
+					// } 
 					// else
 					// {
 					// 	$result.= form_open("administration/reports/invoice_hospital/".$visit_id.'/1', array("class" => "form-horizontal"));
-					// 	$buttons = '<td>
-					// 		<input type="text" name="cash_amount'.$visit_id.'" class="form-control" value="" placeholder="Cash amount "/> <br>
-					// 		<button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'Do you want to update the charge ?\');" > Update Charge </button></td>';
+					// 	$buttons = '<td><input type="text" name="amount'.$visit_id.'" class="form-control" value=""/> <br>
+					// 			<button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'Do you want to update the charge ?\');" >Cash Charge </button></td>';
+					 
 					// }
+
+				}
+
+				$personnel_id = $this->session->userdata('personnel_id');
+				$is_cashier = $this->reception_model->check_if_admin($personnel_id,5);
+				
+				if(($is_cashier OR $personnel_id == 0) AND $doctor_invoice_status == 0)
+				{
+					$buttons .='<td><a href="'.site_url().'administration/reports/approve_payment/'.$visit_id.'" class="btn btn-sm btn-danger"  onclick="return confirm(\'You are about to approve this charge. Continue?\');">Approve </a></td>';
 				}
 				// payment value ///
 				if(empty($rejected_amount))
@@ -432,14 +369,27 @@
 							</tr> 
 					';
 
-				
+				if($doctor_invoice_status == 1)
+				{
+					$result .='';
+				}
+				else
+				{
 					 $result .= form_close();
 
-				
+				}
 				
 			}
 			
-			
+			$result .= 
+						'
+							<tr>
+								<td colspan=3>TOTAL KES</td>
+								<td>KES. '.number_format($total_invoiced,2).'</td>								
+								<td>KES. '.number_format($total_charged,2).'</td>
+								
+							</tr> 
+					';
 			$result .= 
 			'
 						  </tbody>

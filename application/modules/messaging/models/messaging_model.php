@@ -269,9 +269,9 @@ class Messaging_model extends CI_Model
 		
 	}
 
-	public function send_batch_messages($message_batch_id)
+	public function send_batch_messages($message_batch_id,$message_template_id)
 	{
-		$where = 'message_status = 0 AND message_batch_id = '.$message_batch_id;
+		$where = 'message_status = 0 AND message_batch_id = '.$message_batch_id.' AND message_template_id = '.$message_template_id;
 		$table = 'messages';
 		
 		$this->db->where($where);
@@ -294,30 +294,23 @@ class Messaging_model extends CI_Model
 				// $total_amount = $this->messaging_model->get_amount_toped_up();
 				// $balance = $total_amount-$cost;
 
-				$service_charge_update = array('message_status' => 1,'delivery_message'=>'success','sms_cost'=>1.6);
-				$this->db->where('message_id',$message_id);
-				$this->db->update('messages', $service_charge_update);
+				if($response == "Success" OR $response == "success")
+				{
 				
-				// if($response == "Success" OR $response == "success")
-				// {
-				// 	$service_charge_update = array('message_status' => 1,'delivery_message'=>'success','sms_cost'=>3);
-				// 	$this->db->where('message_id',$message_id);
-				// 	$this->db->update('messages', $service_charge_update);
 
-				// }
-				// else if($response == "error message")
-				// {
-				// 	$service_charge_update = array('message_status' => 0,'delivery_message'=>'something went wrong','sms_cost'=>0);
-				// 	$this->db->where('message_id',$message_id);
-				// 	$this->db->update('messages', $service_charge_update);
-				// }
-				// else
-				// {
-				// 	$service_charge_update = array('message_status' => 2,'delivery_message'=>$response,'sms_cost'=>0);
-				// 	$this->db->where('message_id',$message_id);
-				// 	$this->db->update('messages', $service_charge_update);
+					$service_charge_update = array('message_status' => 1,'delivery_message'=>'Success','sms_cost'=>3,'message_type'=>'Batch Message');
+					$this->db->where('message_id',$message_id);
+					$this->db->update('messages', $service_charge_update);
 
-				// }
+				}
+				else
+				{
+					$service_charge_update = array('message_status' => 0,'delivery_message'=>'Success','sms_cost'=>0,'message_type'=>'Batch Message');
+					$this->db->where('message_id',$message_id);
+					$this->db->update('messages', $service_charge_update);
+
+
+				}
 			}
 			$service_charge_update = array('message_batch_status' => 1);
 			$this->db->where('message_batch_id',$message_batch_id);
@@ -415,7 +408,7 @@ class Messaging_model extends CI_Model
 	*/
 	public function add_message_template()
 	{
-		// var_dump($_POST['']);die();
+		// var_dump($_POST);die();
 		$data = array(
 				'message_template_code'=>$this->input->post('template_code'),
 				'message_template_description'=>$this->input->post('template_description'),
@@ -423,7 +416,8 @@ class Messaging_model extends CI_Model
 				'contact_type'=>$this->input->post('contact_type'),
 				'created'=>date('Y-m-d H:i:s'),
 				'created_by'=>$this->session->userdata('user_id'),
-				'modified_by'=>$this->session->userdata('user_id')
+				'modified_by'=>$this->session->userdata('user_id'),
+				'contact_category_id'=>$this->input->post('contact_category_id')
 			);
 
 		// var_dump($data);die();
@@ -665,6 +659,7 @@ class Messaging_model extends CI_Model
 					# code...
 					$message_template_description = $key->message_template_description;
 					$contact_type = $key->contact_type;
+
 				}
 			}
 
@@ -831,9 +826,9 @@ class Messaging_model extends CI_Model
 					$message_template_description = $key->message_template_description;
 					$message_template_id = $key->message_template_id;
 					$contact_type = $key->contact_type;
+					$contact_category_id = $key->contact_category_id;
 				}
 			}
-
 
 			$visit_data = array(
 					"message_batch_code" => $this->create_batch_code(),
@@ -847,19 +842,23 @@ class Messaging_model extends CI_Model
 			$this->db->insert('message_batch', $visit_data);
 			$message_batch_id = $this->db->insert_id();
 
-			// var_dump($message_template_description); die();
-			$where = 'patient_delete  = 0';
+			// var_dump($contact_category_id); die();
+			$where = 'patient_status  = 1';
 			$this->db->where($where);
 			$query = $this->db->get('patients');
-			// var_dump($query);die();
 
 
-			$where = 'entryid > 0';
-			$this->db->where($where);
+			$add_where = 'entryid > 0';
+			if($contact_category_id > 0)
+			{
+				$add_where .= ' AND contact_category_id ='.$contact_category_id;
+			}
+			$this->db->where($add_where);
 			$query_contacts = $this->db->get('allcounties');
+
 			if($query->num_rows() > 0 AND $contact_type == 0)
 			{
-
+					// var_dump($contact_type);die();
 				preg_match_all("/\[([^\]]*)\]/", $message_template_description, $matches);
 
 				$select = '';
@@ -875,14 +874,16 @@ class Messaging_model extends CI_Model
 						}
 					}
 					$entryid = $key_item->patient_id;
-					$Phonenumber = $key_item->patient_phone1;
+					$Phonenumber = $key_item->patient_phone;
 					
 					$message_data = array(
 						"phone_number" => $Phonenumber,
 						"entryid" => $entryid,
 						"message" => $website,
-						"message_batch_id"=>$message_batch_id
+						"message_batch_id"=>$message_batch_id,
+						"message_template_id"=>$message_template_id
 					);
+					// var_dump($message_data);die();
 					$this->db->insert('messages', $message_data);
 					$website = $message_template_description;
 				}
@@ -916,7 +917,8 @@ class Messaging_model extends CI_Model
 						"phone_number" => $Phonenumber,
 						"entryid" => $entryid,
 						"message" => $website,
-						"message_batch_id"=>$message_template_id
+						"message_batch_id"=>$message_batch_id,
+						"message_template_id"=>$message_template_id
 					);
 					$this->db->insert('messages', $message_data);
 					$website = $message_template_description;
@@ -947,7 +949,8 @@ class Messaging_model extends CI_Model
 						"phone_number" => $Phonenumber,
 						"entryid" => $entryid,
 						"message" => $website,
-						"message_batch_id"=>$message_batch_id
+						"message_batch_id"=>$message_batch_id,
+						"message_template_id"=>$message_template_id
 					);
 					$this->db->insert('messages', $message_data);
 					$website = $message_template_description;
@@ -982,7 +985,8 @@ class Messaging_model extends CI_Model
 							"phone_number" => $Phonenumber,
 							"entryid" => $entryid,
 							"message" => $website,
-							"message_batch_id"=>$message_batch_id
+							"message_batch_id"=>$message_batch_id,
+						"message_template_id"=>$message_template_id
 						);
 						$this->db->insert('messages', $message_data);
 						$website = $message_template_description;
@@ -1497,5 +1501,12 @@ class Messaging_model extends CI_Model
 		{
 			return FALSE;
 		}
+	}
+
+	public function get_all_contact_groups()
+	{
+		$this->db->where('contact_category_id > 0');
+		$query = $this->db->get('contact_category');
+		return $query;
 	}
 }

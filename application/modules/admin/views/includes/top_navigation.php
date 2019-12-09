@@ -49,8 +49,10 @@
 					// }
 					// else
 					// {
+						$total_appointments = $this->admin_model->get_total_unsent_appointments();
+
 						?>
-						<!-- <a  href="<?php echo site_url().'send-appointment-reminders';?>" class="btn btn-warning" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> Send Appointment Notifications </a> -->
+						<a  href="<?php echo site_url().'send-appointment-reminders';?>" class="btn btn-warning" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> Send Appointment Notifications (<?php echo $total_appointments?> Unsent Reminders)</a>
 						<?php
 					// }
 					?>

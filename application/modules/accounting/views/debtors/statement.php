@@ -1,17 +1,17 @@
 <!-- search -->
-<?php echo $this->load->view('search_debtor_account', '', TRUE);?>
+<?php //echo $this->load->view('search_debtor_account', '', TRUE);?>
 <!-- end search -->
 
 <div class="row">
-    <div class="col-md-12">
+    <!-- <div class="col-md-12"> -->
 
         <section class="panel">
             <header class="panel-heading">
                 
                 <h2 class="panel-title"><?php echo $title;?></h2>
                 <a href="<?php echo site_url();?>accounting/debtors-statements" class="btn btn-sm btn-warning pull-right" style="margin-top: -25px; "><i class="fa fa-arrow-left"></i> Back to debtors</a>
-                <a href="<?php echo base_url().'accounting/creditors/print_creditor_account/'.$creditor_id?>" class="btn btn-sm btn-success pull-right"  style="margin-top: -25px;margin-right: 5px;" target="_blank"><i class="fa fa-print"></i> Print</a>
-                <button type="button" class="btn btn-sm btn-primary pull-right"  data-toggle="modal" data-target="#record_creditor_account" style="margin-top: -25px; margin-right: 5px;"><i class="fa fa-plus"></i> Record</button>
+                <!-- <a href="<?php echo base_url().'accounting/creditors/print_creditor_account/'.$creditor_id?>" class="btn btn-sm btn-success pull-right"  style="margin-top: -25px;margin-right: 5px;" target="_blank"><i class="fa fa-print"></i> Print</a>
+                <button type="button" class="btn btn-sm btn-primary pull-right"  data-toggle="modal" data-target="#record_creditor_account" style="margin-top: -25px; margin-right: 5px;"><i class="fa fa-plus"></i> Record</button> -->
 
                 	
             </header>
@@ -166,7 +166,7 @@
 				</table>
           	</div>
 		</section>
-    </div>
+    <!-- </div> -->
 </div>
 <script type="text/javascript">
     $(function() {

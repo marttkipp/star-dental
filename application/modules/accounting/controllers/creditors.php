@@ -388,8 +388,9 @@ public function search_hospital_creditors()
 		{
 			$this->session->set_userdata('error_message', validation_errors());
 		}
+		$redirect_url = $this->input->post('redirect_url');
 		
-		redirect('accounting/provider-statement/'.$provider_id.'');
+		redirect($redirect_url);
 	}
 	public function update_opening_balance($provider_id)
 	{
@@ -767,8 +768,8 @@ public function search_hospital_creditors()
 	{
 
 		// var_dump(1);die();
-		$where = 'personnel.personnel_id = personnel_job.personnel_id AND personnel_job.job_title_id = job_title.job_title_id AND job_title.job_title_name = "Dentist"';
-		$table = 'personnel,personnel_job,job_title';
+		$where = 'personnel.personnel_id = personnel_job.personnel_id AND personnel_job.job_title_id = job_title.job_title_id AND job_title.job_title_name = "Dentist" AND personnel.personnel_type_id = personnel_type.personnel_type_id';
+		$table = 'personnel,personnel_job,job_title,personnel_type';
 		
 		$providers_search = $this->session->userdata('providers_search');
 		if(!empty($providers_search))
@@ -816,7 +817,7 @@ public function search_hospital_creditors()
 		
 		$v_data['query'] = $query;
 		$v_data['page'] = $page;
-
+		// var_dump($query->result());die();
 		$data['title'] = 'Providers Reports';
 		$v_data['title'] = 'Providers Report';
 		
@@ -909,12 +910,24 @@ public function search_hospital_creditors()
 		redirect('accounting/providers');
 	}
 
-	public function provider_statement($personnel_id)
+	public function provider_statement($personnel_id,$personnel_type_id)
 	{
 		
 		$v_data['title'] = 'Doctor Statement';
 		$v_data['provider_id'] = $personnel_id;
+		$v_data['personnel_type_id'] = $personnel_type_id;
 		$data['title'] = ' Statement';
+
+		$this->db->where('personnel_type.personnel_type_id = personnel.personnel_type_id AND personnel_id = '.$personnel_id);
+		$query = $this->db->get('personnel,personnel_type');
+		$rows = $query->row();
+
+		$personnel_onames = $rows->personnel_onames;
+		$personnel_fname = $rows->personnel_fname; 
+		$personnel_type_name = $rows->personnel_type_name;
+		$personnel_type_payment_amount = $rows->personnel_type_payment_amount;
+		$v_data['personnel_percentage'] = $personnel_type_payment_amount;
+		$v_data['title'] = $personnel_fname.' '.$personnel_onames.' Statement - '.$personnel_type_name;
 		$v_data['accounts'] = $this->petty_cash_model->get_child_accounts("Bank");
 		$data['content'] = $this->load->view('accounting/providers/statement', $v_data, TRUE);
 		
@@ -1031,6 +1044,33 @@ public function search_hospital_creditors()
 
     		}
     	}
+    }
+
+    public function save_billing($provider_id,$billing_month,$billing_year,$personnel_type_id)
+    {
+
+		$this->form_validation->set_rules('days', 'Days', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('rate', 'Rate', 'trim|required|xss_clean');
+		if ($this->form_validation->run())
+		{
+			if($this->creditors_model->record_providers_billing($provider_id,$billing_month,$billing_year,$personnel_type_id))
+			{
+				$this->session->set_userdata('success_message', 'Record saved successfully');
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Unable to save. Please try again');
+			}
+		}
+		
+		else
+		{
+			$this->session->set_userdata('error_message', validation_errors());
+		}
+		
+		$redirect_url = $this->input->post('redirect_url');
+		redirect($redirect_url);
     }
 	
 }

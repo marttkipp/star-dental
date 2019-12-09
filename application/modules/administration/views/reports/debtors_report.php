@@ -73,34 +73,6 @@
                             </div>
                     	</div>
                     </div>   
-                    <div class="form-group">
-							<label class="col-lg-3 control-label">Dispatch / Statement? </label>
-							 <div class="col-lg-3">
-				                <div class="radio">
-				                    <label>
-				                        <input id="optionsRadios2" type="radio" name="invoice_type" value="0" checked="checked" >
-				                        None
-				                    </label>
-				                </div>
-				            </div>
-				            <div class="col-lg-3">
-				                <div class="radio">
-				                    <label>
-				                        <input id="optionsRadios2" type="radio" name="invoice_type" value="2" >
-				                        Dispatch
-				                    </label>
-				                </div>
-				            </div>
-				            
-				            <div class="col-lg-3">
-				                <div class="radio">
-				                    <label>
-				                        <input id="optionsRadios2" type="radio" name="invoice_type" value="1" >
-				                        Statement
-				                    </label>
-				                </div>
-				            </div>
-						</div>
                     
                     <div class="center-align">
                         <button type="submit" class="btn btn-info btn-lg">Create new batch</button>
@@ -138,7 +110,6 @@
 						  <th><a href="'.site_url().'/administration/reports/debtors_report_data/'.$insurance_company_id.'/batch_no/'.$order_method.'">Batch no.</a></th>
 						  <th><a href="'.site_url().'/administration/reports/debtors_report_data/'.$insurance_company_id.'/debtor_invoice_created/'.$order_method.'">Invoice date</a></th>
 						  <th>Date range</th>
-						  <th>Invoice Type</th>
 						  <th><a href="'.site_url().'/administration/reports/debtors_report_data/'.$insurance_company_id.'/debtor_invoice_created_by/'.$order_method.'">Created by</a></th>
 						  <th><a href="'.site_url().'/administration/reports/debtors_report_data/'.$insurance_company_id.'/debtor_invoice_status/'.$order_method.'">Status</a></th>
 						  <th>Total</th>
@@ -160,7 +131,6 @@
 				$debtor_invoice_id = $row->debtor_invoice_id;
 				$batch_no = $row->batch_no;
 				$status = $row->debtor_invoice_status;
-				$invoice_type = $row->invoice_type;
 				$personnel_id = $row->debtor_invoice_created_by;
 				$date_from = date('jS M Y',strtotime($row->date_from));
 				$date_to = date('jS M Y',strtotime($row->date_to));
@@ -175,17 +145,6 @@
 				else
 				{
 					$status = '<span class="label label-success">Paid</span>';
-				}
-
-
-				if($invoice_type == 1)
-				{
-					$invoice_type = 'Statement';
-				}
-				
-				else
-				{
-					$invoice_type = 'Dispatch';
 				}
 				
 				// this is to check for any credit note or debit notes
@@ -249,7 +208,6 @@
 								<td>'.$batch_no.'</td>
 								<td>'.$invoice_date.'</td>
 								<td>'.$date_from.' - '.$date_to.'</td>
-								<td>'.$invoice_type.'</td>
 								<td>'.$created_by.'</td>
 								<td>'.$status.'</td>
 								<td>'.$total_invoiced.'</td>

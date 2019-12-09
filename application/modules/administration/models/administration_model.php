@@ -353,30 +353,6 @@ class Administration_model extends CI_Model
 		}
 		return $total_amount;
 	}
-
-
-	public function get_doctor_approved_amount($visit_id,$type)
-	{
-		$this->db->from('doctor_invoice');
-		$this->db->select('SUM(invoiced_amount) AS total_amount');
-		$this->db->where($where);
-		$query = $this->db->get();
-		
-		if($query->num_rows() > 0)
-		{
-
-			foreach ($query->result() as $key) {
-				# code...
-				$total_amount = $key->total_amount;
-			}
-		}
-		else
-		{
-				$total_amount = 0;
-		}
-		return $total_amount;
-
-	}
 	public function get_supplier_names($supplier_id)
 	{
 		$table = "suppliers";

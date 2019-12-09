@@ -999,7 +999,6 @@ $route['accounting/add-account'] = 'accounting/petty_cash/add_account';
 
 
 
-
 // accounting and company financials
 $route['accounting/ledger-entry'] = 'accounting/petty_cash/ledger';
 $route['accounting/ledger-entry/(:any)/(:any)'] = 'accounting/petty_cash/ledger/$1/$2';
@@ -1009,7 +1008,7 @@ $route['accounting/write-cheque/(:num)'] = 'accounting/petty_cash/write_cheque/$
 $route['accounting/providers'] = 'accounting/creditors/providers';
 $route['accounting/providers/(:num)'] = 'accounting/creditors/providers/$1';
 $route['update-provider-balance/(:num)'] =  'accounting/creditors/update_opening_balance/$1';
-$route['accounting/provider-statement/(:num)'] = 'accounting/creditors/provider_statement/$1';
+$route['accounting/provider-statement/(:num)/(:num)'] = 'accounting/creditors/provider_statement/$1/$2';
 $route['accounting/cash-provider-statement/(:num)'] = 'accounting/creditors/cash_provider_statement/$1';
 $route['company-financials/profit-and-loss'] = 'accounting/company_financial/profit_and_loss';
 $route['company-financials/balance-sheet'] = 'accounting/company_financial/balance_sheet';

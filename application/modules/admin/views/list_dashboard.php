@@ -287,6 +287,15 @@ if ($tomorrows_appointments->num_rows() > 0)
 		$time_start = $row->time_start;
 		$time_end = $row->time_end;
 		$procedure_done = $row->procedure_done;
+		$schedule_id = $row->schedule_id;
+		if($schedule_id == 0)
+		{
+			$color_code = 'warning';
+		}
+		else
+		{
+			$color_code = 'default';
+		}
 		
 		//creators and editors
 		if($personnel_query->num_rows() > 0)
@@ -321,7 +330,7 @@ if ($tomorrows_appointments->num_rows() > 0)
 		'
 			<tr>
 				<td>'.$count.'</td>
-				<td>'.$patient_surname.' '.$patient_othernames.'</td>
+				<td class="'.$color_code.'">'.$patient_surname.' '.$patient_othernames.'</td>
 				<td>'.$patient_phone.'</td>	
 				<td>'.$time_start.'</td>	
 				<td>'.$doctor.'</td>	
@@ -381,7 +390,7 @@ else
 		<div class="col-md-4">
 			<section class="panel panel-warning">
 			    <header class="panel-heading">
-		          <h4 class="pull-left"><i class="icon-reorder"></i>Tomorrow's Appointments <?php echo date("Y-m-d",strtotime("tomorrow"));;?></h4>
+		          <h4 class="pull-left"><i class="icon-reorder"></i><?php echo $date_to_send;?>'s Appointments <?php echo date("Y-m-d",strtotime("tomorrow"));;?></h4>
 		          <div class="widget-icons pull-right">
 		            <a href="#" class="wminimize"><i class="icon-chevron-up"></i></a> 
 		          </div>

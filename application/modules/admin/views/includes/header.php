@@ -33,21 +33,17 @@
 		<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme.css" />
 		<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme-custom.css" />
 
-		 <link href="<?php echo base_url()."assets/themes/jasny/css/jasny-bootstrap.css"?>" rel="stylesheet"/>
-		<!--  <link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/bootstrap-multiselect/bootstrap-multiselect.css" /> -->
 		<!-- Theme Custom CSS -->
 		
-
+		<link rel="stylesheet" href="<?php echo base_url()."assets/bluish/"?>style/fullcalendar.css">
 		<!-- Head Libs -->
 		<script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/modernizr/modernizr.js"></script>
-
-		<script src="<?php echo base_url()."assets/themes/bluish/"?>js/jquery.js"></script> <!-- jQuery -->
-
 		<!-- full calendae -->
 		<link href='<?php echo base_url()."assets/fullcalendar/";?>fullcalendar.min.css' rel='stylesheet' />
 		<link href='<?php echo base_url()."assets/fullcalendar/";?>fullcalendar.print.min.css' rel='stylesheet' media='print' />
 		<script src='<?php echo base_url()."assets/fullcalendar/";?>lib/moment.min.js'></script>
 		<!-- <script src='<?php echo base_url()."assets/fullcalendar/";?>lib/jquery.min.js'></script> -->
+
 		
-		
-		<!-- end of full calendar -->
+		<script src="<?php echo base_url()."assets/themes/bluish/"?>js/jquery.js"></script> <!-- jQuery -->
+

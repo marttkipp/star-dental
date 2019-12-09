@@ -283,23 +283,17 @@ class Reports_model extends CI_Model
 		
 		return $total;
 	}
-	public function get_all_appointments($date = NULL,$doctor_id=null)
+	public function get_all_appointments($date = NULL)
 	{
 		if($date == NULL)
 		{
 			$date = date('Y-m-d');
 		}
-		$doctor = '';
-		if($doctor_id > 0)
-		{
-			$doctor = ' AND visit.personnel_id = '.$doctor_id;
-		}
-		$where = 'visit.visit_delete = 0 AND patients.patient_delete = 0 AND visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.close_card = 2 AND visit.visit_date >= \''.$date.'\' AND visit.personnel_id = personnel.personnel_id'.$doctor;
+		$where = 'visit.visit_delete = 0 AND patients.patient_delete = 0 AND visit.visit_type = visit_type.visit_type_id AND visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.close_card = 2 AND visit.visit_date >= \''.$date.'\' AND visit.personnel_id = personnel.personnel_id';
 		
 		$this->db->select('visit.*, visit_type.visit_type_name, patients.*, personnel.*');
 		$this->db->where($where);
-		$this->db->join('visit_type','visit.visit_type = visit_type.visit_type_id','LEFT');
-		$query = $this->db->get('visit, patients, personnel');
+		$query = $this->db->get('visit, visit_type, patients, personnel');
 		
 		return $query;
 	}
@@ -363,7 +357,7 @@ class Reports_model extends CI_Model
 		$this->db->from($table);
 		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.*, visit_type.visit_type_name,visit_type.visit_type_id AS visit_type_idd,doctor_invoice.invoiced_amount,doctor_invoice.doctor_invoice_status,doctor_invoice.approved_by,personnel.personnel_fname,personnel.personnel_onames');
 		$this->db->where($where);
-		$this->db->order_by('visit.close_card','ASC');
+		$this->db->order_by('visit.visit_date','DESC');
 		$this->db->group_by('visit.visit_id');
 		$this->db->join('doctor_invoice','visit.visit_id = doctor_invoice.visit_id','left');
 		$this->db->join('personnel','visit.personnel_id = personnel.personnel_id','left');
@@ -582,7 +576,7 @@ class Reports_model extends CI_Model
 	*	Retrieve total revenue
 	*
 	*/
-	public function get_total_services_revenue_old($where, $table)
+	public function get_total_services_revenue($where, $table)
 	{
 		//invoiced
 		$this->db->from($table.', visit_charge');
@@ -605,29 +599,7 @@ class Reports_model extends CI_Model
 		
 		return $total_invoiced;
 	}
-	public function get_total_services_revenue($where, $table)
-	{
-		//invoiced
-		$this->db->from($table);
-		$this->db->select('SUM(invoice_amount) AS total_invoiced');
-		$this->db->where($where);
-		$query = $this->db->get();
-		
-		$cash = $query->row();
-		$total_invoiced = $cash->total_invoiced;
-		
-		if($total_invoiced > 0)
-		{
-			
-		}
-		
-		else
-		{
-			$total_invoiced = 0;
-		}
-		
-		return $total_invoiced;
-	}
+
 	public function get_total_rejected_revenue($where, $table)
 	{
 		//invoiced
@@ -650,43 +622,6 @@ class Reports_model extends CI_Model
 		}
 		
 		return $total_rejected;
-	}
-
-
-	public function get_total_rejected_revenue_updates($where, $table)
-	{
-		//invoiced
-		$this->db->from($table);
-		$this->db->select('SUM(visit_bill_amount) AS total_rejected');
-		$this->db->where($where);
-		$query = $this->db->get();
-		
-		$cash = $query->row();
-		$total_rejected = $cash->total_rejected;
-		
-		if($total_rejected > 0)
-		{
-			
-		}
-		
-		else
-		{
-			$total_rejected = 0;
-		}
-		
-		return $total_rejected;
-	}
-
-	public function get_total_rejected_revenue_list($query)
-	{
-		//invoiced
-		// $this->db->from($table);
-		// $this->db->select('visit_parent');
-		// $this->db->where($where);
-		$query = $this->db->query($query);
-		
-		
-		return $query;
 	}
 	
 	/*
@@ -1205,20 +1140,8 @@ class Reports_model extends CI_Model
 		
 		return $query;
 	}
-
-	public function calculate_debt_total($debtor_invoice_id, $where, $table,$visit_type_id)
-	{
-
-		$where .= ' AND debtor_invoice_item.invoice_amount > 0 AND debtor_invoice.debtor_invoice_id = '.$debtor_invoice_id;
-		$table = 'debtor_invoice,debtor_invoice_item';
-		
-		$total_services_revenue = $this->reports_model->get_total_services_revenue($where, $table);
-		// var_dump($total_services_revenue); die();
-		return $total_services_revenue;
-
-	}
 	
-	public function calculate_debt_total_old($debtor_invoice_id, $where, $table,$visit_type_id)
+	public function calculate_debt_total($debtor_invoice_id, $where, $table)
 	{
 		$where .= ' AND debtor_invoice.debtor_invoice_id = '.$debtor_invoice_id;
 		
@@ -1237,45 +1160,6 @@ class Reports_model extends CI_Model
 		$where4 = $where.' AND debtor_invoice.debtor_invoice_id = '.$debtor_invoice_id;
 		
 		$total_rejected_collection = $this->reports_model->get_total_rejected_revenue($where4, $table);
-
-		// $table .=',visit_bill';
-		// $where5 = $where .' AND visit.visit_id = visit_bill.visit_parent AND visit.visit_delete = 0';
-		// $total_rejected_collection_amounts = $this->reports_model->get_total_rejected_revenue_updates($where5, $table);
-
-		// // select * invoice numbers 
-
-		// var_dump($total_rejected_collection_amounts); die();
-
-		$query_bill = 'SELECT `visit_parent`,visit_bill_amount,visit_delete FROM visit_bill,visit 
-						WHERE visit_parent IN 
-						(SELECT visit.visit_id FROM visit,debtor_invoice,debtor_invoice_item 
-						WHERE
-						`debtor_invoice`.`visit_type_id` = '.$visit_type_id.' 
-						AND debtor_invoice.debtor_invoice_id = debtor_invoice_item.debtor_invoice_id 
-						AND visit.visit_id = debtor_invoice_item.visit_id 
-						AND debtor_invoice.debtor_invoice_id = '.$debtor_invoice_id.'
-						) 
-						AND visit.visit_id = visit_bill.visit_parent AND visit.visit_delete = 0';
-
-
-
-
-		$rejected_list = $this->reports_model->get_total_rejected_revenue_list($query_bill);
-		// var_dump($rejected_list); die();
-		$total_rejected_collection_amounts = 0;
-		if($rejected_list->num_rows() > 0)
-		{
-			foreach ($rejected_list->result() as $key => $value) {
-				# code...
-				$visit_bill_amount = $value->visit_bill_amount;
-				$total_rejected_collection_amounts += $visit_bill_amount;
-
-			}
-		}
-		$total_rejected_collection +=$total_rejected_collection_amounts;
-
-		// var_dump($total_rejected_collection); die();
-		
 		$cash_balance = 0;
 
         if(!empty($total_rejected_collection))
@@ -1284,9 +1168,9 @@ class Reports_model extends CI_Model
         }
 
 
-        $total_services_revenue -= $total_insurance_collection + $total_cash_collection +$total_waiver_collection;
+        $total_services_revenue -= $total_insurance_collection + $total_cash_collection;
         // var_dump($total_insurance_collection+$total_cash_collection); die();
-		return $total_services_revenue;
+		return $total_services_revenue - $total_rejected_collection - $total_waiver_collection;
 	}
 	
 	public function get_debtor_invoice($where, $table)
@@ -1308,11 +1192,135 @@ class Reports_model extends CI_Model
 		return $query;
 	}
 
-	public function get_total_collected($doctor_id, $date_from = NULL, $date_to = NULL)
+	public function get_total_collected($doctor_id, $date_from = NULL, $date_to = NULL,$visit_type_id = NULL)
+	{
+		if($visit_type_id == 1)
+		{
+			$add = ' AND visit.visit_type = 1';
+		}
+		else
+		{
+			$add = ' AND visit.visit_type > 1';
+		}
+		$table = 'visit_charge, visit';
+		
+		$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0  AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id.$add;
+		
+		$visit_search = $this->session->userdata('all_doctors_search');
+		if(!empty($visit_search))
+		{
+			$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id.' '. $visit_search;
+		}
+		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND (visit.visit_date >= \''.$date_from.'\' AND visit.visit_date <= \''.$date_to.'\') ';
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND visit_date LIKE \''.$date_to.'\'';
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$where .= ' AND visit_date LIKE \''.$date_from.'\'';
+		}
+		
+		$this->db->select('SUM(visit_charge_units*visit_charge_amount) AS service_total');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		// $result = $query->row();
+		// $total = $result[0]->service_total;
+		
+		if($query->num_rows() > 0)
+		{
+
+			foreach ($query->result() as $key):
+				# code...
+				$total = $key->service_total;
+
+				if(!is_numeric($total))
+				{
+					return 0;
+				}
+				else
+				{
+					return $total;
+				}
+			endforeach;
+		}
+		else
+		{
+			return 0;
+		}
+		
+	}
+
+	public function get_total_collected_invoice($doctor_id, $date_from = NULL, $date_to = NULL)
 	{
 		$table = 'visit_charge, visit';
 		
-		$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id;
+		$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0 AND visit.visit_type >= 2 AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id;
+		
+		$visit_search = $this->session->userdata('all_doctors_search');
+		if(!empty($visit_search))
+		{
+			$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0 AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id.' '. $visit_search;
+		}
+		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND (visit.visit_date >= \''.$date_from.'\' AND visit.visit_date <= \''.$date_to.'\') ';
+		}
+		
+		else if(empty($date_from) && !empty($date_to))
+		{
+			$where .= ' AND visit_date LIKE \''.$date_to.'\'';
+		}
+		
+		else if(!empty($date_from) && empty($date_to))
+		{
+			$where .= ' AND visit_date LIKE \''.$date_from.'\'';
+		}
+		
+		$this->db->select('SUM(visit_charge_units*visit_charge_amount) AS service_total');
+		$this->db->where($where);
+		$query = $this->db->get($table);
+		
+		// $result = $query->row();
+		// $total = $result[0]->service_total;
+		
+		if($query->num_rows() > 0)
+		{
+
+			foreach ($query->result() as $key):
+				# code...
+				$total = $key->service_total;
+
+				if(!is_numeric($total))
+				{
+					return 0;
+				}
+				else
+				{
+					return $total;
+				}
+			endforeach;
+		}
+		else
+		{
+			return 0;
+		}
+		
+	}
+
+	public function get_total_collected_invoice_total($doctor_id, $date_from = NULL, $date_to = NULL)
+	{
+		$table = 'visit_charge, visit';
+		
+		$where = 'visit_charge.visit_id = visit.visit_id AND visit.visit_delete = 0 AND visit.visit_type <> 2 AND visit_charge.visit_charge_delete = 0 AND visit.personnel_id = '.$doctor_id;
 		
 		$visit_search = $this->session->userdata('all_doctors_search');
 		if(!empty($visit_search))
@@ -1715,7 +1723,6 @@ class Reports_model extends CI_Model
 			'debtor_invoice_created_by'=>$this->session->userdata('personnel_id'),
 			'batch_no'=>$this->create_batch_number(),
 			'visit_type_id'=>$visit_type_id,
-			'invoice_type'=>$this->input->post('invoice_type'),
 			'debtor_invoice_modified_by'=>$this->session->userdata('personnel_id'),
 			'date_from' => $this->input->post('invoice_date_from'),
 			'date_to' => $this->input->post('invoice_date_to')
@@ -1747,94 +1754,8 @@ class Reports_model extends CI_Model
 					foreach($query->result() as $res)
 					{
 						$visit_id = $res->visit_id;
-						$rs_rejection = $this->dental_model->get_rejection_info($visit_id);
-						$rejected_amount = 0;
-						$rejected_reason ='';
-						$close_card = 0;
-						if(count($rs_rejection) >0){
-						  foreach ($rs_rejection as $r2):
-						    # code...
-						    $rejected_amount = $r2->rejected_amount;
-						    $rejected_date = $r2->rejected_date;
-						    $rejected_reason = $r2->rejected_reason;
-						    $close_card = $r2->close_card;
-						    $parent_visit = $r2->parent_visit;
-
-						    // get the visit charge
-
-						  endforeach;
-						}
-
-
-						$rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type_id);
-						$total_rejected = 0;
-						if(count($rs_rejection) >0){
-						  foreach ($rs_rejection as $r2):
-						    # code...
-						    $total_rejected = $r2->total_rejected;
-
-						  endforeach;
-						}
-
-						$rejected_amount += $total_rejected;
-
-
-						// $payments_value = $this->accounts_model->visit_payments($visit_id);
-						$cash_payments = $this->accounts_model->get_cash_payments($visit_id);
-						$insurance_payments = $this->accounts_model->get_insurance_payments($visit_id);
-						$payments_value = $cash_payments + $insurance_payments;
-						$invoice_total = $amount_payment  = $this->accounts_model->total_invoice($visit_id);
-						// $invoice_total -= $rejected_amount;
-
-						if($rejected_amount > 0)
-						{
-							$payable_by_insurance = $invoice_total - $rejected_amount;
-						}
-						else
-						{
-							$payable_by_insurance = $invoice_total;
-						}
-
-						if($insurance_payments > 0)
-						{
-							$payable_by_insurance = $payable_by_insurance - $insurance_payments;
-						}
-
-
-
-
-						if($rejected_amount > 0)
-						{
-
-							$payable_by_patient = $rejected_amount;
-							
-						}
-						else
-						{
-							$payable_by_patient = $invoice_total;
-							
-						}
 						
-						if($cash_payments > 0)
-						{
-							$payable_by_patient = $payable_by_patient - $cash_payments;
-						}
-
-
-					
-
-
-						// if($visit_id == 11736)
-						// {
-						// 	var_dump($payable_by_insurance); die();
-						// }
-
-						
-
-						// var_dump($invoice_total); die();
-						// $balance = $this->accounts_model->balance($payments_value,$invoice_total);
 						$invoice_data['visit_id'] = $visit_id;
-						$invoice_data['invoice_amount'] = $payable_by_insurance;
 						
 						if($this->db->insert('debtor_invoice_item', $invoice_data))
 						{
@@ -1867,7 +1788,6 @@ class Reports_model extends CI_Model
 		}
 	}
 	
-
 	/*
 	*	Create batch number
 	*
@@ -2056,7 +1976,7 @@ class Reports_model extends CI_Model
 	
 	public function get_debtor_invoice_items($debtor_invoice_id)
 	{
-		$this->db->select('patients.patient_surname, patients.patient_othernames, patients.patient_number, patients.current_patient_number, visit.visit_id, visit.visit_date, visit.patient_insurance_number, debtor_invoice_item.debtor_invoice_item_status, debtor_invoice_item.debtor_invoice_item_id,visit.rejected_amount,patients.insurance_number,visit.invoice_number,visit.visit_type,patients.scheme_name,visit_type.visit_type_name,visit.parent_visit,debtor_invoice_item.invoice_amount');
+		$this->db->select('patients.patient_surname, patients.patient_othernames, patients.patient_number, patients.current_patient_number, visit.visit_id, visit.visit_date, visit.patient_insurance_number, debtor_invoice_item.debtor_invoice_item_status, debtor_invoice_item.debtor_invoice_item_id,visit.rejected_amount,patients.insurance_number,patients.scheme_name,visit_type.visit_type_name');
 		$this->db->where('visit.visit_delete = 0 AND visit.visit_type = visit_type.visit_type_id AND visit.visit_id = debtor_invoice_item.visit_id AND visit.patient_id = patients.patient_id AND debtor_invoice_item.debtor_invoice_id = '.$debtor_invoice_id);
 		
 		$this->db->group_by('visit_id');
@@ -2874,7 +2794,6 @@ class Reports_model extends CI_Model
 
 		if($type == 2)
 		{
-
 			$amount = $this->input->post('amount'.$visit_id);
 			$cash_amount = $this->input->post('cash_amount'.$visit_id);
 
@@ -2888,12 +2807,11 @@ class Reports_model extends CI_Model
 				$data = array(
 					'visit_id' => $visit_id,
 					'invoiced_amount'=>$cash_amount,
-					'doctor_invoice_status'=>1,
 					'modified_by'=>$this->session->userdata("personnel_id"),
 				);
 
 				// var_dump($data);die();
-				$this->db->where('visit_id = '.$visit_id.'  AND type = 1');
+				$this->db->where('visit_id = '.$visit_id.'');
 				if($this->db->update('doctor_invoice', $data))
 				{
 					// return TRUE;
@@ -2904,13 +2822,12 @@ class Reports_model extends CI_Model
 			}
 			else
 			{
-
 				$data = array(
 					'visit_id' => $visit_id,
 					'invoiced_amount'=>$cash_amount,
 					'created_by'=>$this->session->userdata("personnel_id"),
 					'modified_by'=>$this->session->userdata("personnel_id"),
-					'doctor_invoice_status'=>1,
+					'doctor_invoice_status'=>0,
 					'type'=>1,
 					'created'=>date("Y-m-d")
 				);
@@ -2932,15 +2849,15 @@ class Reports_model extends CI_Model
 			{
 				// do an update
 
-				$data_new = array(
+				$data = array(
 					'visit_id' => $visit_id,
 					'invoiced_amount'=>$amount,
 					'modified_by'=>$this->session->userdata("personnel_id"),
 				);
 
 				// var_dump($data);die();
-				$this->db->where('visit_id = '.$visit_id.' AND type = 0');
-				if($this->db->update('doctor_invoice', $data_new))
+				$this->db->where('visit_id = '.$visit_id.'');
+				if($this->db->update('doctor_invoice', $data))
 				{
 					// return TRUE;
 				}
@@ -2955,7 +2872,7 @@ class Reports_model extends CI_Model
 					'invoiced_amount'=>$amount,
 					'created_by'=>$this->session->userdata("personnel_id"),
 					'modified_by'=>$this->session->userdata("personnel_id"),
-					'doctor_invoice_status'=>1,
+					'doctor_invoice_status'=>0,
 					'type'=>0,
 					'created'=>date("Y-m-d")
 				);
@@ -2974,11 +2891,7 @@ class Reports_model extends CI_Model
 		}
 		else
 		{
-			$this->db->where('visit_id = '.$visit_id.'');
-			$this->db->delete('doctor_invoice');
-			
-			$amount = $this->input->post('cash_amount'.$visit_id);
-
+			$amount = $this->input->post('amount'.$visit_id);
 			// check if exisit
 
 			$this->db->where('visit_id = '.$visit_id.' AND type = '.$type);
@@ -2986,10 +2899,10 @@ class Reports_model extends CI_Model
 			if($query->num_rows() > 0)
 			{
 				// do an update
+
 				$data = array(
 					'visit_id' => $visit_id,
 					'invoiced_amount'=>$amount,
-					'doctor_invoice_status'=>1,
 					'modified_by'=>$this->session->userdata("personnel_id"),
 				);
 
@@ -3010,8 +2923,8 @@ class Reports_model extends CI_Model
 					'invoiced_amount'=>$amount,
 					'created_by'=>$this->session->userdata("personnel_id"),
 					'modified_by'=>$this->session->userdata("personnel_id"),
-					'doctor_invoice_status'=>1,
-					'type'=>1,
+					'doctor_invoice_status'=>0,
+					'type'=>$type,
 					'created'=>date("Y-m-d")
 				);
 
@@ -3071,6 +2984,7 @@ class Reports_model extends CI_Model
 		$debtor_invoice_items = $this->reports_model->get_debtor_invoice_items($debtor_invoice_id);
 
 
+
 		$contacts = $this->site_model->get_contacts();
 
 		
@@ -3088,22 +3002,9 @@ class Reports_model extends CI_Model
 		$title =  'Uncleared Claims for period '.$date_from.' to '.$date_to;
 		$col_count = 0;
 		$total_invoice = 0;
-
-		$total_waiver = 0;
-        $total_payments = 0;
-        $total_invoice = 0;
-        $total_balance = 0;
-        $total_rejected_amount = 0;
-        $total_cash_balance = 0;
-        $total_insurance_payments =0;
-        $total_insurance_invoice =0;
-        $total_payable_by_patient = 0;
-        $total_payable_by_insurance = 0;
-
-        $total_amount = 0;
 		$row_count = 0;
 		$report =array();
-		$report[$row_count][$col_count] = 'SMILE ESSENCE DENTAL CENTRE';
+		$report[$row_count][$col_count] = 'IRIS DENTAL CLINIC';
 		$row_count++;
 		$report[$row_count][$col_count] = $title;
 		$row_count++;
@@ -3160,19 +3061,26 @@ class Reports_model extends CI_Model
                 $scheme_name = $row->scheme_name;
                 $visit_type_name = $row->visit_type_name;
                 $rejected_amount = $row->rejected_amount;
-                $invoice_amount = $row->invoice_amount;
                 $visit_id = $row->visit_id;
-                $parent_visit = $row->parent_visit;
-                $invoice_number = $row->invoice_number;
-                $visit_type_id = $visit_type = $row->visit_type;
 
-                
-               
+				// this is to check for any credit note or debit notes
+				$payments_value = $this->accounts_model->total_payments($visit_id);
 
+				$invoice_total = $this->accounts_model->total_invoice($visit_id);
+
+				$invoice_amount = $invoice_total - $payments_value;
+
+                $cash_balance = 0;
+                if(!empty($rejected_amount))
+                {
+                    $cash_balance = $rejected_amount - $payments_value;
+                }
+                $invoice_amount -= $cash_balance;
+				$total_invoice += $invoice_amount;
 				$count++;
 				
-				// if($invoice_amount > 0)
-				// {
+				if($invoice_amount > 0)
+				{
 						//display the patient data
 					$report[$row_count][$col_count] = $count;
 					$col_count++;
@@ -3192,8 +3100,7 @@ class Reports_model extends CI_Model
 					$col_count++;
 					$report[$row_count][$col_count] = number_format($invoice_amount,2);
 					$col_count++;
-					 $total_balance += $invoice_amount;
-				// }
+				}
 			
 				
 
@@ -3207,7 +3114,7 @@ class Reports_model extends CI_Model
 			$report[$row_count][6] = '';
 			$report[$row_count][7] = '';
 			$report[$row_count][8] = '';
-			$report[$row_count][9] = number_format($total_balance,2);
+			$report[$row_count][9] = number_format($total_invoice,2);
 
 			
 			
@@ -3239,253 +3146,5 @@ class Reports_model extends CI_Model
 		}
 		
 		return $total_paid;
-	}
-	public function get_doctor_approved_amount($visit_id,$type)
-	{
-		$this->db->where('doctor_invoice_status = 1 AND visit_id ='.$visit_id);
-		$this->db->select('SUM(invoiced_amount) AS total_invoice');
-		$query = $this->db->get('doctor_invoice');
-		$total_invoice = 0;
-		if($query->num_rows() > 0)
-		{
-			foreach ($query->result() as $key => $value) {
-				# code...
-				$total_invoice = $value->total_invoice;
-			}
-		}
-		return $total_invoice;
-	}
-
-
-
-	/*
-	*	Export Transactions
-	*
-	*/
-	function export_preauths()
-	{
-		$this->load->library('excel');
-		
-		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND (preauth = 1 OR preauth = 2)';
-		$table = 'visit, patients, visit_type';
-		$visit_search = $this->session->userdata('all_preauths_search');
-		$table_search = $this->session->userdata('all_preauths_tables');
-
-		if(!empty($visit_search))
-		{
-			$where .= $visit_search;
-
-			if(!empty($table_search))
-			{
-				$table .= $table_search;
-			}
-
-		}
-		else
-		{
-			$where .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
-
-		}
-
-		
-		$this->db->where($where);
-		$this->db->order_by('visit_date', 'ASC');
-		$this->db->select('visit.*, patients.visit_type_id, patients.*, visit_type.visit_type_name');
-		$this->db->group_by('visit_id');
-		$visits_query = $this->db->get($table);
-		
-		$title = 'Preauth Export';
-		$col_count = 0;
-		$personnel_query = $this->personnel_model->get_all_personnel();
-		if($visits_query->num_rows() > 0)
-		{
-			$count = 0;
-			/*
-				-----------------------------------------------------------------------------------------
-				Document Header
-				-----------------------------------------------------------------------------------------
-			*/
-
-				
-			$row_count = 0;
-			$report[$row_count][$col_count] = '#';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Preauth Date';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Invoice';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Patient';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Phone';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Category';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Doctor';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Preauth Amount';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Status';
-			$col_count++;
-			$current_column = $col_count ;
-
-			
-			foreach($visits_query->result() as $row)
-			{
-				$row_count++;
-				$total_invoiced = 0;
-
-				$total_invoiced = 0;
-				$visit_date = date('jS M Y',strtotime($row->visit_date));
-				$visit_time = date('H:i a',strtotime($row->visit_time));
-				if($row->visit_time_out != '0000-00-00 00:00:00')
-				{
-					$visit_time_out = date('H:i a',strtotime($row->visit_time_out));
-				}
-				else
-				{
-					$visit_time_out = '-';
-				}
-
-				$visit_id = $row->visit_id;
-				$patient_id = $row->patient_id;
-				$personnel_id = $row->personnel_id;
-				$dependant_id = $row->dependant_id;
-				$strath_no = $row->strath_no;
-				$visit_type_id = $row->visit_type_id;
-				$visit_type = $row->visit_type;
-				$visit_table_visit_type = $visit_type;
-				$invoice_number = $visit_id;//$row->invoice_number;
-				$patient_table_visit_type = $visit_type_id;
-				$coming_from = $this->reception_model->coming_from($visit_id);
-				$sent_to = $this->reception_model->going_to($visit_id);
-				$visit_type_name = $row->visit_type_name;
-				$patient_othernames = $row->patient_othernames;
-				$patient_surname = $row->patient_surname;
-				$patient_phone1 = $row->patient_phone1;
-				$patient_date_of_birth = $row->patient_date_of_birth;
-				$close_card = $row->close_card;
-				$hold_card = $row->hold_card;
-				$invoice_number = $row->invoice_number;
-				$visit_type_id = $row->visit_type;
-				$parent_visit = $row->parent_visit;
-				$rejected_amount = $row->rejected_amount;
-				$preauth = $row->preauth;
-
-				// this is to check for any credit note or debit notes
-
-
-
-				//creators and editors
-				if($personnel_query->num_rows() > 0)
-				{
-					$personnel_result = $personnel_query->result();
-
-					foreach($personnel_result as $adm)
-					{
-						$personnel_id2 = $adm->personnel_id;
-
-						if($personnel_id == $personnel_id2)
-						{
-							$doctor = $adm->personnel_onames.' '.$adm->personnel_fname;
-							break;
-						}
-
-						else
-						{
-							$doctor = '-';
-						}
-					}
-				}
-
-				else
-				{
-					$doctor = '-';
-				}
-
-				$count++;
-
-				
-			
-
-				$payments_value = $this->accounts_model->total_payments($visit_id);
-				$invoice_total = $amount_payment  = $this->accounts_model->total_invoice($visit_id);
-
-				// end of the debit and credit notes
-
-				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
-
-				$rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type);
-				$total_rejected = 0;
-				if(count($rs_rejection) >0){
-				  foreach ($rs_rejection as $r2):
-				    # code...
-				    $total_rejected = $r2->total_rejected;
-
-				  endforeach;
-				}
-
-				$rejected_amount += $total_rejected;
-
-				if($visit_type_id > 1 AND $rejected_amount > 0)
-				{
-
-				}
-
-				if($visit_type > 1 AND $total_rejected > 0)
-				{
-					$payable_by_patient = $rejected_amount;
-					$payable_by_insurance = $invoice_total - $rejected_amount;
-				}
-				else if($visit_type > 1 AND $total_rejected == 0 OR empty($total_rejected))
-				{
-					$payable_by_patient = 0;
-					$payable_by_insurance = $invoice_total;
-				}
-				else
-				{
-					$payable_by_patient = $invoice_total;
-					$payable_by_insurance = 0;
-				}
-				if($preauth == 1)
-				{
-					$status = 'Not Approved';
-				}
-				else if($preauth == 2)
-				{
-					$status = 'Approved';
-				}
-				else if($preauth == 3)
-				{
-					$status = 'Patient Confirmed';
-				}
-
-
-				$report[$row_count][$col_count] = $count;
-				$col_count++;
-				$report[$row_count][$col_count] = $visit_date;
-				$col_count++;
-				$report[$row_count][$col_count] = $invoice_number;
-				$col_count++;
-				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
-				$col_count++;
-				$report[$row_count][$col_count] = $patient_phone1;
-				$col_count++;
-				$report[$row_count][$col_count] = $visit_type_name;
-				$col_count++;
-				$report[$row_count][$col_count] = $doctor;
-				$col_count++;
-				$report[$row_count][$col_count] = number_format($invoice_total,2);
-				$col_count++;
-				$report[$row_count][$col_count] = $status;
-				$col_count++;
-				$current_column = $col_count;
-
-				
-			}
-		}
-		
-		//create the excel document
-		$this->excel->addArray ( $report );
-		$this->excel->generateXML ($title);
 	}
 }

@@ -29,7 +29,7 @@
 			
 			$result .= 
 				'
-					<table class="table table-hover table-bordered table-striped table-responsive col-md-12">
+					<table class="table table-bordered table-striped table-responsive col-md-12">
 					  <thead>
 						<tr>
 						  <th>#</th>
@@ -92,6 +92,8 @@
 				$rejected_amount = $row->amount_rejected;
 				$invoice_number = $row->invoice_number;
 				$parent_visit = $row->parent_visit;
+				$preauth = $row->preauth;
+
 
 				if(empty($rejected_amount))
 				{
@@ -189,24 +191,44 @@
 					$payable_by_patient = $invoice_total;
 					$payable_by_insurance = 0;
 				}
-				$balance  = $this->accounts_model->balance($payments_value,$invoice_total);
-				$total_insurance_payments += $payments_value;
-				$total_balance += $balance;
-				$total_rejected_amount += $billed_amount;				
-				$total_invoice += $invoice_total;
-				$total_payable_by_insurance += $payable_by_insurance;
-				$total_payable_by_patient += $payable_by_patient;
 
+
+				if($preauth == 1)
+				{
+					$highlight = 'warning';
+					$balance  = 0 ;// $this->accounts_model->balance($payments_value,$invoice_total);
+					$total_insurance_payments += 0;
+					$total_balance += 0;
+					$total_rejected_amount += 0;				
+					$total_invoice += 0;
+					$total_payable_by_insurance += 0;
+					$total_payable_by_patient += 0;
+
+				}
+				else
+				{
+					$highlight = 'default';
+					$balance  = $this->accounts_model->balance($payments_value,$invoice_total);
+					$total_insurance_payments += $payments_value;
+					$total_balance += $balance;
+					$total_rejected_amount += $billed_amount;				
+					$total_invoice += $invoice_total;
+					$total_payable_by_insurance += $payable_by_insurance;
+					$total_payable_by_patient += $payable_by_patient;
+
+				}
+
+				
 				
 				$result .= 
 					'
 						<tr>
-							<td>'.$count.'</td>
-							<td>'.$visit_date.'</td>
-							<td>'.$patient_surname.' '.$patient_othernames.'</td>
-							<td>'.$visit_type_name.'</td>
-							<td>Dr. '.$doctor.'</td>
-							<td>'.$visit_id.'</td>
+							<td class="'.$highlight.'">'.$count.'</td>
+							<td class="'.$highlight.'">'.$visit_date.'</td>
+							<td class="'.$highlight.'">'.$patient_surname.' '.$patient_othernames.'</td>
+							<td class="'.$highlight.'">'.$visit_type_name.'</td>
+							<td class="'.$highlight.'">Dr. '.$doctor.'</td>
+							<td class="'.$highlight.'">'.$invoice_number.'</td>
 					'.$charges;
 					
 				$result .= '

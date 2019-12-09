@@ -30,6 +30,7 @@
 				$message_id = $row->message_id;
 				$message = $row->message;
 				$phone_number = $row->phone_number;
+				$message_type = $row->message_type;
 
 		
 
@@ -41,6 +42,8 @@
 						<td>'.$count.'</td>
 						<td>'.$phone_number.'</td>
 						<td>'.$message.'</td>
+						<td>'.$message_type.'</td>
+
 					</tr> 
 				';
 

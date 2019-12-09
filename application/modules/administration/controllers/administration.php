@@ -8,7 +8,6 @@ class Administration  extends MX_Controller
 		$this->load->model('reception/reception_model');
 		$this->load->model('reception/strathmore_population');
 		$this->load->model('accounts/accounts_model');
-		$this->load->model('dental/dental_model');
 		$this->load->model('administration/reports_model');
 		$this->load->model('administration_model');
 		
@@ -17,7 +16,6 @@ class Administration  extends MX_Controller
 		$this->load->model('admin/admin_model');
 		$this->load->model('reception/database');
 		$this->load->model('administration/sync_model');
-		$this->load->model('dental/dental_model');
 		$this->load->model('administration/personnel_model');
 		
 		$this->load->model('auth/auth_model');
@@ -745,9 +743,9 @@ class Administration  extends MX_Controller
 			$segment = 4;
 			$config['base_url'] = site_url().'administration/patient_statement/'.$patient_id.'/'.$module;
 		}
-		$where = 'visit.visit_delete = 0 AND visit.visit_date >= "2018-03-01" AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_type = visit_type.visit_type_id AND visit.patient_id = '.$patient_id;
+		$where = 'visit.patient_id = '.$patient_id;
 		
-		$table = 'visit,visit_type';
+		$table = 'visit';
 		//pagination
 		$this->load->library('pagination');
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
@@ -822,9 +820,9 @@ class Administration  extends MX_Controller
 		
 
 		$data['contacts'] = $this->site_model->get_contacts();
-		$this->db->where('visit.visit_delete = 0 AND visit.visit_type = visit_type.visit_type_id AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.patient_id ='.$patient_id);
+		$this->db->where('visit.visit_delete = 0 AND visit.patient_id ='.$patient_id);
 		$this->db->order_by('visit_date','desc');
-		$query = $this->db->get('visit,visit_type');
+		$query = $this->db->get('visit');
 		$data['query'] = $query;
 		$patient = $this->reception_model->patient_names2($patient_id);
 		$data['patient'] = $patient;	

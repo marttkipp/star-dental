@@ -76,8 +76,7 @@
                                                 }
                                             }
                                         }
-
-                                       // get debt repaid 
+                                        
                                         $total_cash_breakdown += $total;
                                     
                                         echo 
@@ -94,7 +93,6 @@
                                     <tr>
                                         <th>Total</th>
                                         <td>'.number_format($total_cash_breakdown, 2).'</td>
-
                                     </tr>
                                     ';
                                 }

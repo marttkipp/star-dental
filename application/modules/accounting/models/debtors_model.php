@@ -875,6 +875,7 @@ class Debtors_model extends CI_Model
 				$patient_surname = $row->patient_surname;
 				$rejected_amount = $row->amount_rejected;
 				$parent_visit = $row->parent_visit;
+				$invoice_number = $row->invoice_number;
 				$patient_date_of_birth = $row->patient_date_of_birth;
 				if(empty($rejected_amount))
 				{

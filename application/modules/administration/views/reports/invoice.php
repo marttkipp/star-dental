@@ -3,14 +3,14 @@
 $row = $query->row();
 $invoice_date = date('jS M Y H:i a',strtotime($row->debtor_invoice_created));
 $debtor_invoice_id = $row->debtor_invoice_id;
-// $visit_type_name = $row->visit_type_name;
+$visit_type_name = $row->visit_type_name;
 //$patient_insurance_number = $row->patient_insurance_number;
 $batch_no = $row->batch_no;
 $status = $row->debtor_invoice_status;
 $personnel_id = $row->debtor_invoice_created_by;
 $date_from = date('jS M Y',strtotime($row->date_from));
 $date_to = date('jS M Y',strtotime($row->date_to));
-// $total_invoiced = number_format($this->reports_model->calculate_debt_total($debtor_invoice_id, $where, $table), 2);
+$total_invoiced = number_format($this->reports_model->calculate_debt_total($debtor_invoice_id, $where, $table), 2);
 				
 //get status
 if($status == 0)
@@ -158,18 +158,20 @@ else
 								$patient_insurance_number = $res->patient_insurance_number;
 								$current_patient_number = $res->current_patient_number;
                                 $rejected_amount = $res->rejected_amount;
-                                 $invoice_amount = $res->invoice_amount;
 								$visit_id = $res->visit_id;
 								$visit_date = date('jS F Y',strtotime($res->visit_date));
 								$debtor_invoice_item_status = $res->debtor_invoice_item_status;
 
 
-                                if($invoice_amount > 0)
-                                {
-                                    
-                                $total_amount += $invoice_amount;
+                                $payments_value = $this->accounts_model->total_payments($visit_id);
 
-                                }
+                                $invoice_total = $this->accounts_model->total_invoice($visit_id);
+
+                                $balance = $this->accounts_model->balance($payments_value,$invoice_total);
+
+                                $invoice_total = $invoice_total - $payments_value - $rejected_amount;
+
+                                $total_amount += $invoice_total;
 								
 								//display only active items
 								if($debtor_invoice_item_status == 0)
@@ -181,7 +183,7 @@ else
 										<td><?php echo $patient_insurance_number;?></td>
 										<td><?php echo $patient_surname;?> <?php echo $patient_othernames;?></td>
 										<td><?php echo $visit_id; ?></td>
-										<td><?php echo number_format($invoice_amount, 2);?></td>
+										<td><?php echo number_format($invoice_total, 2);?></td>
 									</tr>
 									<?php
 								}

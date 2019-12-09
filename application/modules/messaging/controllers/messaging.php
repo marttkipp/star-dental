@@ -619,7 +619,7 @@ class Messaging extends MX_Controller
 	
 	public function send_batch_messages($message_batch_id,$message_template_id)
 	{
-		$this->messaging_model->send_batch_messages($message_template_id);
+		$this->messaging_model->send_batch_messages($message_batch_id,$message_template_id);
 
 		redirect('template-detail/'.$message_template_id);
 	}

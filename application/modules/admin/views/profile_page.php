@@ -171,7 +171,7 @@ $is_admin = $this->admin_model->check_if_admin($personnel_id);
 
 if($personnel_id == 1 OR $personnel_id == 2 OR $personnel_id == 0)
 {
-    
+    // var_dump($personnel_id); die();
 echo $this->load->view('hr/leave/leave_summaries', '', true);
 }
 

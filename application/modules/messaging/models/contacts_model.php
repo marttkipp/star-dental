@@ -53,7 +53,7 @@ class Contacts_model extends CI_Model
 		
 		$report[$row_count][0] = 'Name';
 		$report[$row_count][1] = 'Phone Number';
-		$report[$row_count][2] = 'Account Balance';
+		$report[$row_count][2] = 'Contact batch';
 
 	
 		
@@ -115,13 +115,39 @@ class Contacts_model extends CI_Model
 			{
 				$service_charge_insert['name'] = ucwords(strtolower($array[$r][0]));
 				$service_charge_insert['Phonenumber'] = $phone = $array[$r][1];
-				// $service_charge_insert['balance'] =$array[$r][2];
+				$category_name =$array[$r][2];
 	
 				$count++;
 
 				$this->db->where('Phonenumber = "'.$phone.'"');
 				$query_two = $this->db->get('allcounties');
 
+
+				$this->db->where('contact_category_name = "'.$category_name.'"');
+				$query_three = $this->db->get('contact_category');
+				if($query_three->num_rows() > 0 AND !empty($category_name))
+				{
+					foreach ($query_three->result() as $key => $value_three) {
+						# code...
+						$contact_category_id = $value_three->contact_category_id;
+
+
+					}
+				}
+				else if($query_three->num_rows() == 0 AND !empty($category_name))
+				{
+					// insert 
+
+					$array_new['contact_category_name'] = $category_name;
+					$this->db->insert('contact_category',$array_new);
+					$contact_category_id = $this->db->insert_id();
+				}
+				else
+				{
+					$contact_category_id = 0;
+				}
+
+				$service_charge_insert['contact_category_id'] = $contact_category_id;
 					// var_dump($query_two->num_rows()); die();
 				if($query_two->num_rows() == 0 )
 				{
@@ -150,10 +176,6 @@ class Contacts_model extends CI_Model
 					$comment .= '<br/>Not saved internal error contact is available';
 					$class = 'danger';
 				}
-				
-				
-		
-				
 				
 			}	
 			$return['response'] = TRUE;

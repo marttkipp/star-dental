@@ -4,6 +4,7 @@ $message_template_code = $message_template[0]->message_template_code;
 $message_template_description = $message_template[0]->message_template_description;
 $message_template_status = $message_template[0]->message_template_status;
 $contact_type = $message_template[0]->contact_type;
+$contact_category_id = $message_template[0]->contact_category_id;
 
 if($contact_type == 0)
 {	
@@ -102,6 +103,7 @@ else
 				$search_template = $row->search_template;
 				$search_title = $row->search_title;
 				$message_template_description = $row->message_template_description;
+				
 				if($contact_type == 0)
 				{
 					$where = 'patient_delete = 0';
@@ -111,12 +113,25 @@ else
 				else
 				{
 					$where = 'entryid > 0';
+					if($contact_category_id > 0)
+					{
+						$where .= ' AND contact_category_id ='.$contact_category_id;
+					}
 					$total_contacts = $this->messaging_model->count_items('allcounties',$where);
 				}
+
+				if($contact_category_id > 0)
+				{
+					$checked = ' AND contact_category_id = '.$contact_category_id;
+				}
+				else
+				{
+					$checked = '';
+				}
 				
-				$sent_where = 'message_status = 1 AND message_batch_id ='.$message_template_id;
+				$sent_where = 'message_status = 1 AND message_batch_id = '.$message_batch_id.' AND message_template_id ='.$message_template_id;
 				$sent_messages = $this->messaging_model->count_items('messages',$sent_where);
-				$unsent_where = 'message_status = 0 AND message_batch_id ='.$message_template_id;
+				$unsent_where = 'message_status = 0 AND message_batch_id = '.$message_batch_id.' AND message_template_id ='.$message_template_id;
 				$unsent_messages = $this->messaging_model->count_items('messages',$unsent_where);;
 				//status
 				if($message_batch_status == 1)

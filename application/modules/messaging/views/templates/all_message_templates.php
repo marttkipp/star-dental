@@ -42,6 +42,7 @@
 				$message_template_id = $row->message_template_id;
 				$message_template_code = $row->message_template_code;
 				$message_template_status = $row->message_template_status;
+				
 				$created_by = $row->created_by;
 				$modified_by = $row->modified_by;
 				$message_template_description = $row->message_template_description;
