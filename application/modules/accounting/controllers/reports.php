@@ -18,8 +18,13 @@ class Reports extends company_financial
 		
 		$v_data['branch_name'] = $branch_name;
 		
-		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.close_card <> 2 AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL)';
-		$table = 'visit, patients, visit_type';
+		// $where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.close_card <> 2 AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL)';
+		// $table = 'visit, patients, visit_type';
+
+
+		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
+		
+		$table = 'payments, visit, patients, visit_type, payment_method';
 		$visit_search = $this->session->userdata('debtors_search_query');
 		// var_dump($visit_search);die();
 		if(!empty($visit_search))
@@ -81,7 +86,8 @@ class Reports extends company_financial
 		
 		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
         $v_data["links"] = $this->pagination->create_links();
-		$query = $this->accounting_model->get_all_visits($table, $where, $config["per_page"], $page, 'ASC');
+		// $query = $this->accounting_model->get_all_visits($table, $where, $config["per_page"], $page, 'ASC');
+		$query = $this->reports_model->get_all_payments($table, $where, $config["per_page"], $page, 'ASC');
 		
 		$v_data['query'] = $query;
 		$v_data['page'] = $page;
