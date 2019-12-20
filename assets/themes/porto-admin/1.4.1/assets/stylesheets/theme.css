@@ -17621,3 +17621,14 @@ h4, .h4, h5, .h5, h6, .h6 {
 	padding-bottom: 1px !important;
 	vertical-align: top;
 }
+.bold
+{
+	font-weight: bold !important;
+	text-decoration: underline;
+}
+
+.border-bottom
+{
+	border-bottom: 1px solid grey;
+	margin-bottom: 10px
+}
