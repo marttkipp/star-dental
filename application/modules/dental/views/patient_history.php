@@ -247,7 +247,7 @@
 														';
 								endforeach;
 
-								$notes .= '<div class="border-bottom"><span class="bold">Presenting Complaint : </span> '.$hpco.' </div><br>';
+								$notes .= '<span class="bold">Presenting Complaint : </span> '.$hpco.' <br>';
 								
 							}
 							else
@@ -281,8 +281,8 @@
 									$past_dental_history = $key3->past_dental_history;
 									$past_medical_history = $key3->past_medical_history;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">PM Hx</span> '.$past_medical_history.'</div>';
-								$notes .= '<div class="border-bottom"><span class="bold">PD Hx</span> '.$past_dental_history.'</div>';
+								$notes .= '<p><span class="bold">PM Hx</span> '.$past_medical_history.'</p>';
+								$notes .= '<p><span class="bold">PD Hx</span> '.$past_dental_history.'</p>';
 
 								$todays_new_notes .= '
 													<br/>
@@ -376,7 +376,7 @@
 														';
 								endforeach;
 
-								$notes .= '<div class="border-bottom"><span class="bold">General Exam</span> '.$general_exam.',/div>';
+								$notes .= '<span class="bold">General Examp</span> '.$general_exam.'';
 								
 							}
 							else
@@ -410,15 +410,14 @@
 									$general = $key2->general;
 									$other = $key2->other;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Soft Tissue</span> '.$soft_tissue.'</div>';
-								$notes .= '<div class="border-bottom"><span class="bold">Hard Tissue</span>';
+								$notes .= '<p><span class="bold">Soft Tissue</span> '.$soft_tissue.'</p>';
+								$notes .= '<p><span class="bold">Hard Tissue</span></p>';
 								$notes .= '<div style="margin-left:20px">
 												<p><span class="bold">General : </span> '.$general.'</p>';
 								$notes .= '		<p><span class="bold">Decayed : </span> '.$decayed.'</p>';
 								$notes .= '		<p><span class="bold">Filled :</span> '.$filled.'</p>';
 								$notes .= '		<p><span class="bold">Missing :</span> '.$missing.'</p>';
 								$notes .= '		<p><span class="bold">Other : </span> '.$other.'</p>
-											</div>
 											</div>';
 								$todays_new_notes .= '
 													<br/>
@@ -580,7 +579,7 @@
 														';
 								endforeach;
 
-								$notes .= '<div class="border-bottom"><span class="bold">Oral Examination : </span> '.$oral_examination.'</div>';
+								$notes .= '<span class="bold">Oral Examination : </span> '.$oral_examination.'';
 								
 							}
 							else
@@ -595,7 +594,7 @@
 								foreach ($get_inves_rs as $key4) :
 									$investigation = $key4->investigation;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Investigations : </span> '.$investigation.'</div>';
+								$notes .= '<p><span class="bold">Investigations : </span> '.$investigation.'</p>';
 								$todays_new_notes .= '
 													<br/>
 													<div class="row">
@@ -636,7 +635,7 @@
 								foreach ($get_occlusal_exam_rs as $key4) :
 									$occlusal_exam = $key4->occlusal_exam_description;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Occlusal Exam : </span> '.$occlusal_exam.'</div>';
+								$notes .= '<p><span class="bold">Occlusal Exam : </span> '.$occlusal_exam.'</p>';
 								$todays_new_notes .= '
 													<br/>
 														<div class="row">
@@ -680,7 +679,7 @@
 								foreach ($get_findings_rs as $key4) :
 									$findings = $key4->finding_description;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Findings : </span> '.$findings.'</div>';
+								$notes .= '<p><span class="bold">Findings : </span> '.$findings.'</p>';
 								$todays_new_notes .= '
 													<br/>
 														<div class="row">
@@ -724,7 +723,7 @@
 								foreach ($get_plan_rs as $key2) :
 									$plan_description = $key2->plan_description;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Plan : </span> '.$plan_description.'</div>';
+								$notes .= '<p><span class="bold">Plan : </span> '.$plan_description.'</p>';
 								$todays_new_notes .='<br/>
 														<div class="row">
 														<div class="col-md-12">
@@ -767,7 +766,7 @@
 								foreach ($get_rx_rs as $key6) :
 									$rx_description = $key6->rx_description;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">Rx Done : </span> '.$rx_description.'</div>';
+								$notes .= '<p><span class="bold">Rx Done : </span> '.$rx_description.'</p>';
 								$todays_new_notes .= '<br/>
 													<div class="row">
 														<div class="col-md-12">
@@ -811,7 +810,7 @@
 								foreach ($get_tca_rs as $key7):
 									$tca_description = $key7->tca_description;
 								endforeach;
-								$notes .= '<div class="border-bottom"><span class="bold">TCA : </span> '.$tca_description.'</div>';
+								$notes .= '<p><span class="bold">TCA : </span> '.$tca_description.'</p>';
 								$todays_new_notes .= '<br/>
 													<div class="row">
 														<div class="col-md-12">
@@ -895,7 +894,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Presenting Complaint</span> '.$hpco.'</div>';
+										$todays_notes .= '<span class="bold">Presenting Complaint</span> '.$hpco.'';
 										
 									}
 									else
@@ -931,7 +930,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Oral Examination : </span> '.$oral_examination.'</div>';
+										$todays_notes .= '<span class="bold">Oral Examination : </span> '.$oral_examination.'';
 										
 									}
 									else
@@ -959,7 +958,7 @@
 										foreach ($get_inves_rs as $key4) :
 											$investigation = $key4->investigation;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Investigations : </span> '.$investigation.'</div>';
+										$todays_notes .= '<p><span class="bold">Investigations : </span> '.$investigation.'</p>';
 										$item_to_display2 .= '
 															<br/>
 															<div class="row">
@@ -1001,7 +1000,7 @@
 										foreach ($get_rx_rs as $key6) :
 											$rx_description = $key6->rx_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Rx Done : </span> '.$rx_description.'</div>';
+										$todays_notes .= '<p><span class="bold">Rx Done : </span> '.$rx_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
@@ -1045,7 +1044,7 @@
 										foreach ($get_tca_rs as $key7):
 											$tca_description = $key7->tca_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">TCA : </span> '.$tca_description.'</div>';
+										$todays_notes .= '<p><span class="bold">TCA : </span> '.$tca_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
@@ -1159,7 +1158,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Presenting Complaint</span> '.$hpco.'</div>';
+										$todays_notes .= '<span class="bold">Presenting Complaint</span> '.$hpco.'';
 										
 									}
 									else
@@ -1197,7 +1196,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Oral Examination :</span> '.$oral_examination.'</div>';
+										$todays_notes .= '<span class="bold">Oral Examination :</span> '.$oral_examination.'';
 										
 									}
 									else
@@ -1226,7 +1225,7 @@
 										foreach ($get_inves_rs as $key4) :
 											$investigation = $key4->investigation;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Investigations : </span> '.$investigation.'</div>';
+										$todays_notes .= '<p><span class="bold">Investigations : </span> '.$investigation.'</p>';
 										$item_to_display2 .= '
 															<br/>
 															<div class="row">
@@ -1271,7 +1270,7 @@
 										foreach ($get_rx_rs as $key6) :
 											$rx_description = $key6->rx_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Rx Done : </span> '.$rx_description.'</div>';
+										$todays_notes .= '<p><span class="bold">Rx Done : </span> '.$rx_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
@@ -1315,7 +1314,7 @@
 										foreach ($get_tca_rs as $key7):
 											$tca_description = $key7->tca_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">TCA : </span> '.$tca_description.'</div>';
+										$todays_notes .= '<p><span class="bold">TCA : </span> '.$tca_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
@@ -1426,7 +1425,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Presenting Complaint</span> '.$hpco.'</div>';
+										$todays_notes .= '<span class="bold">Presenting Complaint</span> '.$hpco.'';
 										
 									}
 									else
@@ -1462,7 +1461,7 @@
 																';
 										endforeach;
 
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Oral Examination :</span> '.$oral_examination.'</div>';
+										$todays_notes .= '<span class="bold">Oral Examination :</span> '.$oral_examination.'';
 										
 									}
 									else
@@ -1490,7 +1489,7 @@
 										foreach ($get_inves_rs as $key4) :
 											$investigation = $key4->investigation;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Investigations : </span> '.$investigation.'</div>';
+										$todays_notes .= '<p><span class="bold">Investigations : </span> '.$investigation.'</p>';
 										$item_to_display2 .= '
 															<br/>
 															<div class="row">
@@ -1532,7 +1531,7 @@
 										foreach ($get_rx_rs as $key6) :
 											$rx_description = $key6->rx_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">Rx Done : </span> '.$rx_description.'</div>';
+										$todays_notes .= '<p><span class="bold">Rx Done : </span> '.$rx_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
@@ -1576,7 +1575,7 @@
 										foreach ($get_tca_rs as $key7):
 											$tca_description = $key7->tca_description;
 										endforeach;
-										$todays_notes .= '<div class="border-bottom"><span class="bold">TCA : </span> '.$tca_description.'</div>';
+										$todays_notes .= '<p><span class="bold">TCA : </span> '.$tca_description.'</p>';
 										$item_to_display2 .= '<br/>
 															<div class="row">
 																<div class="col-md-12">
