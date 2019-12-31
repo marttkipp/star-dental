@@ -80,6 +80,10 @@
 				$total_revenue = $row->total_revenue;
 				$service_charge_amount = $row->service_charge_amount;
 				$service_charge_id = $row->service_charge_id;
+				if(empty($service_charge_amount))
+				{
+					$service_charge_amount = 0;
+				}
 				
 				
 				$count++;
@@ -93,7 +97,7 @@
 							<td>'.$count.'</td>
 							<td>'.$service_charge_name.' </td>
 							<td>'.$total_count.' </td>
-							<td>'.number_format($service_charge_amount,2).' </td>
+							<td>'.$service_charge_amount.' </td>
 							<td>'.number_format($total_revenue,2).' </td>
 							<td><a href="'.site_url().'reports/export-procedures/'.$service_charge_id.'" class="btn btn-xs btn-info" target="_blank"> export report </a></td>
 
