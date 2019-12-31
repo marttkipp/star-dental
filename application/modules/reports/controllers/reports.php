@@ -674,5 +674,125 @@ class Reports extends MX_Controller
 		$this->reports_model->export_inpatient_report();
 	}
 
+	public function procedures_report()
+	{
+
+		$where = 'visit_charge.service_charge_id = service_charge.service_charge_id AND visit.visit_id = visit_charge.visit_id';
+		$table = 'visit_charge,service_charge,visit';
+		$visit_report_search = $this->session->userdata('procedure_report_search');
+		
+		if(!empty($visit_report_search))
+		{
+			$where .= $visit_report_search;
+		}
+		else
+		{
+			// $where .= ' AND visit.visit_date = "'.date('Y-m-d').'"';
+		}
+		$segment = 3;
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'management-reports/procedures-report';
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->reports_model->get_all_procedures_visit($table, $where, $config["per_page"], $page, 'ASC');
+		
+		$page_title = 'Procedures Report'; 
+		$data['title'] = $v_data['title'] = $page_title;
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		
+		
+		$data['content'] = $this->load->view('procedures_report', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+
+	}
+
+	public function search_procedures_report()
+	{
+		$visit_date_from = $this->input->post('visit_date_from');
+		$visit_date_to = $this->input->post('visit_date_to');
+		$visit_search_title ='';
+		if(!empty($visit_date_from) && !empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+
+			$visit_search_title = 'Visit From '.$visit_date_from.' To '.$visit_date_to.'';
+		}
+		
+		else if(!empty($visit_date_from))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_search_title = 'Visit From '.$visit_date_from.' ';
+		}
+		
+		else if(!empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_search_title = 'Visit To '.$visit_date_to.'';
+		}
+		
+		else
+		{
+			$visit_date = '';
+
+		}
+		
+		$search = $visit_date;
+		
+		$this->session->set_userdata('procedure_report_search', $search);
+		$this->session->set_userdata('procedure_title_search', $visit_search_title);
+		
+		redirect('management-reports/procedures-report');
+	}
+
+	public function close_procedures_search()
+	{
+		# code...
+		$this->session->unset_userdata('procedure_report_search');
+		$this->session->unset_userdata('procedure_title_search');
+
+		redirect('management-reports/procedures-report');
+	}
+
+	public function export_procedures_report($service_charge_id = NULL)
+	{
+		$this->reports_model->export_procedures_report($service_charge_id);
+	}
+	public function export_visit_procedures_report($service_charge_id = NULL)
+	{
+		$this->reports_model->export_visit_procedures_report($service_charge_id);
+	}
+
 }
 ?>

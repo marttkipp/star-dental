@@ -857,6 +857,184 @@ class Reports_model extends CI_Model
 		$this->excel->generateXML ($title);
 	
 	}
+
+	public function get_all_procedures_visit($table, $where, $per_page, $page, $order = NULL)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('service_charge_name,sum(visit_charge.visit_charge_units) AS total_count,sum(visit_charge.visit_charge_units*visit_charge.visit_charge_amount) AS total_revenue,service_charge.service_charge_amount,service_charge.service_charge_id');
+
+		// $this->db->join('staff', 'staff.payroll_no = patients.strath_no', 'left');
+		// $this->db->join('staff_dependant', 'staff_dependant.staff_dependant_id = patients.dependant_id', 'left');
+		$this->db->where($where);
+		$this->db->order_by('total_count','DESC');
+		$this->db->group_by('service_charge.service_charge_id');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+
+	public function export_procedures_report($service_charge_id)
+	{
+		$this->load->library('excel');
+		
+		//get all transactions
+		$where = 'visit_charge.service_charge_id = service_charge.service_charge_id AND visit.visit_id = visit_charge.visit_id';
+		$table = 'visit_charge,service_charge,visit';
+		$inpatient_report_search = $this->session->userdata('procedure_report_search');
+		
+		if(!empty($inpatient_report_search))
+		{
+			$where .= $inpatient_report_search;
+		}
+		else
+		{
+			// $where .= ' AND visit.visit_date = "'.date('Y-m-d').'"';
+
+		}
+		if(!empty($service_charge_id))
+		{
+			$where .= ' AND visit_charge.service_charge_id = '.$service_charge_id;
+		}
+		
+		$this->db->where($where);
+		$this->db->select('service_charge_name,sum(visit_charge.visit_charge_units) AS total_count,sum(visit_charge.visit_charge_units*visit_charge.visit_charge_amount) AS total_revenue,service_charge.service_charge_amount');
+		$this->db->order_by('total_count','DESC');
+		$this->db->group_by('service_charge.service_charge_id');
+		$visits_query = $this->db->get($table);
+		
+		$title = 'Procedure Report ';
+
+		
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][0] = '#';
+			$report[$row_count][1] = 'Procedure Name';
+			$report[$row_count][2] = 'Procedure Count';
+			$report[$row_count][3] = 'Rate';
+			$report[$row_count][4] = 'Revenue';
+
+			//get & display all services
+			
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$total_invoiced = 0;
+				$service_charge_name = $row->service_charge_name;
+				$total_count = $row->total_count;
+				$total_revenue = $row->total_revenue;
+				$service_charge_amount = $row->service_charge_amount;
+
+				$count++;
+				
+				//display the patient data
+				$report[$row_count][0] = $count;
+				$report[$row_count][1] = $service_charge_name;
+				$report[$row_count][2] = $total_count;
+				$report[$row_count][3] = $service_charge_amount;
+				$report[$row_count][4] = $total_revenue;
+					
+				
+				
+			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+	}
+
+
+	public function export_visit_procedures_report($service_charge_id)
+	{
+		$this->load->library('excel');
+		
+		//get all transactions
+		$where = 'visit_charge.service_charge_id = service_charge.service_charge_id AND visit.visit_id = visit_charge.visit_id AND visit.patient_id = patients.patient_id';
+		$table = 'visit_charge,service_charge,visit,patients';
+		$inpatient_report_search = $this->session->userdata('procedure_report_search');
+		
+		if(!empty($inpatient_report_search))
+		{
+			$where .= $inpatient_report_search;
+		}
+		else
+		{
+			// $where .= ' AND visit.visit_date = "'.date('Y-m-d').'"';
+
+		}
+		if(!empty($service_charge_id))
+		{
+			$where .= ' AND visit_charge.service_charge_id = '.$service_charge_id;
+		}
+		
+		$this->db->where($where);
+		$this->db->select('service_charge_name,sum(visit_charge.visit_charge_units) AS total_count,sum(visit_charge.visit_charge_units*visit_charge.visit_charge_amount) AS total_revenue,service_charge.service_charge_amount,patients.patient_othernames,patients.patient_surname,visit.visit_date');
+		$this->db->order_by('visit.visit_date','ASC');
+		$this->db->group_by('visit_charge.visit_id');
+		$visits_query = $this->db->get($table);
+		
+		$title = 'Procedure Report ';
+
+		
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][0] = '#';
+			$report[$row_count][1] = 'Visit Date';
+			$report[$row_count][2] = 'Patient Name';
+			$report[$row_count][3] = 'Procedure Count';
+			$report[$row_count][4] = 'Rate';
+			$report[$row_count][5] = 'Revenue';
+
+			//get & display all services
+			
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$total_invoiced = 0;
+				$service_charge_name = $row->service_charge_name;
+				$patient_surname = $row->patient_surname;
+				$total_count = $row->total_count;
+				$total_revenue = $row->total_revenue;
+				$visit_date = $row->visit_date;
+				$service_charge_amount = $row->service_charge_amount;
+
+				$count++;
+				
+				//display the patient data
+				$report[$row_count][0] = $count;
+				$report[$row_count][1] = $visit_date;
+				$report[$row_count][2] = $patient_surname;
+				$report[$row_count][3] = $total_count;
+				$report[$row_count][4] = $service_charge_amount;
+				$report[$row_count][5] = $total_revenue;
+					
+				
+				
+			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+	}
+
 }
 
 
