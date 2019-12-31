@@ -11,10 +11,20 @@
             echo form_open("reports/search_procedures_report", array("class" => "form-horizontal"));
             ?>
             <div class="row">
-                <div class="col-md-5">
+            	<div class="col-md-3">
                     
                     <div class="form-group">
-                        <label class="col-lg-4 control-label">Visit Date From: </label>
+                        <label class="col-lg-4 control-label">Procedure: </label>
+                        
+                        <div class="col-lg-8">
+                        	 <input  type="text"  class="form-control" name="procedure_name" placeholder="Procedure">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Date From: </label>
                         
                         <div class="col-lg-8">
                         	<div class="input-group">
@@ -26,10 +36,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
                     
                     <div class="form-group">
-                        <label class="col-lg-4 control-label">Visit Date To: </label>
+                        <label class="col-lg-4 control-label">Date To: </label>
                         
                         <div class="col-lg-8">
                         	<div class="input-group">

@@ -742,6 +742,7 @@ class Reports extends MX_Controller
 	{
 		$visit_date_from = $this->input->post('visit_date_from');
 		$visit_date_to = $this->input->post('visit_date_to');
+		$procedure_name = $this->input->post('procedure_name');
 		$visit_search_title ='';
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
@@ -768,7 +769,21 @@ class Reports extends MX_Controller
 
 		}
 		
-		$search = $visit_date;
+
+		if(!empty($procedure_name))
+		{
+			$procedure_name = ' AND service_charge.service_charge_name LIKE \'%'.$procedure_name.'%\'';
+			$visit_search_title .= ' Procedure '.$procedure_name.'';
+		}
+		
+		else
+		{
+			$procedure_name = '';
+
+		}
+
+		
+		$search = $visit_date.$procedure_name;
 		
 		$this->session->set_userdata('procedure_report_search', $search);
 		$this->session->set_userdata('procedure_title_search', $visit_search_title);
