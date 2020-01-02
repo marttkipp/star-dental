@@ -717,6 +717,8 @@ class Reports extends administration
 		$v_data['query'] = $query;
 		$v_data['type'] = 1;
 		$v_data['personnel_id'] = $personnel_id;
+		$v_data['date_from'] = $date_from;
+		$v_data['date_to'] = $date_to;
 		$v_data['title'] = 'Patient Report';
 		$v_data['page'] = $page;
 		$v_data['search'] = $patients_search;

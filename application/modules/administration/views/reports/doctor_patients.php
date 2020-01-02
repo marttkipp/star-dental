@@ -4,9 +4,9 @@
         <section class="panel panel-featured panel-featured-info">
             <header class="panel-heading">
             	 <h2 class="panel-title"><?php echo $title;?></h2>
-            	  <div class="pull-right">
+            	<div class="pull-right">
             	  	
-            	   
+            	   <a href="<?php echo site_url().'administration/reports/doctor_reports/'.$personnel_id.'/'.$date_from.'/'.$date_to?>" class="btn btn-sm btn-info" style="margin-top:-40px;"> Back to doctors report</a>
 			    </div>
             </header>             
 
