@@ -1487,7 +1487,7 @@ class Reports_model extends CI_Model
 	{
 		$table = 'visit';
 		
-		$where = 'visit.visit_delete = 0 AND visit.personnel_id = '.$doctor_id;
+		$where = 'visit.visit_delete = 0 AND close_card <> 2 AND visit.personnel_id = '.$doctor_id;
 		
 		if(!empty($date_from) && !empty($date_to))
 		{

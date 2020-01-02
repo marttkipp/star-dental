@@ -22,7 +22,7 @@
 			if(!empty($search))
 			{
 				echo '
-				<a href="'.site_url().'reception/close_patient_search" class="btn btn-warning btn-sm ">Close Search</a>
+				<a href="'.site_url().'administration/reports/close_doctors_search" class="btn btn-warning btn-sm ">Close Search</a>
 				';
 			}
 		

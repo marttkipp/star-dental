@@ -4064,5 +4064,16 @@ class Reports extends administration
 
 		redirect('patient-invoices');
 	}
+
+	public function close_doctors_search()
+	{
+		$this->session->unset_userdata('all_transactions_search');
+		$this->session->unset_userdata('all_transactions_tables');
+		$this->session->unset_userdata('search_title');
+		
+		$debtors = $this->session->userdata('debtors');
+		
+		redirect('hospital-reports/doctors-report');
+	}
 }
 ?>
