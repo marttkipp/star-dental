@@ -176,7 +176,7 @@
                             <div class="center-align">
                                 
                               <h4>DEBT REPAYMENT</h4>
-                                <h3>Ksh <?php echo number_format($receivable, 2);?></h3>
+                                <h3>Ksh <?php echo number_format($cash_debt_repayments + $insurance_debt_repayments, 2);?></h3>
                             </div>
                         </div>
                         <hr>

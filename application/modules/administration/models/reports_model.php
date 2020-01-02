@@ -2069,7 +2069,7 @@ class Reports_model extends CI_Model
 			$where .= $visit_search;
 		}
 		
-		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.*, visit_type.visit_type_name, payments.*, payment_method.*, personnel.personnel_fname, personnel.personnel_onames, service.service_name');
+		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.*, visit_type.visit_type_name, payments.*, payment_method.*, personnel.personnel_fname, personnel.personnel_onames, service.service_name,payments.confirm_number');
 		$this->db->join('personnel', 'payments.payment_created_by = personnel.personnel_id', 'left');
 		$this->db->join('service', 'payments.payment_service_id = service.service_id', 'left');
 		$this->db->where($where);
@@ -2090,6 +2090,8 @@ class Reports_model extends CI_Model
 			$row_count = 0;
 			$report[$row_count][$col_count] = '#';
 			$col_count++;
+			$report[$row_count][$col_count] = 'Visit Date';
+			$col_count++;
 			$report[$row_count][$col_count] = 'Payment Date';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Time recorded';
@@ -2100,13 +2102,13 @@ class Reports_model extends CI_Model
 			$col_count++;
 			$report[$row_count][$col_count] = 'Category';
 			$col_count++;
-			$report[$row_count][$col_count] = 'Service';
-			$col_count++;
 			$report[$row_count][$col_count] = 'Amount';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Method';
 			$col_count++;
-			$report[$row_count][$col_count] = 'Description';
+			$report[$row_count][$col_count] = 'Receipt No.';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Type';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Recorded by';
 			$col_count++;
@@ -2119,6 +2121,7 @@ class Reports_model extends CI_Model
 				$col_count = 0;
 				
 				$total_invoiced = 0;
+				$visit_date = date('jS M Y',strtotime($row->visit_date));
 				$payment_created = date('jS M Y',strtotime($row->payment_created));
 				$time = date('H:i a',strtotime($row->time));
 				$visit_id = $row->visit_id;
@@ -2137,10 +2140,22 @@ class Reports_model extends CI_Model
 				$payment_method = $row->payment_method;
 				$amount_paid = $row->amount_paid;
 				$service_name = $row->service_name;
+				$confirm_number = $row->confirm_number;
 				$transaction_code = $row->transaction_code;
 				$created_by = $row->personnel_fname.' '.$row->personnel_onames;
+
+				if($visit_date == $payment_created)
+				{
+					$type = 'Normal Payment';
+				}
+				else
+				{
+					$type = 'Debt Repayment';
+				}
 				
 				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $visit_date;
 				$col_count++;
 				$report[$row_count][$col_count] = $payment_created;
 				$col_count++;
@@ -2152,13 +2167,13 @@ class Reports_model extends CI_Model
 				$col_count++;
 				$report[$row_count][$col_count] = $visit_type_name;
 				$col_count++;
-				$report[$row_count][$col_count] = $service_name;
-				$col_count++;
 				$report[$row_count][$col_count] = number_format($amount_paid, 2);
 				$col_count++;
 				$report[$row_count][$col_count] = $payment_method;
 				$col_count++;
-				$report[$row_count][$col_count] = $transaction_code;
+				$report[$row_count][$col_count] = $confirm_number;
+				$col_count++;
+				$report[$row_count][$col_count] = $type;
 				$col_count++;
 				$report[$row_count][$col_count] = $created_by;
 				$col_count++;
