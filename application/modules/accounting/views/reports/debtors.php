@@ -94,7 +94,7 @@
 								<td>'.$visit_type_name.'</td>
 								<td>'.number_format($amount_paid, 2).'</td>
 								<td>'.$payment_method.'</td>
-								<td>'.$visit_id.'</td>
+								<td>'.$confirm_number.'</td>
 								<td>'.$type.'</td>
 								<td>'.$created_by.'</td>
 							</tr> 
