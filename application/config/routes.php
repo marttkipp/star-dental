@@ -1352,6 +1352,8 @@ $route['accounting/accounts-transfer'] = 'finance/transfer/write_cheque';
 $route['accounting/accounts-transfer/(:num)'] = 'finance/transfer/write_cheque/$1';
 $route['reverse-transfer-entry/(:num)'] = 'finance/transfer/reverse_transfer/$1';
 
+$route['remove-transfer-entry/(:num)'] = 'finance/transfer/transfer_delete_record/$1';
+
 $route['accounting/purchase-payments'] = 'finance/purchases/purchase_payments';
 
 

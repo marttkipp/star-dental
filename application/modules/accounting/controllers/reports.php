@@ -25,7 +25,7 @@ class Reports extends company_financial
 		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
 		
 		$table = 'payments, visit, patients, visit_type, payment_method';
-		$visit_search = $this->session->userdata('debtors_search_query');
+		$visit_search = $this->session->userdata('visit_payments');
 		// var_dump($visit_search);die();
 		if(!empty($visit_search))
 		{

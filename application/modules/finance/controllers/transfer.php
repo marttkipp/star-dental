@@ -51,7 +51,7 @@ class Transfer extends admin
 		//open the add new order
 		$v_data['accounts'] = $this->purchases_model->get_transacting_accounts("Bank");
 
-		$where = 'finance_transfer_status = 1 ';
+		$where = 'finance_transfer_status = 1 AND finance_transfer_deleted = 0';
 
 
     $search_transfers = $this->session->userdata('search_transfers');
@@ -230,7 +230,7 @@ class Transfer extends admin
 	  			$finance_transfered_amount = -$items2->finance_transfered_amount;
 
 
-	  			$changed_item_thing['finance_transfered_amount'] = $finance_transfered_amount;
+	  			$changed_item_thing['finance_transfer_amount'] = $finance_transfered_amount;
 	  			$changed_item_thing['account_to_id'] = $account_to_id;
 	  			$changed_item_thing['created'] = date('Y-m-d H:i:s');
 	  			$changed_item_thing['transaction_date'] = date('Y-m-d');
@@ -245,6 +245,19 @@ class Transfer extends admin
 	  		}
   		}
   	}
+    public function transfer_delete_record($finance_transfer_id)
+    {
+        $array['finance_transfer_deleted'] = 1;
+        $array['finance_transfer_status'] = 0;
+        $array['deleted_by'] = $this->session->userdata('personnel_id');
+        $this->db->where('finance_transfer_id',$finance_transfer_id);
+        $this->db->update('finance_transfer',$array);
+
+        $this->session->set_userdata('success_message','You have successfully removed the transfer');
+        redirect('accounting/accounts-transfer');
+
+    }
+
 
     public function account_transfers()
     {

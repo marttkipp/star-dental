@@ -31,7 +31,7 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
-						  <th>Visit Date</th>
+						  <th>Visit Date</th>z
 						  <th>Invoice</th>
 						  <th>Patient</th>
 						  <th>Category</th>

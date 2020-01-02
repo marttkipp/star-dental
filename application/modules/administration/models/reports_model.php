@@ -2057,10 +2057,12 @@ class Reports_model extends CI_Model
 		}
 		$v_data['branch_name'] = $branch_name;
 		
-		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0 AND visit.branch_code = \''.$branch_code.'\' AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
+		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
 		
 		$table = 'payments, visit, patients, visit_type, payment_method';
-		$visit_search = $this->session->userdata('cash_report_search');
+
+
+		$visit_search = $this->session->userdata('visit_payments');
 		
 		if(!empty($visit_search))
 		{
@@ -2091,6 +2093,8 @@ class Reports_model extends CI_Model
 			$report[$row_count][$col_count] = 'Payment Date';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Time recorded';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Patient Number';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Patient';
 			$col_count++;
@@ -2128,6 +2132,7 @@ class Reports_model extends CI_Model
 				$visit_type_name = $row->visit_type_name;
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
+				$patient_number = $row->patient_number;
 				$patient_date_of_birth = $row->patient_date_of_birth;
 				$payment_method = $row->payment_method;
 				$amount_paid = $row->amount_paid;
@@ -2140,6 +2145,8 @@ class Reports_model extends CI_Model
 				$report[$row_count][$col_count] = $payment_created;
 				$col_count++;
 				$report[$row_count][$col_count] = $time;
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_number;
 				$col_count++;
 				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
 				$col_count++;

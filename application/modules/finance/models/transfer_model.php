@@ -49,9 +49,11 @@ class Transfer_model extends CI_Model
   public function transfer_funds()
   {
     // $document_number = $this->create_purchases_payment();
+    $amount = $this->input->post('amount');
+    $amount = str_replace(',', '', $amount);
     $account = array(
           'account_from_id'=>$this->input->post('account_from_id'),
-          'finance_transfer_amount'=>$this->input->post('amount'),
+          'finance_transfer_amount'=>$amount,
           'transaction_date'=>$this->input->post('transfer_date'),
           'reference_number'=>$this->input->post('reference_number'),
           'created_by'=>$this->session->userdata('personnel_id'),
@@ -65,7 +67,7 @@ class Transfer_model extends CI_Model
       $finance_transfer_id = $this->db->insert_id();
       $account = array(
             'account_to_id'=>$this->input->post('account_to_id'),
-            'finance_transfered_amount'=>$this->input->post('amount'),
+            'finance_transfered_amount'=>$amount,
             'transaction_date'=>$this->input->post('transfer_date'),
             'created_by'=>$this->session->userdata('personnel_id'),
             'finance_transfer_id'=>$finance_transfer_id,

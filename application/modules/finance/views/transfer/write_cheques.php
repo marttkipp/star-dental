@@ -205,7 +205,8 @@
                                 <th>Transfer Date</th>
                                 <th>Reference Number</th>
                                 <th>Account From</th>
-                                <th>Account To</th>
+                                <th>Account To</th>                                
+                                <th>Remarks</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -224,6 +225,7 @@
                                        $reference_number = $value->reference_number;
                                        $amount_paid = $value->finance_transfer_amount;
                                        $finance_transfer_id = $value->finance_transfer_id;
+                                       $remarks = $value->remarks;
                                        if(!empty($account_from_id))
                                        {
                                          $account_from_name = $this->transfer_model->get_account_name($account_from_id);
@@ -238,7 +240,7 @@
                                        else {
                                          $account_to_name = '';
                                        }
-                                       $link = '<td><a href="'.site_url().'reverse-transfer-entry/'.$finance_transfer_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want reverse this entry?\');"></a></td>';
+                                       $link = '<td><a href="'.site_url().'remove-transfer-entry/'.$finance_transfer_id.'" class="btn btn-xs btn-danger fa fa-trash" onclick="return confirm(\'Do you really want remove this entry?\');"></a></td>';
 
                                        $x++;
                                        $transaction_date = date('jS M Y',strtotime($transaction_date));
@@ -248,8 +250,9 @@
                                                        <td>'.strtoupper($reference_number).'</td>
                                                        <td>'.$account_from_name.'</td>
                                                        <td>'.$account_to_name.'</td>
+                                                       <td>'.ucfirst($remarks).'</td>
                                                        <td>'.number_format($amount_paid,2).'</td>
-
+                                                        '.$link.'
                                                    </tr>';
 
                                    }

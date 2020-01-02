@@ -35,6 +35,7 @@
 						  <th>#</th>
 						  <th>Payment Date</th>
 						  <th>Time recorded</th>
+						  <th>Patient Number</th>
 						  <th>Patient</th>
 						  <th>Category</th>
 						  <th>Service</th>
@@ -68,6 +69,7 @@
 				$amount_paid = $row->amount_paid;
 				$transaction_code = $row->transaction_code;
 				$service_name = $row->service_name;
+				$patient_number = $row->patient_number;
 				$created_by = $row->personnel_fname.' '.$row->personnel_onames;
 				
 				$result .= 
@@ -76,6 +78,7 @@
 								<td>'.$count.'</td>
 								<td>'.$payment_created.'</td>
 								<td>'.$time.'</td>
+								<td>'.$patient_number.'</td>
 								<td>'.$patient_surname.' '.$patient_othernames.'</td>
 								<td>'.$visit_type_name.'</td>
 								<td>'.$service_name.'</td>

@@ -481,6 +481,8 @@ class Accounts_model extends CI_Model
 		{
 			$transaction_code = '';
 		}
+
+		$amount = str_replace(',', '', $amount);
 		$change = $this->input->post('change_payment');
 
 		$reason = $this->input->post('reason');
