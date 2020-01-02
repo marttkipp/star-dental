@@ -13,7 +13,18 @@
 
 			<!-- Widget content -->
 			<div class="panel-body">
+
+
           	<?php
+
+          	$search = $this->session->userdata('doctors_search');
+		
+			if(!empty($search))
+			{
+				echo '
+				<a href="'.site_url().'reception/close_patient_search" class="btn btn-warning btn-sm ">Close Search</a>
+				';
+			}
 		
 			if($doctor_results->num_rows() > 0)
 			{
@@ -21,16 +32,18 @@
 			
 				echo  
 					'
-						<a href="'.site_url().'administration/reports/doctor_reports_export/'.$date_from.'/'.$date_to.'" class="btn btn-success">Export</a>
+						<a href="'.site_url().'administration/reports/doctor_reports_export/'.$date_from.'/'.$date_to.'" class="btn btn-sm btn-success pull-right">Export</a> <br/>
 						<table class="table table-hover table-bordered table-striped table-responsive col-md-12">
 						  <thead>
 							<tr>
 							  <th>#</th>
 							  <th>Doctor\'s name</th>
-							  <th>Patients seen</th>
-							  <th>Total Cash</th>
-							  <th>Total Insurance</th>
-							  <th>Total Collection</th>
+							  <th>New Patients</th>
+							  <th>Revisits</th>
+							  <th>Total Patients</th>
+							  <th>Total Cash Invoices</th>
+							  <th>Total Insurance Invoices</th>
+							  <th>Total Invoices</th>
 							  <th colspan="2">Actions</th>
 							</tr>
 						</thead>
@@ -39,6 +52,10 @@
 				$result = $doctor_results->result();
 				$grand_total = 0;
 				$patients_total = 0;
+				$insurance_grand = 0;
+				$total_revisits = 0;
+				$total_new = 0;
+
 				
 				foreach($result as $res)
 				{
@@ -49,62 +66,38 @@
 					$count++;
 					
 					//get service total
-					$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to);
-					$total_invoice = $this->reports_model->get_total_collected_invoice($personnel_id, $date_from, $date_to);
-					$total_all = $this->reports_model->get_total_collected_invoice_total($personnel_id, $date_from, $date_to);
-					$patients = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to);
+					$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to,1);
+					$total_insurance = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to,2);
+					
+					$new = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to,1);
+					$revisit = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to,2);
+					$patients = $new+$revisit;
 					$grand_total += $total;
 					$patients_total += $patients;
+					$insurance_grand = $total_insurance;
+					$total_new += $new;
+					$total_revisits += $revisit;
 					
-					//consultant
-					if($personnel_type_id == 2)
-					{
-						$full = $total;
-						$percentage = 0;
-						$hourly = 0;
-						$daily = 0;
-					}
 					
-					//radiographer
-					elseif($personnel_type_id == 3)
+
+					if(empty($date_to))
 					{
-						$percentage = 0.3 * $total;
-						$full = 0;
-						$hourly = 0;
-						$daily = 0;
-					}
-					
-					//medical officer
-					elseif($personnel_type_id == 4)
-					{
-						$hours_worked = $this->reports_model->calculate_hours_worked($personnel_id, $date_from, $date_to);
-						$hourly = 500 * $hours_worked;
-						$full = 0;
-						$percentage = 0;
-						$daily = 0;
-					}
-					
-					//clinic officer
-					elseif($personnel_type_id == 5)
-					{
-						$days_worked = $this->reports_model->calculate_days_worked($personnel_id, $date_from, $date_to);
-						$daily = 1000 * $days_worked;
-						$full = 0;
-						$percentage = 0;
-						$hourly = 0;
+						$date_to = $date_from;
 					}
 					
 					echo '
 						<tr>
 							<td>'.$count.'</td>
 							<td>Dr. '.$personnel_fname.' '.$personnel_onames.'</td>
+							<td>'.$new.'</td>
+							<td>'.$revisit.'</td>
 							<td>'.$patients.'</td>
 							<td>'.number_format($total, 2).'</td>
-							<td>'.number_format($total_invoice, 2).'</td>
-							<td>'.number_format($total_all, 2).'</td>
+							<td>'.number_format($total_insurance, 2).'</td>
+							<td>'.number_format($total+$total_insurance, 2).'</td>
 
 							<td>
-								<a href="'.site_url().'view-doctors-patients/'.$personnel_id.'" class="btn btn-warning btn-sm fa fa-folder-open"> View Patients</a>
+								<a href="'.site_url().'view-doctors-patients/'.$personnel_id.'/'.$date_from.'/'.$date_to.'" class="btn btn-warning btn-sm fa fa-folder-open"> View Patients</a>
 							</td>
 							<td>
 								<a href="'.site_url().'administration/reports/doctor_patients_export/'.$personnel_id.'/'.$date_from.'/'.$date_to.'" class="btn btn-success btn-sm fa fa-excel">Export Patients</a>
@@ -118,9 +111,12 @@
 					
 						<tr>
 							<td colspan="2">Total</td>
+							<td><span class="bold" >'.$total_new.' patients</span></td>
+							<td><span class="bold" >'.$total_revisits.' patients</span></td>
 							<td><span class="bold" >'.$patients_total.' patients</span></td>
 							<td><span class="bold">'.number_format($grand_total, 2).'</span></td>
-							<td></td>
+							<td><span class="bold">'.number_format($insurance_grand, 2).'</span></td>
+							<td><span class="bold">'.number_format($grand_total+$insurance_grand, 2).'</span></td>
 						</tr>
 					</tbody>
 				</table>

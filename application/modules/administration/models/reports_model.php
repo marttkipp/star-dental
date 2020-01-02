@@ -1483,7 +1483,7 @@ class Reports_model extends CI_Model
 		
 	}
 
-	public function get_total_patients($doctor_id, $date_from = NULL, $date_to = NULL)
+	public function get_total_patients($doctor_id, $date_from = NULL, $date_to = NULL,$revisit_status = NULL)
 	{
 		$table = 'visit';
 		
@@ -1503,6 +1503,16 @@ class Reports_model extends CI_Model
 		{
 			$where .= ' AND visit_date = \''.$date_from.'\'';
 		}
+
+		if($revisit_status == 1)
+		{
+			$where .= ' AND (revisit = 1 OR revisit = 0)';
+		}
+		else
+		{
+			$where .= ' AND revisit = 2';
+		}
+
 		
 		$this->db->where($where);
 		$total = $this->db->count_all_results('visit');
@@ -1545,8 +1555,12 @@ class Reports_model extends CI_Model
 		$row_count = 0;
 		$report[$row_count][0] = '#';
 		$report[$row_count][1] = 'Doctor\'s name';
-		$report[$row_count][2] = 'Total collection';
-		$report[$row_count][3] = 'Patients seen';
+		$report[$row_count][2] = 'New Patients';
+		$report[$row_count][3] = 'Revisits';
+		$report[$row_count][4] = 'Total Patients';
+		$report[$row_count][5] = 'Cash Invoices';
+		$report[$row_count][6] = 'Insurance Invoices';
+		$report[$row_count][7] = 'Total Invoices';
 		
 		//get all doctors
 		$doctor_results = $this->reports_model->get_all_doctors();
@@ -1554,7 +1568,11 @@ class Reports_model extends CI_Model
 		$grand_total = 0;
 		$patients_total = 0;
 		$count = 0;
-		
+		$grand_total = 0;
+		$patients_total = 0;
+		$insurance_grand = 0;
+		$total_revisits = 0;
+		$total_new = 0;
 		foreach($result as $res)
 		{
 			$personnel_id = $res->personnel_id;
@@ -1564,22 +1582,38 @@ class Reports_model extends CI_Model
 			$row_count++;
 			
 			//get service total
-			$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to);
-			$patients = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to);
+			$total = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to,1);
+			$total_insurance = $this->reports_model->get_total_collected($personnel_id, $date_from, $date_to,2);
+			
+			$new = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to,1);
+			$revisit = $this->reports_model->get_total_patients($personnel_id, $date_from, $date_to,2);
+			$patients = $new+$revisit;
 			$grand_total += $total;
 			$patients_total += $patients;
-			
+			$insurance_grand = $total_insurance;
+			$total_new += $new;
+			$total_revisits += $revisit;
+
+
 			$report[$row_count][0] = $count;
 			$report[$row_count][1] = $personnel_fname.' '.$personnel_onames;
-			$report[$row_count][2] = number_format($total, 0);
-			$report[$row_count][3] = $patients;
+			$report[$row_count][2] = $new;
+			$report[$row_count][3] = $revisit;
+			$report[$row_count][4] = $patients;
+			$report[$row_count][5] = number_format($total, 0);
+			$report[$row_count][6] = number_format($total_insurance, 0);
+			$report[$row_count][7] = number_format($total+$total_insurance, 0);
 		}
 		$row_count++;
 		
 		$report[$row_count][0] = '';
 		$report[$row_count][1] = '';
-		$report[$row_count][2] = number_format($grand_total, 0);
-		$report[$row_count][3] = $patients_total;
+		$report[$row_count][2] = number_format($total_new, 0);
+		$report[$row_count][3] = $total_revisits;
+		$report[$row_count][4] = $patients_total;
+		$report[$row_count][5] = $grand_total;
+		$report[$row_count][6] = $insurance_grand;
+		$report[$row_count][7] = $grand_total + $insurance_grand;
 		
 		//create the excel document
 		$this->excel->addArray ( $report );
@@ -1588,7 +1622,8 @@ class Reports_model extends CI_Model
 	
 	function doctor_patients_export($personnel_id, $date_from = NULL, $date_to = NULL)
 	{
-		$where = ' AND visit.personnel_id = '.$personnel_id;
+		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0 AND visit.close_card <> 2 AND visit.personnel_id = '.$personnel_id;
+		$table = 'visit, patients, visit_type';
 		
 		if(!empty($date_from) && !empty($date_to))
 		{
@@ -1606,7 +1641,161 @@ class Reports_model extends CI_Model
 		}
 		$_SESSION['all_transactions_search'] = $where;
 		
-		$this->export_transactions();
+		
+		$this->db->where($where);
+		$this->db->join('personnel','personnel.personnel_id = visit.personnel_id','LEFT');
+		$visits_query = $this->db->get($table);
+
+		$title = 'Doctors Report '.date('jS M Y',strtotime($date_from)).' '.date('jS M Y',strtotime($date_to));
+		$col_count = 0;
+		$this->load->library('excel');
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][$col_count] = '#';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Visit Date';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Name';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Invoice Number';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Procedures';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Doctor';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Invoice Amount';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Balance';
+			$col_count++;
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$total_invoiced = 0;
+				$visit_date = date('jS M Y',strtotime($row->visit_date));
+				$visit_time = date('H:i a',strtotime($row->visit_time));
+				if($row->visit_time_out != '0000-00-00 00:00:00')
+				{
+					$visit_time_out = date('H:i a',strtotime($row->visit_time_out));
+				}
+				else
+				{
+					$visit_time_out = '-';
+				}
+				$visit_id = $row->visit_id;
+				$patient_number = $row->patient_number;
+				$patient_id = $row->patient_id;
+				$personnel_id = $row->personnel_id;
+				$dependant_id = $row->dependant_id;
+				$strath_no = $row->strath_no;
+				$visit_type_id = $row->visit_type_id;
+				$visit_type = $row->visit_type;
+				$visit_table_visit_type = $visit_type;
+				$patient_table_visit_type = $visit_type_id;
+				$visit_type_name = $row->visit_type_name;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
+				$rejected_amount = 0;//$row->amount_rejected;
+				$parent_visit = $row->parent_visit;
+				$invoice_number = $row->invoice_number;
+				$patient_date_of_birth = $row->patient_date_of_birth;
+				if(empty($rejected_amount))
+				{
+					$rejected_amount = 0;
+				}
+				
+				
+
+                $waiver_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
+
+                $cash_balance = 0;
+                if(!empty($rejected_amount))
+                {
+                	$cash_invoice = $rejected_amount;
+                }
+
+               $rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type);
+				$total_rejected = 0;
+				if(count($rs_rejection) >0){
+				  foreach ($rs_rejection as $r2):
+				    # code...
+				    $total_rejected = $r2->total_rejected;
+
+				  endforeach;
+				}
+
+				$rejected_amount += $total_rejected;
+
+
+
+				
+
+				$doctor = $row->personnel_onames.' '.$row->personnel_fname;
+				
+				$count++;
+				
+				//payment data
+				$charges = '';
+				
+				$payments_value = $this->accounts_model->total_payments($visit_id);
+
+				$invoice_total = $amount_payment = $this->accounts_model->get_visit_total_invoice($visit_id);
+
+				// var_dump($parent_visit); die();
+				$balance = $this->accounts_model->balance($payments_value,$invoice_total);
+
+
+
+				$item_invoiced_rs = $this->accounts_model->get_patient_visit_charge_items($visit_id);
+			
+				$procedures = '';
+				if(count($item_invoiced_rs) > 0)
+				{
+					foreach ($item_invoiced_rs as $key_items):
+						// $s++;
+						$service_charge_name = $key_items->service_charge_name;
+						$visit_charge_amount = $key_items->visit_charge_amount;
+						$service_name = $key_items->service_name;
+						$units = $key_items->visit_charge_units;
+						$visit_total = $visit_charge_amount * $units;
+						$personnel_id = $key_items->personnel_id;
+						$procedures .= strtoupper($service_charge_name).',';
+					endforeach;
+				}
+
+				//display the patient data
+				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $visit_date;
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
+				$col_count++;
+				$report[$row_count][$col_count] = $visit_id;
+				$col_count++;
+				$report[$row_count][$col_count] = $procedures;
+				$col_count++;
+				$report[$row_count][$col_count] = $doctor;
+				$col_count++;
+				$report[$row_count][$col_count] = $invoice_total;
+				$col_count++;
+				$report[$row_count][$col_count] = $balance;
+				$col_count++;
+				
+				
+				
+			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
 	}
 	public function calculate_hours_worked($personnel_id, $date_from, $date_to)
 	{

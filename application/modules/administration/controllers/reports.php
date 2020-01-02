@@ -13,6 +13,7 @@ class Reports extends administration
 		$this->load->model('nurse/nurse_model');
 		$this->load->model('pharmacy/pharmacy_model');
 		$this->load->model('admin/dashboard_model');
+		$this->load->model('dental/dental_model');
 	}
 	
 	public function all_reports($module = '__')
@@ -576,20 +577,24 @@ class Reports extends administration
 		if(!empty($date_from) && !empty($date_to))
 		{
 			$title = 'Doctors report from '.date('jS M Y',strtotime($date_from)).' to '.date('jS M Y',strtotime($date_to));
+			$this->session->set_userdata('doctors_search',TRUE);
 		}
 		
 		else if(empty($date_from) && !empty($date_to))
 		{
 			$title = 'Doctors report for '.date('jS M Y',strtotime($date_to));
+			$this->session->set_userdata('doctors_search',TRUE);
 		}
 		
 		else if(!empty($date_from) && empty($date_to))
 		{
 			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
+			$this->session->set_userdata('doctors_search',TRUE);
 		}
 		
 		else
 		{
+			$this->session->set_userdata('doctors_search',FALSE);
 			$date_from = date('Y-m-d');
 			$title = 'Doctors report for '.date('jS M Y',strtotime($date_from));
 		}
@@ -626,7 +631,7 @@ class Reports extends administration
 
 
 
-	public function doctor_patients_view($personnel_id,$payment_month=null,$payment_year = null)
+	public function doctor_patients_view($personnel_id,$date_from=null,$date_to = null)
 	{
 		$patients_search  = $this->session->userdata('patients_search');
 
@@ -650,7 +655,7 @@ class Reports extends administration
 
 		// $where = 'visit.patient_id = patients.patient_id AND visit.personnel_id = '.$personnel_id;
 		// $table = 'visit, patients';
-		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.personnel_id = '.$personnel_id;
+		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0 AND visit.close_card <> 2 AND visit.personnel_id = '.$personnel_id;
 		$table = 'visit, patients, visit_type';
 
 		if(!empty($patients_search))
@@ -658,16 +663,17 @@ class Reports extends administration
 			$where .= $patients_search;		
 		}
 
-		if(!empty($payment_month) AND !empty($payment_year))
+		if(!empty($date_from) AND !empty($date_to))
 		{
-			$where .=' AND MONTH(visit.visit_date) = "'.$payment_month.'" AND YEAR(visit.visit_date) ="'.$payment_year.'"  ';
-
+			$where .=' AND visit.visit_date BETWEEN "'.$date_from.'" AND "'.$date_to.'"  ';
+			$this->session->set_userdata('doctors_search',TRUE);
 			$segment = 5;
-			$config['base_url'] = site_url().'view-doctor-patients/'.$personnel_id.'/'.$payment_month.'/'.$payment_year;
+			$config['base_url'] = site_url().'view-doctor-patients/'.$personnel_id.'/'.$date_from.'/'.$date_to;
 		}
 		else
 		{
 			$segment = 2;
+			$this->session->set_userdata('doctors_search',FALSE);
 			$config['base_url'] = site_url().'view-doctor-patients';
 		}
 		

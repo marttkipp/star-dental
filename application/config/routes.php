@@ -1237,8 +1237,8 @@ $route['delete-upload/(:num)/(:num)'] = 'reception/delete_document_scan/$1$2';
 
 $route['cash-office/invoices'] = 'administration/reports/all_invoices';
 $route['cash-office/invoices/(:num)'] = 'administration/reports/all_invoices/$1';
-$route['view-doctors-patients/(:num)'] = 'administration/reports/doctor_patients_view/$1';
-$route['view-doctors-patients/(:num)/(:num)'] = 'administration/reports/doctor_patients_view/$1/$2';
+$route['view-doctors-patients/(:num)/(:any)/(:any)'] = 'administration/reports/doctor_patients_view/$1/$2/$3';
+$route['view-doctors-patients/(:num)/(:any)/(:any)/(:num)'] = 'administration/reports/doctor_patients_view/$1/$2/$3/$4';
 $route['charge-sheet/(:num)'] = 'accounts/charge_sheet/$1';
 $route['receipt-payment/(:num)/(:num)'] = 'accounts/receipt_payment/$1/$2';
 $route['prescribe-drugs/(:num)'] = 'pharmacy/pharmacy_charge_sheet/$1';
