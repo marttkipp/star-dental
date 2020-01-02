@@ -34,6 +34,7 @@ $debit_note_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
 $payments_rs = $this->accounts_model->payment_detail($receipt_payment_id);
 $total_payments = 0;
 $payment_created = $visit_date;	
+$confirm_number = '';
 if(count($payments_rs) > 0)
 {
 	$x=0;
@@ -41,6 +42,7 @@ if(count($payments_rs) > 0)
 	foreach ($payments_rs as $key_items):
 		$x++;
         $payment_type = $key_items->payment_type;
+         $confirm_number = $key_items->confirm_number;
         $payment_created = date('jS F Y',strtotime($key_items->payment_created));
         $payment_method = $key_items->payment_method;
        $receip_date = $key_items->payment_created;
@@ -121,7 +123,7 @@ $all_payments_rs = $this->accounts_model->get_all_visit_transactions($visit_id);
         		<div class="row">
                 	<div class="col-md-12">
                     	<div class="title-item">Receipt: </div>                        
-                    	 <strong><?php echo $receipt_payment_id; ?></strong>
+                    	 <strong><?php echo $confirm_number; ?></strong>
                     </div>
                 </div>
                 <div class="row">

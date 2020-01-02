@@ -515,7 +515,10 @@ class Accounts_model extends CI_Model
 			'payment_created_by'=>$this->session->userdata("personnel_id"),
 			'approved_by'=>$personnel_id,'date_approved'=>date('Y-m-d')
 		);
-
+		if($type_payment == 1)
+		{
+			$data['confirm_number'] = $this->create_receipt_number();
+		}
 		// var_dump($data);die();
 		if($this->db->insert('payments', $data))
 		{
@@ -1792,6 +1795,34 @@ class Accounts_model extends CI_Model
 		}
 
 		return $total_amount;
+	}
+
+	public function create_receipt_number()
+	{
+		//select product code
+		$this->db->where('payment_id > 0 AND payment_type = 1 ');
+		$this->db->from('payments');
+		$this->db->select('MAX(confirm_number) AS number');
+		$query = $this->db->get();
+		if($query->num_rows() > 0)
+		{
+			$result = $query->result();
+			$number =  $result[0]->number;
+			$number++;//go to the next number
+			if($number == 1){
+				$number = 600;
+			}
+			
+			if($number == 1)
+			{
+				$number = 600;
+			}
+			
+		}
+		else{//start generating receipt numbers
+			$number = 600;
+		}
+		return $number;
 	}
 }
 ?>
