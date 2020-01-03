@@ -1,7 +1,7 @@
 <?php
 
 
-$url = 'https://simplex-financials.com/star-dental/reception/send_appointments';
+$url = 'https://simplex-financials.com/star-dental/messaging/send_appointments';
 //Encode the array into JSON.
 $patient_details['name'] = 1;
 //The JSON data.
