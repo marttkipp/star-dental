@@ -34,14 +34,14 @@ if ($query->num_rows() > 0)
 			  <th style="text-align:center" rowspan=2>Date</th>
 			  <th rowspan=2>Document Number</th>
 			  <th rowspan=2>RX</th>
-			  <th colspan=2 style="text-align:center;">Amount</th>
+			  <th colspan=3 style="text-align:center;">Amount</th>
 			
 			</tr>
 			<tr>
 			  
 			  <th style="text-align:center">Invoice</th>
 			  <th style="text-align:center">Payment</th>
-			  <th style="text-align:center">Total Balance</th>
+			  <th style="text-align:center">Balance</th>
 			</tr>
 		  </thead>
 		  <tbody>
