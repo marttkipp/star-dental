@@ -88,45 +88,14 @@ if($creditor_id > 0)
   $account_balance = ($opening_balance+$total_invoice) - ($total_paid_amount+$total_credit_note);
 
 ?>
-<div class="col-md-3">
-  <section class="panel">
 
-      <div class="panel-body">
-          <div class="box-body box-profile">
-            <!-- <img class="profile-user-img img-responsive img-circle" src="../../dist/img/user4-128x128.jpg" alt="User profile picture"> -->
-
-            <h3 class="profile-username text-center"><?php echo strtoupper($creditor_name);?></h3>
-
-            <p class="text-muted text-center"><?php echo strtoupper('Creditor Invoices');?></p>
-
-            <ul class="list-group list-group-unbordered">
-
-              <li class="list-group-item">
-                <b>Opening balance</b> <a  href="<?php echo site_url().'finance/edit-creditor/'.$creditor_id?>" class="pull-right"><?php echo number_format($opening_balance,2)?></a>
-              </li>
-              <li class="list-group-item">
-                <b>Total Invoices</b> <a class="pull-right"><?php echo number_format($total_invoice,2)?></a>
-              </li>
-              <li class="list-group-item">
-                <b>Total Credit Notes</b> <a class="pull-right"><?php echo number_format($total_credit_note,2)?></a>
-              </li>
-              <li class="list-group-item">
-                <b>Total Payments</b> <a class="pull-right"><?php echo number_format($total_paid_amount,2)?></a>
-              </li>
-              <li class="list-group-item">
-                <b>Account Balance</b> <a class="pull-right"><?php echo number_format($account_balance,2)?></a>
-              </li>
-            </ul>
-            <a href="<?php echo site_url().'close-search-creditors-invoices'?>" class="btn btn-warning btn-block"><b>CLOSE SEACH</b></a>
-          </div>
-        </div>
-    <!-- /.box-body -->
-  </section>
-</div>
-<div class="col-md-9">
+<div class="row">
   <section class="panel">
       <header class="panel-heading">
           <h3 class="panel-title">Add an invoice </h3>
+          <div class="pull-right">
+             <a href="<?php echo site_url().'creditor-statement'.$creditor_id?>" style="margin-top:-40px;" class="btn btn-sm btn-warning "> Back to creditor statement </a>
+          </div>
       </header>
       <div class="panel-body">
 
@@ -414,11 +383,12 @@ if(!empty($success))
               </thead>
               <tbody>
                 <?php
-                	$creditor_invoices = $this->creditors_model->get_creditor_invoice($lease_id,10);
+                	// $creditor_invoices = $this->creditors_model->get_creditor_invoice($lease_id,10);
                   // var_dump($tenant_query);die();
                 if($creditor_invoices->num_rows() > 0)
                 {
-                  $y = 0;
+                  $y = $page;
+                  // $count = $page;
                   foreach ($creditor_invoices->result() as $key) {
                     # code...
                     $total_amount = $key->total_amount;
@@ -447,8 +417,9 @@ if(!empty($success))
                       <td><?php echo $document_number?></td>
                       <td><?php echo number_format($vat_charged,2);?></td>
                       <td><?php echo number_format($total_amount,2);?></td>
-                <!--       <td><a href="<?php echo site_url().'cash-office/print-invoice-note/'.$creditor_invoice_id;?>" class="btn btn-sm btn-danger" onclick="return confirm('Do you want to delete this invoice ?')"><i class="fa fa-trash"></i></a></td>
- -->
+                      <td><a href="<?php echo site_url().'creditor-invoice/edit-creditor-invoice/'.$creditor_invoice_id;?>" class="btn btn-sm btn-success" ><i class="fa fa-trash"></i></a></td>
+                      <td><a href="<?php echo site_url().'creditor-invoice/delete-creditor-invoice/'.$creditor_invoice_id;?>" class="btn btn-sm btn-danger" onclick="return confirm('Do you want to delete this invoice ?')"><i class="fa fa-trash"></i></a></td>
+
                     </tr>
                     <?php
 
@@ -458,6 +429,14 @@ if(!empty($success))
 
               </tbody>
             </table>
+
+            <div class="widget-foot">
+                                
+                <?php if(isset($links)){echo $links;}?>
+            
+                <div class="clearfix"></div> 
+            
+            </div>
 
         </div>
       </section>

@@ -771,5 +771,26 @@ class Creditors_model extends CI_Model
   }
 
 
+
+   /*
+  * Retrieve all creditor
+  * @param string $table
+  *   @param string $where
+  *
+  */
+  public function get_all_creditors_details($table, $where, $per_page, $page, $order = 'creditor_name', $order_method = 'ASC')
+  {
+    //retrieve all users
+    $this->db->from($table);
+    $this->db->select('*');
+    $this->db->where($where);
+    $this->db->order_by($order, $order_method);
+    // $this->db->group_by('creditor_invoice.creditor_invoice_id');
+    $query = $this->db->get('', $per_page, $page);
+
+    return $query;
+  }
+
+
 }
 ?>

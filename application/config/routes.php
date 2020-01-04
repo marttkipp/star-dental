@@ -1371,6 +1371,7 @@ $route['print-petty-cash'] = 'finance/purchases/print_petty_cash';
 // bills
 $route['accounting/creditors'] = 'finance/creditors/creditors_list';
 $route['accounting/creditor-invoices'] = 'finance/creditors/creditors_invoices';
+$route['accounting/creditor-invoices/(:num)'] = 'finance/creditors/creditors_invoices/$1';
 $route['search-creditor-invoices'] = 'finance/creditors/search_creditors_invoice';
 $route['search-creditor-bill/(:num)'] = 'finance/creditors/search_creditors_bill/$1';
 $route['close-search-creditors-invoices'] = 'finance/creditors/close_searched_invoices_creditor';

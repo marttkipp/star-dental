@@ -18,6 +18,58 @@ class Creditors extends admin
   {
     // $v_data['property_list'] = $property_list;
 
+
+   
+    $creditor_id = $this->session->userdata('invoice_creditor_id_searched');
+
+
+    $where = 'creditor_invoice.creditor_invoice_status = 1 AND creditor_invoice.creditor_id = '.$creditor_id;
+
+    $search_purchases = $this->session->userdata('search_purchases');
+    if($search_purchases)
+    {
+      $where .= $search_purchases;
+    }
+    $table = 'creditor_invoice';
+
+
+    $segment = 3;
+    $this->load->library('pagination');
+    $config['base_url'] = site_url().'accounting/creditor-invoices';
+    $config['total_rows'] = $this->purchases_model->count_items($table, $where);
+    $config['uri_segment'] = $segment;
+    $config['per_page'] = 1;
+    $config['num_links'] = 5;
+
+    $config['full_tag_open'] = '<ul class="pagination pull-right">';
+    $config['full_tag_close'] = '</ul>';
+
+    $config['first_tag_open'] = '<li>';
+    $config['first_tag_close'] = '</li>';
+
+    $config['last_tag_open'] = '<li>';
+    $config['last_tag_close'] = '</li>';
+
+    $config['next_tag_open'] = '<li>';
+    $config['next_link'] = 'Next';
+    $config['next_tag_close'] = '</span>';
+
+    $config['prev_tag_open'] = '<li>';
+    $config['prev_link'] = 'Prev';
+    $config['prev_tag_close'] = '</li>';
+
+    $config['cur_tag_open'] = '<li class="active"><a href="#">';
+    $config['cur_tag_close'] = '</a></li>';
+
+    $config['num_tag_open'] = '<li>';
+    $config['num_tag_close'] = '</li>';
+    $this->pagination->initialize($config);
+
+    $page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+    $query = $this->creditors_model->get_all_creditors_details($table, $where, $config["per_page"], $page, $order='creditor_invoice.transaction_date', $order_method='DESC');
+    $v_data['creditor_invoices'] = $query;
+    $v_data['page'] = $page;
     $data['title'] = 'Creditor Invoices';
     $v_data['title'] = $data['title'];
     $data['content'] = $this->load->view('creditors/creditors_statement', $v_data, true);

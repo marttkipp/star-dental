@@ -349,7 +349,7 @@ class Accounts_model extends CI_Model
 	public function get_sum_credit_notes($visit_id)
 	{
 		$table = "payments";
-		$where = "payments.payment_type = 2 AND payments.visit_id =". $visit_id;
+		$where = "payments.payment_type = 2 AND payments.cancel = 0 AND payments.visit_id =". $visit_id;
 		$items = "SUM(payments.amount_paid) AS amount_paid";
 		$order = "payments.payment_id";
 		
