@@ -254,7 +254,7 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 							<td>'.$charged_services.'</td>
 							<td style="text-align:center">'.number_format($total_invoice,2).'</td>
 							<td style="text-align:center">'.number_format($total_payments,2).'</td>
-							<td style="text-align:center">'.number_format($total_balance,2).'</td>
+							<td style="text-align:center">'.number_format($balance,2).'</td>
 						</tr> 
 					';
 				}
