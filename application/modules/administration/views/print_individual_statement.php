@@ -75,7 +75,7 @@ if ($query->num_rows() > 0)
 
 
 		$payments_rs = $this->accounts_model->payments($visit_id);
-        $total_payments = 0;
+        // $total_payments = 0;
         $payments_made = '';
         if(count($payments_rs) > 0)
         {
