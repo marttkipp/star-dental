@@ -317,5 +317,47 @@ class Transfer extends admin
         }
       }
     }
+
+
+    public function edit_transfer_record($finance_transfer_id)
+    {
+
+      //form validation
+      $this->form_validation->set_rules('account_from_id', 'From','required|xss_clean');
+      $this->form_validation->set_rules('account_to_id', 'Account To','required|xss_clean');
+      $this->form_validation->set_rules('amount', 'Amount','required|xss_clean');
+      $this->form_validation->set_rules('description', 'Description','required|xss_clean');
+      $this->form_validation->set_rules('reference_number', 'Reference Number','required|xss_clean');
+      $this->form_validation->set_rules('transfer_date', 'Transfer Date','required|xss_clean');
+
+      if ($this->form_validation->run())
+      {
+        // var_dump($_POST);die();
+        //update order
+        if($this->transfer_model->transfer_funds($finance_transfer_id))
+        {
+          $this->session->set_userdata('success_message', 'Cheque successfully writted to account');
+
+
+          redirect('accounting/accounts-transfer');
+        }
+
+        else
+        {
+          $this->session->set_userdata('error_message', 'Could not write cheque. Please try again');
+        }
+      }
+      else
+      {
+        $this->session->set_userdata('error_message', validation_errors());
+      }
+
+       $data['title'] = 'Edit Finance Transfer';
+      $v_data['finance_transfer_id'] = $finance_transfer_id;
+      $v_data['title'] = $data['title'];
+      $data['content'] = $this->load->view('transfer/edit_transfer', $v_data, true);
+      $this->load->view('admin/templates/general_page', $data);
+
+    }
 }
 ?>

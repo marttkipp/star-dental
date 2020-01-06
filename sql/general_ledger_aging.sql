@@ -96,7 +96,7 @@ FROM
 				`creditor_invoice_item`
 				JOIN `creditor_invoice` ON(
 					(
-						creditor_invoice.creditor_invoice_id = creditor_invoice_item.creditor_invoice_id
+						creditor_invoice.creditor_invoice_id = creditor_invoice_item.creditor_invoice_id AND creditor_invoice.creditor_invoice_status = 1
 					)
 				)
 			)
@@ -120,8 +120,8 @@ UNION ALL
 SELECT
 	`creditor_credit_note_item`.`creditor_credit_note_item_id` AS `transactionId`,
 	`creditor_credit_note`.`creditor_credit_note_id` AS `referenceId`,
-	`creditor_credit_note`.`invoice_number` AS `referenceCode`,
 	`creditor_credit_note_item`.`creditor_invoice_id` AS `payingFor`,
+	`creditor_credit_note`.`invoice_number` AS `referenceCode`,
 	`creditor_credit_note`.`document_number` AS `transactionCode`,
 	'' AS `patient_id`,
   `creditor_credit_note`.`creditor_id` AS `recepientId`,
@@ -149,7 +149,7 @@ FROM
 				`creditor_credit_note_item`
 				JOIN `creditor_credit_note` ON(
 					(
-						creditor_credit_note.creditor_credit_note_id = creditor_credit_note_item.creditor_credit_note_id
+						creditor_credit_note.creditor_credit_note_id = creditor_credit_note_item.creditor_credit_note_id AND creditor_credit_note.creditor_credit_note_status = 1
 					)
 				)
 			)
@@ -508,8 +508,8 @@ FROM
 		  SELECT
 			`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 			`creditor_payment`.`creditor_payment_id` AS `referenceId`,
-			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment`.`document_number` AS `transactionCode`,
 			'' AS `patient_id`,
 		  	`creditor_payment`.`creditor_id` AS `recepientId`,
@@ -537,7 +537,7 @@ FROM
 						`creditor_payment_item`
 						JOIN `creditor_payment` ON(
 							(
-								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
 							)
 						)
 					)
@@ -564,8 +564,8 @@ FROM
 			 SELECT
 			`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 			`creditor_payment`.`creditor_payment_id` AS `referenceId`,
-			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment`.`document_number` AS `transactionCode`,
 			'' AS `patient_id`,
 		  `creditor_payment`.`creditor_id` AS `recepientId`,
@@ -593,7 +593,7 @@ FROM
 						`creditor_payment_item`
 						JOIN `creditor_payment` ON(
 							(
-								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
 							)
 						)
 					)
@@ -621,8 +621,8 @@ FROM
 			SELECT
 			`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 			`creditor_payment`.`creditor_payment_id` AS `referenceId`,
-			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment`.`document_number` AS `transactionCode`,
 			'' AS `patient_id`,
 		  `creditor_payment`.`creditor_id` AS `recepientId`,
@@ -650,7 +650,7 @@ FROM
 						`creditor_payment_item`
 						JOIN `creditor_payment` ON(
 							(
-								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
 							)
 						)
 					)
@@ -678,8 +678,8 @@ FROM
 			SELECT
 			`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 			`creditor_payment`.`creditor_payment_id` AS `referenceId`,
-			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+			`creditor_payment`.`reference_number` AS `referenceCode`,
 			`creditor_payment`.`document_number` AS `transactionCode`,
 			'' AS `patient_id`,
 		  `creditor_payment`.`creditor_id` AS `recepientId`,
@@ -707,7 +707,7 @@ FROM
 						`creditor_payment_item`
 						JOIN `creditor_payment` ON(
 							(
-								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+								creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
 							)
 						)
 					)

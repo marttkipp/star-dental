@@ -53,7 +53,7 @@ class Creditors_model extends CI_Model
 	}
 
 
-  public function add_invoice_item($creditor_id)
+  public function add_invoice_item($creditor_id,$creditor_invoice_id)
 	{
 		$amount = $this->input->post('unit_price');
 		$account_to_id=$this->input->post('account_to_id');
@@ -68,7 +68,6 @@ class Creditors_model extends CI_Model
 							'creditor_invoice_id'=>0,
 							'unit_price'=> $amount,
 							'account_to_id' => $account_to_id,
-							'creditor_invoice_item_status' => 0,
 							'creditor_id' => $creditor_id,
               'item_description'=>$item_description,
 							'created_by' => $this->session->userdata('personnel_id'),
@@ -78,6 +77,15 @@ class Creditors_model extends CI_Model
               'quantity'=>$quantity,
               'vat_type_id'=>$tax_type_id
 						);
+    if(!empty($creditor_invoice_id))
+    {
+      $service['creditor_invoice_id'] = $creditor_invoice_id;
+      $service['creditor_invoice_item_status'] = 1;
+    }
+    else
+    {
+      $service['creditor_invoice_item_status'] = 0;
+    }
 
 
 		$this->db->insert('creditor_invoice_item',$service);
@@ -85,7 +93,7 @@ class Creditors_model extends CI_Model
 
 	}
 
-  public function confirm_creditor_invoice($creditor_id,$personnel_id = NULL)
+  public function confirm_creditor_invoice($creditor_id,$creditor_invoice_id = NULL)
 	{
 		$amount = $this->input->post('amount');
 		$amount_charged = $this->input->post('amount_charged');
@@ -114,35 +122,67 @@ class Creditors_model extends CI_Model
 		$insertarray['created'] = date('Y-m-d');
 		$insertarray['amount'] = $amount;
 
-		if($this->db->insert('creditor_invoice', $insertarray))
-		{
-
-			$creditor_invoice_id = $this->db->insert_id();
-      $total_visits = sizeof($_POST['creditor_invoice_items']);
-      //check if any checkboxes have been ticked
-      if($total_visits > 0)
-      {
-        for($r = 0; $r < $total_visits; $r++)
+    if(!empty($creditor_invoice_id))
+    {
+        $this->db->where('creditor_invoice_id',$creditor_invoice_id);
+        if($this->db->update('creditor_invoice', $insertarray))
         {
-          $visit = $_POST['creditor_invoice_items'];
-          $creditor_invoice_item_id = $visit[$r];
-          //check if card is held
-          $service = array(
-                    'creditor_invoice_id'=>$creditor_invoice_id,
-                    'created' =>$invoice_date,
-                    'creditor_invoice_item_status'=>1,
-                    'year'=>$year,
-                    'month'=>$month,
-                  );
-          $this->db->where('creditor_invoice_item_id',$creditor_invoice_item_id);
-          $this->db->update('creditor_invoice_item',$service);
+
+          $total_visits = sizeof($_POST['creditor_invoice_items']);
+          //check if any checkboxes have been ticked
+          if($total_visits > 0)
+          {
+            for($r = 0; $r < $total_visits; $r++)
+            {
+              $visit = $_POST['creditor_invoice_items'];
+              $creditor_invoice_item_id = $visit[$r];
+              //check if card is held
+              $service = array(
+                        'creditor_invoice_id'=>$creditor_invoice_id,
+                        'created' =>$invoice_date,
+                        'creditor_invoice_item_status'=>1,
+                        'year'=>$year,
+                        'month'=>$month,
+                      );
+              $this->db->where('creditor_invoice_item_id',$creditor_invoice_item_id);
+              $this->db->update('creditor_invoice_item',$service);
+            }
+          }
+
+          return TRUE;
         }
+    }
+    else
+    {
+      if($this->db->insert('creditor_invoice', $insertarray))
+      {
+
+        $creditor_invoice_id = $this->db->insert_id();
+        $total_visits = sizeof($_POST['creditor_invoice_items']);
+        //check if any checkboxes have been ticked
+        if($total_visits > 0)
+        {
+          for($r = 0; $r < $total_visits; $r++)
+          {
+            $visit = $_POST['creditor_invoice_items'];
+            $creditor_invoice_item_id = $visit[$r];
+            //check if card is held
+            $service = array(
+                      'creditor_invoice_id'=>$creditor_invoice_id,
+                      'created' =>$invoice_date,
+                      'creditor_invoice_item_status'=>1,
+                      'year'=>$year,
+                      'month'=>$month,
+                    );
+            $this->db->where('creditor_invoice_item_id',$creditor_invoice_item_id);
+            $this->db->update('creditor_invoice_item',$service);
+          }
+        }
+
+        return TRUE;
       }
-
-
-
-			return TRUE;
-		}
+    }
+		
 
 	}
 
@@ -334,11 +374,11 @@ class Creditors_model extends CI_Model
 
   }
 
-  public function add_credit_note_item($creditor_id)
+  public function add_credit_note_item($creditor_id,$creditor_credit_note_id)
   {
 
     $amount = $this->input->post('amount');
-		$creditor_invoice_id=$this->input->post('invoice_id');
+		$account_to_id=$this->input->post('account_to_id');
     $description = $this->input->post('description');
 		$tax_type_id=$this->input->post('tax_type_id');
 
@@ -363,10 +403,8 @@ class Creditors_model extends CI_Model
 
 
 		$service = array(
-							'creditor_invoice_id'=>$creditor_invoice_id,
-							'creditor_credit_note_item_status' => 0,
-              'creditor_credit_note_id' => 0,
 							'creditor_id' => $creditor_id,
+              'account_to_id' => $account_to_id,
               'description'=>$description,
 							'created_by' => $this->session->userdata('personnel_id'),
 							'created' => date('Y-m-d'),
@@ -375,6 +413,15 @@ class Creditors_model extends CI_Model
               'vat_type_id'=>$tax_type_id
 						);
 
+    if(!empty($creditor_credit_note_id))
+    {
+      $service['creditor_credit_note_id'] = $creditor_credit_note_id;
+      $service['creditor_credit_note_item_status'] = 1;
+    }
+    else
+    {
+       $service['creditor_credit_note_item_status'] = 0;
+    }
 
 		$this->db->insert('creditor_credit_note_item',$service);
 		return TRUE;
@@ -382,11 +429,12 @@ class Creditors_model extends CI_Model
   }
 
 
-  public function confirm_creditor_credit_note($creditor_id,$personnel_id = NULL)
+  public function confirm_creditor_credit_note($creditor_id,$creditor_credit_note_id)
   {
     $amount = $this->input->post('amount');
     $amount_charged = $this->input->post('amount_charged');
     $invoice_date = $this->input->post('credit_note_date');
+    $creditor_invoice_id = $this->input->post('invoice_id');
     $vat_charged = $this->input->post('vat_charged');
     $invoice_number = $this->input->post('credit_note_number');
 
@@ -403,33 +451,85 @@ class Creditors_model extends CI_Model
     $insertarray['invoice_year'] = $year;
     $insertarray['invoice_month'] = $month;
     $insertarray['creditor_id'] = $creditor_id;
+    $insertarray['creditor_invoice_id'] = $creditor_invoice_id;
     $insertarray['document_number'] = $document_number;
     $insertarray['invoice_number'] = strtoupper($invoice_number);
     $insertarray['total_amount'] = $amount_charged;
     $insertarray['vat_charged'] = $vat_charged;
-    $insertarray['created_by'] = $this->session->userdata('personnel_id');
-    $insertarray['created'] = date('Y-m-d');
+ 
     $insertarray['amount'] = $amount;
     $insertarray['account_from_id'] = 83;
 
 
-    if($this->db->insert('creditor_credit_note', $insertarray))
-    {
-      $creditor_invoice_id = $this->db->insert_id();
-      $service = array(
-                'creditor_credit_note_id'=>$creditor_invoice_id,
-                'created' =>$invoice_date,
-                'creditor_credit_note_item_status'=>1,
-                'year'=>$year,
-                'month'=>$month,
-              );
-              // var_dump($service);die();
-      $this->db->where('creditor_credit_note_item_status = 0 AND creditor_id = '.$creditor_id.' AND creditor_credit_note_id = 0  ');
-      $this->db->update('creditor_credit_note_item',$service);
+     $total_visits = sizeof($_POST['creditor_notes_items']);
+
+     // var_dump($total_visits);die();
+
+     if(!empty($creditor_credit_note_id))
+     {
+        $this->db->where('creditor_credit_note_id',$creditor_credit_note_id);
+        if($this->db->update('creditor_credit_note', $insertarray))
+        {
 
 
-      return TRUE;
-    }
+          $total_visits = sizeof($_POST['creditor_notes_items']);
+          //check if any checkboxes have been ticked
+          if($total_visits > 0)
+          {
+            for($r = 0; $r < $total_visits; $r++)
+            {
+              $visit = $_POST['creditor_notes_items'];
+              $creditor_credit_note_item_id = $visit[$r];
+              //check if card is held
+              $service = array(
+                        'creditor_credit_note_id'=>$creditor_credit_note_id,
+                        'created' =>$invoice_date,
+                        'creditor_credit_note_item_status'=>1,
+                        'creditor_invoice_id'=>$creditor_invoice_id,
+                        'year'=>$year,
+                        'month'=>$month,
+                      );
+              $this->db->where('creditor_credit_note_item_id',$creditor_credit_note_item_id);
+              $this->db->update('creditor_credit_note_item',$service);
+            }
+          }
+          return TRUE;
+        }
+     }
+     else
+     {
+
+        $insertarray['created_by'] = $this->session->userdata('personnel_id');
+        $insertarray['created'] = date('Y-m-d');
+        if($this->db->insert('creditor_credit_note', $insertarray))
+        {
+          $creditor_credit_note_id = $this->db->insert_id();
+
+
+          $total_visits = sizeof($_POST['creditor_notes_items']);
+          //check if any checkboxes have been ticked
+          if($total_visits > 0)
+          {
+            for($r = 0; $r < $total_visits; $r++)
+            {
+              $visit = $_POST['creditor_notes_items'];
+              $creditor_credit_note_item_id = $visit[$r];
+              //check if card is held
+              $service = array(
+                        'creditor_credit_note_id'=>$creditor_credit_note_id,
+                        'created' =>$invoice_date,
+                        'creditor_credit_note_item_status'=>1,
+                        'creditor_invoice_id'=>$creditor_invoice_id,
+                        'year'=>$year,
+                        'month'=>$month,
+                      );
+              $this->db->where('creditor_credit_note_item_id',$creditor_credit_note_item_id);
+              $this->db->update('creditor_credit_note_item',$service);
+            }
+          }
+          return TRUE;
+        }
+     }
 
   }
 
@@ -546,22 +646,49 @@ class Creditors_model extends CI_Model
 
     if(!empty($creditor_payment_id))
     {
-      $updatearray['transaction_date'] = $payment_date;
-      $updatearray['payment_year'] = $year;
-      $updatearray['payment_month'] = $month;
-      $updatearray['creditor_id'] = $creditor_id;
-      $updatearray['reference_number'] = strtoupper($reference_number);
-      $updatearray['total_amount'] = $amount_paid;
-      $updatearray['account_from_id'] = $account_from_id;
-      
-      $this->db->where('creditor_payment_id',$creditor_payment_id);
-      if($this->db->update('creditor_payment', $updatearray))
+     
+
+      // $document_number = $this->create_credit_payment_number();
+
+      $insertarray['transaction_date'] = $payment_date;
+      $insertarray['payment_year'] = $year;
+      $insertarray['payment_month'] = $month;
+      $insertarray['creditor_id'] = $creditor_id;
+      $insertarray['reference_number'] = strtoupper($reference_number);
+      $insertarray['total_amount'] = $amount_paid;
+      $insertarray['account_from_id'] = $account_from_id;
+      $insertarray['created_by'] = $this->session->userdata('personnel_id');
+       $this->db->where('creditor_payment_id',$creditor_payment_id);
+
+      if($this->db->update('creditor_payment', $insertarray))
       {
-        return TRUE;
-      }
-      else
-      {
-        return FALSE;
+
+
+        $total_visits = sizeof($_POST['creditor_payments_items']);
+
+        //check if any checkboxes have been ticked
+        if($total_visits > 0)
+        {
+          for($r = 0; $r < $total_visits; $r++)
+          {
+            $visit = $_POST['creditor_payments_items'];
+            $creditor_payment_item_id = $visit[$r];
+            //check if card is held
+            $service = array(
+                      'creditor_payment_id'=>$creditor_payment_id,
+                      'created' =>$payment_date,
+                      'creditor_payment_item_status'=>1,
+                      'year'=>$year,
+                      'month'=>$month,
+                    );
+            $this->db->where('creditor_payment_item_id',$creditor_payment_item_id);
+            $this->db->update('creditor_payment_item',$service);
+          }
+        }
+
+
+
+          return TRUE;
       }
 
     }
@@ -789,6 +916,56 @@ class Creditors_model extends CI_Model
     $query = $this->db->get('', $per_page, $page);
 
     return $query;
+  }
+
+
+  public function get_creditor_invoice_details($creditor_invoice_id)
+  {
+
+      $this->db->from('creditor_invoice');
+      $this->db->select('*');
+      $this->db->where('creditor_invoice_id = '.$creditor_invoice_id);
+      $query = $this->db->get();
+      return $query;
+  }
+
+  public function get_creditor_payment_details($creditor_payment_id)
+  {
+
+      $this->db->from('creditor_payment');
+      $this->db->select('*');
+      $this->db->where('creditor_payment_id = '.$creditor_payment_id);
+      $query = $this->db->get();
+      return $query;
+  }
+
+  public function check_on_account($creditor_payment_id)
+  {
+
+     $this->db->from('creditor_payment_item');
+      $this->db->select('*');
+      $this->db->where('invoice_type = 3 AND creditor_payment_id = '.$creditor_payment_id);
+      $query = $this->db->get();
+      if($query->num_rows() > 0)
+      {
+          return TRUE;
+      }
+      else
+      {
+        return FALSE;
+      }
+
+
+  }
+
+  public function get_creditor_credit_note_details($creditor_credit_note_id)
+  {
+
+      $this->db->from('creditor_credit_note');
+      $this->db->select('*');
+      $this->db->where('creditor_credit_note_id = '.$creditor_credit_note_id);
+      $query = $this->db->get();
+      return $query;
   }
 
 

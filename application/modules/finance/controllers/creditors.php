@@ -38,7 +38,7 @@ class Creditors extends admin
     $config['base_url'] = site_url().'accounting/creditor-invoices';
     $config['total_rows'] = $this->purchases_model->count_items($table, $where);
     $config['uri_segment'] = $segment;
-    $config['per_page'] = 1;
+    $config['per_page'] = 20;
     $config['num_links'] = 5;
 
     $config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -166,7 +166,7 @@ class Creditors extends admin
 
   }
 
-  public function add_invoice_item($creditor_id)
+  public function add_invoice_item($creditor_id,$creditor_invoice_id = NULL)
   {
 
     $this->form_validation->set_rules('quantity', 'Invoice Item', 'trim|required|xss_clean');
@@ -181,7 +181,7 @@ class Creditors extends admin
     if ($this->form_validation->run())
     {
 			// var_dump($_POST);die();
-      $this->creditors_model->add_invoice_item($creditor_id);
+      $this->creditors_model->add_invoice_item($creditor_id,$creditor_invoice_id);
       $this->session->set_userdata("success_message", 'Invoice Item successfully added');
       $response['status'] = 'success';
       $response['message'] = 'Payment successfully added';
@@ -198,7 +198,7 @@ class Creditors extends admin
 
   }
 
-  public function confirm_invoice_note($creditor_id)
+  public function confirm_invoice_note($creditor_id,$creditor_invoice_id = NULL)
   {
     $this->form_validation->set_rules('vat_charged', 'tax', 'trim|xss_clean');
 		$this->form_validation->set_rules('amount_charged', 'Amount Charged', 'trim|xss_clean');
@@ -208,7 +208,7 @@ class Creditors extends admin
 		if ($this->form_validation->run())
 		{
 			// var_dump($_POST);die();
-				$this->creditors_model->confirm_creditor_invoice($creditor_id);
+				$this->creditors_model->confirm_creditor_invoice($creditor_id,$creditor_invoice_id);
 
 				$this->session->set_userdata("success_message", 'Creditor invoice successfully added');
 				$response['status'] = 'success';
@@ -223,8 +223,17 @@ class Creditors extends admin
 		}
 
 
-    $redirect_url = $this->input->post('redirect_url');
-    redirect($redirect_url);
+    if(!empty($creditor_invoice_id))
+    {
+        redirect('accounting/creditor-invoices');
+    }
+    else
+    {
+      $redirect_url = $this->input->post('redirect_url');
+      redirect($redirect_url);
+    }
+
+        
   }
 
 
@@ -233,6 +242,58 @@ class Creditors extends admin
   public function creditors_credit_note()
   {
     // $v_data['property_list'] = $property_list;
+
+
+     $creditor_id = $this->session->userdata('credit_note_creditor_id_searched');
+
+
+    $where = 'creditor_credit_note.creditor_credit_note_status AND creditor_credit_note.creditor_id = '.$creditor_id;
+
+    $search_purchases = $this->session->userdata('search_purchases');
+    if($search_purchases)
+    {
+      $where .= $search_purchases;
+    }
+    $table = 'creditor_credit_note';
+
+
+    $segment = 3;
+    $this->load->library('pagination');
+    $config['base_url'] = site_url().'accounting/creditor-credit-notes';
+    $config['total_rows'] = $this->purchases_model->count_items($table, $where);
+    $config['uri_segment'] = $segment;
+    $config['per_page'] = 20;
+    $config['num_links'] = 5;
+
+    $config['full_tag_open'] = '<ul class="pagination pull-right">';
+    $config['full_tag_close'] = '</ul>';
+
+    $config['first_tag_open'] = '<li>';
+    $config['first_tag_close'] = '</li>';
+
+    $config['last_tag_open'] = '<li>';
+    $config['last_tag_close'] = '</li>';
+
+    $config['next_tag_open'] = '<li>';
+    $config['next_link'] = 'Next';
+    $config['next_tag_close'] = '</span>';
+
+    $config['prev_tag_open'] = '<li>';
+    $config['prev_link'] = 'Prev';
+    $config['prev_tag_close'] = '</li>';
+
+    $config['cur_tag_open'] = '<li class="active"><a href="#">';
+    $config['cur_tag_close'] = '</a></li>';
+
+    $config['num_tag_open'] = '<li>';
+    $config['num_tag_close'] = '</li>';
+    $this->pagination->initialize($config);
+
+    $page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+    $query = $this->creditors_model->get_all_creditors_details($table, $where, $config["per_page"], $page, $order='creditor_credit_note.transaction_date', $order_method='DESC');
+    $v_data['creditor_credit_notes'] = $query;
+    $v_data['page'] = $page;
 
     $data['title'] = 'Creditor Credit Notes';
     $v_data['title'] = $data['title'];
@@ -275,18 +336,18 @@ class Creditors extends admin
     redirect('accounting/creditors');
   }
 
-  public function add_credit_note_item($creditor_id)
+  public function add_credit_note_item($creditor_id,$creditor_credit_note_id=NULL)
   {
 
     $this->form_validation->set_rules('amount', 'Unit Price', 'trim|required|xss_clean');
-    $this->form_validation->set_rules('invoice_id', 'Invoice', 'trim|required|xss_clean');
+    $this->form_validation->set_rules('account_to_id', 'Invoice', 'trim|required|xss_clean');
     $this->form_validation->set_rules('description', 'Description', 'trim|required|xss_clean');
     $this->form_validation->set_rules('tax_type_id', 'VAT Type', 'trim|xss_clean');
 
     //if form conatins invalid data
     if ($this->form_validation->run())
     {
-      $this->creditors_model->add_credit_note_item($creditor_id);
+      $this->creditors_model->add_credit_note_item($creditor_id,$creditor_credit_note_id);
       $this->session->set_userdata("success_message", 'Invoice Item successfully added');
       $response['status'] = 'success';
       $response['message'] = 'Payment successfully added';
@@ -303,18 +364,19 @@ class Creditors extends admin
 
   }
 
-  public function confirm_credit_note($creditor_id)
+  public function confirm_credit_note($creditor_id,$creditor_credit_note_id=NULL)
   {
     $this->form_validation->set_rules('vat_charged', 'tax', 'trim|xss_clean');
 		$this->form_validation->set_rules('amount_charged', 'Amount Charged', 'trim|xss_clean');
     $this->form_validation->set_rules('credit_note_date', 'Invoice Date ', 'trim|required|xss_clean');
+    $this->form_validation->set_rules('invoice_id', 'Invoice ', 'trim|required|xss_clean');
     $this->form_validation->set_rules('amount', 'Amount', 'trim|xss_clean');
     $this->form_validation->set_rules('credit_note_number', 'Invoice Number', 'trim|xss_clean');
 
 		if ($this->form_validation->run())
 		{
         // var_dump($_POST);die();
-				$this->creditors_model->confirm_creditor_credit_note($creditor_id);
+				$this->creditors_model->confirm_creditor_credit_note($creditor_id,$creditor_credit_note_id);
 
 				$this->session->set_userdata("success_message", 'Creditor invoice successfully added');
 				$response['status'] = 'success';
@@ -328,9 +390,16 @@ class Creditors extends admin
 
 		}
 
-
-    $redirect_url = $this->input->post('redirect_url');
-    redirect($redirect_url);
+    if(!empty($creditor_credit_note_id))
+    {
+     
+      redirect('accounting/creditor-credit-notes');
+    }
+    else
+    {
+      $redirect_url = $this->input->post('redirect_url');
+      redirect($redirect_url);
+    }
   }
 
   // creditors payments_import
@@ -339,8 +408,59 @@ class Creditors extends admin
   public function creditors_payments()
   {
     // $v_data['property_list'] = $property_list;
+      $creditor_id = $this->session->userdata('payment_creditor_id_searched');
 
+
+    $where = 'creditor_payment.creditor_payment_status = 1 AND account.account_id = creditor_payment.account_from_id AND creditor_payment.creditor_id = '.$creditor_id;
+
+    $search_purchases = $this->session->userdata('search_purchases');
+    if($search_purchases)
+    {
+      $where .= $search_purchases;
+    }
+    $table = 'creditor_payment,account';
+
+ // $this->db->join('account','account.account_id = creditor_payment.account_from_id','left');
+
+    $segment = 3;
+    $this->load->library('pagination');
+    $config['base_url'] = site_url().'accounting/creditor-payments';
+    $config['total_rows'] = $this->purchases_model->count_items($table, $where);
+    $config['uri_segment'] = $segment;
+    $config['per_page'] = 20;
+    $config['num_links'] = 5;
+
+    $config['full_tag_open'] = '<ul class="pagination pull-right">';
+    $config['full_tag_close'] = '</ul>';
+
+    $config['first_tag_open'] = '<li>';
+    $config['first_tag_close'] = '</li>';
+
+    $config['last_tag_open'] = '<li>';
+    $config['last_tag_close'] = '</li>';
+
+    $config['next_tag_open'] = '<li>';
+    $config['next_link'] = 'Next';
+    $config['next_tag_close'] = '</span>';
+
+    $config['prev_tag_open'] = '<li>';
+    $config['prev_link'] = 'Prev';
+    $config['prev_tag_close'] = '</li>';
+
+    $config['cur_tag_open'] = '<li class="active"><a href="#">';
+    $config['cur_tag_close'] = '</a></li>';
+
+    $config['num_tag_open'] = '<li>';
+    $config['num_tag_close'] = '</li>';
+    $this->pagination->initialize($config);
+
+    $page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+    $query = $this->creditors_model->get_all_creditors_details($table, $where, $config["per_page"], $page, $order='creditor_payment.transaction_date', $order_method='DESC');
+    $v_data['creditor_payments'] = $query;
+    $v_data['page'] = $page;
     $data['title'] = 'Creditor Payments';
+
     $v_data['title'] = $data['title'];
     $data['content'] = $this->load->view('creditors/creditors_payments', $v_data, true);
     $this->load->view('admin/templates/general_page', $data);
@@ -771,21 +891,36 @@ class Creditors extends admin
     $data['content'] = $this->load->view('creditors/creditors_accounts', $v_data, true);
     $this->load->view('admin/templates/general_page', $data);
   }
-	public function delete_creditor_payment($creditor_payment_item_id,$creditor_id)
+	public function delete_creditor_payment_item($creditor_payment_item_id,$creditor_id,$creditor_payment_id = NULL)
 	{
 		$this->db->where('creditor_payment_item_id',$creditor_payment_item_id);
 		$this->db->delete('creditor_payment_item');
 
-		redirect('accounting/creditor-payments');
+    if(!empty($creditor_payment_id))
+    {
+        redirect('edit-creditor-payment/'.$creditor_payment_id);
+    }
+		else
+    {
+      redirect('accounting/creditor-payments');
+    }
 	}
 
 
-	public function delete_creditor_invoice($creditor_invoice_item_id,$creditor_id)
+	public function delete_creditor_invoice_item($creditor_invoice_item_id,$creditor_id,$creditor_invoice_id = NUll)
 	{
 		$this->db->where('creditor_invoice_item_id',$creditor_invoice_item_id);
 		$this->db->delete('creditor_invoice_item');
 
-		redirect('accounting/creditor-invoices');
+    if(!empty($creditor_invoice_id))
+    {
+        redirect('creditor-invoice/edit-creditor-invoice/'.$creditor_invoice_id);
+    }
+    else
+    {
+          redirect('accounting/creditor-invoices');
+    }
+		
 	}
 
 
@@ -851,6 +986,99 @@ class Creditors extends admin
   {
     $data['creditor_invoice_id'] = $creditor_invoice_id;
     $this->load->view('creditors/view_creditor_invoice', $data);  
+  }
+  public function get_payment_details($creditor_payment_id)
+  {
+    $data['creditor_payment_id'] = $creditor_payment_id;
+    $this->load->view('creditors/view_creditor_payment', $data);  
+  }
+
+  public function delete_creditor_invoice($creditor_invoice_id)
+  {
+    $update_query['creditor_invoice_status'] = 2;
+    $update_query['last_modified_by'] = $this->session->userdata('personnel_id');
+    $this->db->where('creditor_invoice_id',$creditor_invoice_id);
+    $this->db->update('creditor_invoice',$update_query);
+
+    redirect('accounting/creditor-invoices');
+  }
+
+  public function edit_creditor_invoice($creditor_invoice_id)
+  {
+
+      $data['title'] = 'Edit Creditor Invoice';
+      $v_data['creditor_invoice_id'] = $creditor_invoice_id;
+      $creditor_id = $this->session->userdata('invoice_creditor_id_searched');
+      $v_data['title'] = $data['title'];
+      $data['content'] = $this->load->view('creditors/edit_creditor_invoice', $v_data, true);
+      $this->load->view('admin/templates/general_page', $data);
+
+  }
+
+
+  public function delete_creditor_payment($creditor_payment_id)
+  {
+    $update_query['creditor_payment_status'] = 2;
+    $update_query['last_modified_by'] = $this->session->userdata('personnel_id');
+    $this->db->where('creditor_payment_id',$creditor_payment_id);
+    $this->db->update('creditor_payment',$update_query);
+
+    redirect('accounting/creditor-payments');
+  }
+
+  public function edit_creditor_payment($creditor_payment_id)
+  {
+
+      $data['title'] = 'Edit Creditor Invoice';
+      $v_data['creditor_payment_id'] = $creditor_payment_id;
+      $creditor_id = $this->session->userdata('payment_creditor_id_searched');
+      $v_data['title'] = $data['title'];
+      $data['content'] = $this->load->view('creditors/edit_creditor_payment', $v_data, true);
+      $this->load->view('admin/templates/general_page', $data);
+
+  }
+
+   public function delete_credit_note_item($creditor_credit_note_item_id,$creditor_credit_note_id=NULL)
+  {
+   
+    $this->db->where('creditor_credit_note_item_id',$creditor_credit_note_item_id);
+    $this->db->delete('creditor_credit_note_item',$update_query);
+
+    if(!empty($creditor_credit_note_id))
+    {
+      redirect('edit-creditor-credit-note/'.$creditor_credit_note_id);
+    }
+    else
+    {
+      redirect('accounting/creditor-credit-notes');
+    }
+  }
+
+  public function delete_creditor_credit_note($creditor_credit_note_id,$creditor_id)
+  {
+
+
+    $update_query['creditor_credit_note_status'] = 2;
+    $update_query['last_modified_by'] = $this->session->userdata('personnel_id');
+    $this->db->where('creditor_credit_note_id',$creditor_credit_note_id);
+    $this->db->update('creditor_credit_note',$update_query);
+
+    redirect('accounting/creditor-credit-notes');
+  }
+  public function edit_creditor_credit_note($creditor_credit_note_id)
+  {
+     $data['title'] = 'Edit Creditor Credit Note';
+      $v_data['creditor_credit_note_id'] = $creditor_credit_note_id;
+      $creditor_id = $this->session->userdata('credit_note_creditor_id_searched');
+      $v_data['title'] = $data['title'];
+      $data['content'] = $this->load->view('creditors/edit_creditor_credit_note', $v_data, true);
+      $this->load->view('admin/templates/general_page', $data);
+  }
+
+  public function get_credit_note_details($creditor_credit_note_id)
+  {
+    $data['creditor_credit_note_id'] = $creditor_credit_note_id;
+    $this->load->view('creditors/view_creditor_credit_notes', $data); 
   }
 
 }

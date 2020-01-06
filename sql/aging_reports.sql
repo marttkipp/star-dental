@@ -5,57 +5,57 @@ SELECT
 	creditor.creditor_name as payables,
   (
     CASE
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
        THEN 0 -- Output
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
        THEN
        -- Add the paymensts made to the specifc invoice
-        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 ))
-        - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.cr_amount, 0 ))
+        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 ))
+        - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.cr_amount, 0 ))
         END
   ) AS `coming_due`,
 	(
     CASE
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
        THEN 0 -- Output
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
        THEN
        -- Add the paymensts made to the specifc invoice
-        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 ))
-				  - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  BETWEEN 1 AND 30, v_general_ledger.cr_amount, 0 ))
+        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 ))
+				  - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  BETWEEN 1 AND 30, v_general_ledger_aging.cr_amount, 0 ))
 			END
   ) AS `thirty_days`,
   (
     CASE
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
        THEN 0 -- Output
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
        THEN
        -- Add the paymensts made to the specifc invoice
-        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 ))
-				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.cr_amount, 0 ))
+        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 ))
+				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.cr_amount, 0 ))
 			END
   ) AS `sixty_days`,
   (
     CASE
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
        THEN 0 -- Output
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
        THEN
        -- Add the paymensts made to the specifc invoice
-        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 ))
-				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  BETWEEN 61 AND 90, v_general_ledger.cr_amount, 0 ))
+        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 ))
+				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  BETWEEN 61 AND 90, v_general_ledger_aging.cr_amount, 0 ))
 		END
   ) AS `ninety_days`,
   (
     CASE
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
        THEN 0 -- Output
-      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+      WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
        THEN
        -- Add the paymensts made to the specifc invoice
-        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 ))
-				 - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  >90, v_general_ledger.cr_amount, 0 ))
+        Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 ))
+				 - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  >90, v_general_ledger_aging.cr_amount, 0 ))
 			END
   ) AS `over_ninety_days`,
 
@@ -63,66 +63,66 @@ SELECT
 
     (
       CASE
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
          THEN 0 -- Output
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
          THEN
          -- Add the paymensts made to the specifc invoice
-          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.dr_amount, 0 ))
-					 - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  = 0, v_general_ledger.cr_amount, 0 ))
+          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.dr_amount, 0 ))
+					 - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  = 0, v_general_ledger_aging.cr_amount, 0 ))
   		END
     )-- Getting the Value for 0 Days
     + (
       CASE
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
          THEN 0 -- Output
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
          THEN
          -- Add the paymensts made to the specifc invoice
-          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger.dr_amount, 0 ))
- - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  BETWEEN 1 AND 30, v_general_ledger.cr_amount, 0 ))
+          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 1 AND 30, v_general_ledger_aging.dr_amount, 0 ))
+ - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  BETWEEN 1 AND 30, v_general_ledger_aging.cr_amount, 0 ))
   		END
     ) --  AS `1-30 Days`
     +(
       CASE
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
          THEN 0 -- Output
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
          THEN
          -- Add the paymensts made to the specifc invoice
-          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger.dr_amount, 0 ))
+          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 31 AND 60, v_general_ledger_aging.dr_amount, 0 ))
 
-				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  BETWEEN 31 AND 60, v_general_ledger.cr_amount, 0 ))
+				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  BETWEEN 31 AND 60, v_general_ledger_aging.cr_amount, 0 ))
 				END
 
     ) -- AS `31-60 Days`
     +(
       CASE
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
          THEN 0 -- Output
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
          THEN
          -- Add the paymensts made to the specifc invoice
-          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.dr_amount, 0 ))
-				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger.cr_amount, 0 ))
+          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.dr_amount, 0 ))
+				   - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) BETWEEN 61 AND 90, v_general_ledger_aging.cr_amount, 0 ))
   		END
     ) -- AS `61-90 Days`
     +(
       CASE
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 )) = 0 -- condtion to see if the date has no bills
          THEN 0 -- Output
-        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
+        WHEN Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 )) > 0 -- Checking if the value of bills in the date range is greater than Zero
          THEN
          -- Add the paymensts made to the specifc invoice
-          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) ) >90, v_general_ledger.dr_amount, 0 ))
-				  - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger.referenceDate ) )  >90, v_general_ledger.cr_amount, 0 ))
+          Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) ) >90, v_general_ledger_aging.dr_amount, 0 ))
+				  - Sum(IF( DATEDIFF( CURDATE( ), date( v_general_ledger_aging.referenceDate ) )  >90, v_general_ledger_aging.cr_amount, 0 ))
   		END
     ) -- AS `>90 Days`
   ) AS `Total`
 
 	FROM
 		creditor
-	LEFT JOIN v_general_ledger ON v_general_ledger.recepientId = creditor.creditor_id AND v_general_ledger.recepientId > 0 AND v_general_ledger.referenceDate >= creditor.start_date
+	LEFT JOIN v_general_ledger_aging ON v_general_ledger_aging.recepientId = creditor.creditor_id AND v_general_ledger_aging.recepientId > 0 AND v_general_ledger_aging.referenceDate >= creditor.start_date
 
 	 GROUP BY creditor.creditor_id;
 

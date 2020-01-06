@@ -1015,8 +1015,8 @@ $route['company-financials/balance-sheet'] = 'accounting/company_financial/balan
 
 $route['accounting/creditors'] = 'accounting/creditors/index';
 $route['accounting/creditors/(:num)'] = 'accounting/creditors/index/$1';
-$route['delete-creditor-invoice/(:num)'] = 'accounting/petty_cash/delete_invoice_entry/$1';
-$route['delete-creditor-invoice-entry/(:num)/(:num)'] = 'accounting/creditors/delete_creditor_invoice/$1/$2';
+// $route['delete-creditor-invoice/(:num)'] = 'accounting/petty_cash/delete_invoice_entry/$1';
+// $route['delete-creditor-invoice-entry/(:num)/(:num)'] = 'accounting/creditors/delete_creditor_invoice/$1/$2';
 $route['delete-creditor-payment-entry/(:num)/(:num)'] = 'accounting/creditors/delete_creditor_payment/$1/$2';
 $route['delete-creditor-payment/(:num)'] = 'accounting/petty_cash/delete_payment_entry/$1';
 
@@ -1353,6 +1353,7 @@ $route['accounting/accounts-transfer/(:num)'] = 'finance/transfer/write_cheque/$
 $route['reverse-transfer-entry/(:num)'] = 'finance/transfer/reverse_transfer/$1';
 
 $route['remove-transfer-entry/(:num)'] = 'finance/transfer/transfer_delete_record/$1';
+$route['edit-transfer-entry/(:num)'] = 'finance/transfer/edit_transfer_record/$1';
 
 $route['accounting/purchase-payments'] = 'finance/purchases/purchase_payments';
 
@@ -1375,8 +1376,17 @@ $route['accounting/creditor-invoices/(:num)'] = 'finance/creditors/creditors_inv
 $route['search-creditor-invoices'] = 'finance/creditors/search_creditors_invoice';
 $route['search-creditor-bill/(:num)'] = 'finance/creditors/search_creditors_bill/$1';
 $route['close-search-creditors-invoices'] = 'finance/creditors/close_searched_invoices_creditor';
+
+$route['creditor-invoice/delete-creditor-invoice/(:num)'] = 'finance/creditors/delete_creditor_invoice/$1';
+$route['creditor-invoice/edit-creditor-invoice/(:num)'] = 'finance/creditors/edit_creditor_invoice/$1';
+$route['delete-creditor-invoice-entry/(:num)/(:num)'] = 'accounting/creditors/delete_creditor_invoice/$1/$2';
+
+
 $route['finance/add-creditor'] = 'finance/creditors/add_creditor';
 $route['finance/edit-creditor/(:num)'] = 'finance/creditors/edit_creditor/$1';
+
+
+
 
 // credit notes
 
@@ -1384,17 +1394,28 @@ $route['accounting/creditor-credit-notes'] = 'finance/creditors/creditors_credit
 $route['search-creditor-credit-notes'] = 'finance/creditors/search_creditors_credit_notes';
 $route['search-creditor-credit-notes/(:num)'] = 'finance/creditors/search_creditors_credit_notes/$1';
 $route['close-search-creditors-credit-notes'] = 'finance/creditors/close_searched_credit_notes_creditor';
+$route['delete-credit-note-item/(:num)'] = 'finance/creditors/delete_credit_note_item/$1';
+$route['delete-credit-note-item/(:num)/(:num)'] = 'finance/creditors/delete_credit_note_item/$1/$2';
+$route['delete-creditor-credit-note/(:num)/(:num)'] = 'finance/creditors/delete_creditor_credit_note/$1/$2';
+$route['edit-creditor-credit-note/(:num)'] = 'finance/creditors/edit_creditor_credit_note/$1';
+
 
 
 
 // payments_import
 
 $route['accounting/creditor-payments'] = 'finance/creditors/creditors_payments';
+$route['accounting/creditor-payments/(:num)'] = 'finance/creditors/creditors_payments/$1';
 $route['search-creditor-payments'] = 'finance/creditors/search_creditors_payments';
 $route['search-creditor-payments/(:num)'] = 'finance/creditors/search_creditors_payments/$1';
 $route['close-search-creditors-payments'] = 'finance/creditors/close_searched_payments_creditor';
-$route['delete-creditor-payment-item/(:num)/(:num)'] = 'finance/creditors/delete_creditor_payment/$1/$2';
-$route['delete-creditor-invoice-item/(:num)/(:num)'] = 'finance/creditors/delete_creditor_invoice/$1/$2';
+$route['delete-creditor-payment-item/(:num)/(:num)'] = 'finance/creditors/delete_creditor_payment_item/$1/$2';
+$route['delete-creditor-payment-item/(:num)/(:num)/(:num)'] = 'finance/creditors/delete_creditor_payment_item/$1/$2/$3';
+$route['delete-creditor-invoice-item/(:num)/(:num)'] = 'finance/creditors/delete_creditor_invoice_item/$1/$2';
+$route['delete-creditor-invoice-item/(:num)/(:num)/(:num)'] = 'finance/creditors/delete_creditor_invoice_item/$1/$2/$3';
+
+$route['delete-creditor-payment/(:num)'] = 'finance/creditors/delete_creditor_payment/$1';
+$route['edit-creditor-payment/(:num)'] = 'finance/creditors/edit_creditor_payment/$1';
 
 
 $route['company-financials'] = 'financials/company_financial/index';

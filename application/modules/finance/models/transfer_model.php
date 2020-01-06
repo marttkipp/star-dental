@@ -46,7 +46,7 @@ class Transfer_model extends CI_Model
 
     return $query;
   }
-  public function transfer_funds()
+  public function transfer_funds($finance_transfer_id = NULL)
   {
     // $document_number = $this->create_purchases_payment();
     $amount = $this->input->post('amount');
@@ -57,34 +57,66 @@ class Transfer_model extends CI_Model
           'transaction_date'=>$this->input->post('transfer_date'),
           'reference_number'=>$this->input->post('reference_number'),
           'created_by'=>$this->session->userdata('personnel_id'),
-          'remarks'=>$this->input->post('description'),
-          'created'=>date('Y-m-d H:i:s'),
+          'remarks'=>$this->input->post('description'),          
           'last_modified'=>date('Y-m-d H:i:s'),
           // 'finance_transfer_status' => 0
           );
-    if($this->db->insert('finance_transfer',$account))
+
+
+    if(!empty($finance_transfer_id))
     {
-      $finance_transfer_id = $this->db->insert_id();
-      $account = array(
-            'account_to_id'=>$this->input->post('account_to_id'),
-            'finance_transfered_amount'=>$amount,
-            'transaction_date'=>$this->input->post('transfer_date'),
-            'created_by'=>$this->session->userdata('personnel_id'),
-            'finance_transfer_id'=>$finance_transfer_id,
-            'remarks'=>$this->input->post('description'),
-            'created'=>date('Y-m-d H:i:s'),
-            'last_modified'=>date('Y-m-d H:i:s'),
-            );
-      if($this->db->insert('finance_transfered',$account))
+      $this->db->where('finance_transfer_id',$finance_transfer_id);
+      if($this->db->update('finance_transfer',$account))
       {
-        return TRUE;
+        $account = array(
+              'account_to_id'=>$this->input->post('account_to_id'),
+              'finance_transfered_amount'=>$amount,
+              'transaction_date'=>$this->input->post('transfer_date'),
+              'created_by'=>$this->session->userdata('personnel_id'),
+              'finance_transfer_id'=>$finance_transfer_id,
+              'remarks'=>$this->input->post('description'),
+              'last_modified'=>date('Y-m-d H:i:s'),
+              );
+        $this->db->where('finance_transfer_id',$finance_transfer_id);
+        if($this->db->update('finance_transfered',$account))
+        {
+          return TRUE;
+        }
+        else {
+            return FALSE;
+        }
       }
       else {
-          return FALSE;
+        return FALSE;
       }
     }
-    else {
-      return FALSE;
+    else
+    {
+      $account['created'] = date('Y-m-d H:i:s');
+      if($this->db->insert('finance_transfer',$account))
+      {
+        $finance_transfer_id = $this->db->insert_id();
+        $account = array(
+              'account_to_id'=>$this->input->post('account_to_id'),
+              'finance_transfered_amount'=>$amount,
+              'transaction_date'=>$this->input->post('transfer_date'),
+              'created_by'=>$this->session->userdata('personnel_id'),
+              'finance_transfer_id'=>$finance_transfer_id,
+              'remarks'=>$this->input->post('description'),
+              'created'=>date('Y-m-d H:i:s'),
+              'last_modified'=>date('Y-m-d H:i:s'),
+              );
+        if($this->db->insert('finance_transfered',$account))
+        {
+          return TRUE;
+        }
+        else {
+            return FALSE;
+        }
+      }
+      else {
+        return FALSE;
+      }
     }
 
   }
@@ -99,6 +131,20 @@ class Transfer_model extends CI_Model
     $account_name = $account_details->account_name;
 
     return $account_name;
+  }
+
+
+  public function get_transfer_details($finance_transfer_id)
+  {
+    $account_name = '';
+    $this->db->select('finance_transfer.*');
+    $this->db->where('finance_transfer_id = '.$finance_transfer_id);
+    $query = $this->db->get('finance_transfer');
+
+    // $account_details = $query->row();
+    // $account_name = $account_details->account_name;
+
+    return $query;
   }
 }
 ?>

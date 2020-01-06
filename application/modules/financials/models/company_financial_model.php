@@ -2697,9 +2697,9 @@ class Company_financial_model extends CI_Model
 
 		}
 		//retrieve all users
-		$this->db->from('v_general_ledger_by_date,creditor');
+		$this->db->from('v_creditor_ledger_by_date,creditor');
 		$this->db->select('*');
-		$this->db->where('creditor.creditor_id = v_general_ledger_by_date.recepientId AND v_general_ledger_by_date.transactionDate >= creditor.start_date AND recepientId = '.$creditor_id.$search_invoice_add);
+		$this->db->where('creditor.creditor_id = v_creditor_ledger_by_date.recepientId AND v_creditor_ledger_by_date.transactionDate >= creditor.start_date AND recepientId = '.$creditor_id.$search_invoice_add);
 		$this->db->order_by('transactionDate','ASC');
 		$query = $this->db->get();
 

@@ -1,104 +1,27 @@
 <?php
+ $creditor_id = $this->session->userdata('credit_note_creditor_id_searched');
+ $expense_accounts = $this->purchases_model->get_child_accounts("Expense Accounts");
 
-$creditor_id = $this->session->userdata('credit_note_creditor_id_searched');
-if(empty($creditor_id))
-{
-
-  $creditor_where = 'creditor_id > 0' ;
-  $creditor_table = 'creditor';
-  $creditor_order = 'creditor.creditor_name';
-
-  $creditor_query = $this->creditors_model->get_creditors_list($creditor_table, $creditor_where, $creditor_order);
-  $rs8 = $creditor_query->result();
-  $creditor_list = '';
-  foreach ($rs8 as $creditor_rs) :
-    $creditor_id = $creditor_rs->creditor_id;
-    $creditor_name = $creditor_rs->creditor_name;
-
-      $creditor_list .="<option value='".$creditor_id."'> ".$creditor_name."</option>";
-
-  endforeach;
+  $creditor_invoice_details = $this->creditors_model->get_creditor_credit_note_details($creditor_credit_note_id);
 
 
-  ?>
-  <div class="col-md-12">
-    <section class="panel">
-        <header class="panel-heading">
-            <h3 class="panel-title">Creditor </h3>
-        </header>
-        <div class="panel-body">
-              <!-- select a tenant  -->
-              <div class="row" style="margin-bottom:20px;">
-                <?php echo form_open("search-creditor-credit-notes", array("class" => "form-horizontal", "role" => "form"));?>
-                    <div class="row">
-                      <div class="col-md-12">
-                            <div class="col-md-8">
-                                  <div class="form-group center-align">
-                                    <label class="col-md-4 control-label">Creditor Name: </label>
+   if($creditor_invoice_details->num_rows() > 0)
+   {
+   		foreach ($creditor_invoice_details->result() as $key => $value) {
+   			# code...
+   			$amount = $value->amount;
+   			$vat_charged = $value->vat_charged;
+   			$total_amount = $value->total_amount;
+   			$transaction_date = $value->transaction_date;
+   			$invoice_number = $value->invoice_number;
+   			$document_number = $value->document_number;
+   			$creditor_invoice_id = $value->creditor_invoice_id;
 
-                                    <div class="col-md-8">
-                                      <select id='creditor_id' name='creditor_id' class='form-control select2'>
-                                          <!-- <select class="form-control custom-select " id='procedure_id' name='procedure_id'> -->
-                                            <option value=''>None - Please Select a creditor</option>
-                                            <?php echo $creditor_list;?>
-                                          </select>
-                                    </div>
-                                </div>
-                            </div>
+   		}
 
-                            <div class="col-md-4">
-                            <div class="form-actions center-align">
-                                <button class="submit btn btn-primary btn-sm" type="submit">
-                                    Search Creditor
-                                </button>
-                            </div>
-                          </div>
 
-                      </div>
-                    </div>
-                  <?php echo form_close();?>
-              </div>
-          </div>
-      </section>
-    </div>
-  <?php
-}
+   }
 ?>
-<?php
-$creditor_id = $lease_id = $this->session->userdata('credit_note_creditor_id_searched');
-if($creditor_id > 0)
-{
-
-  $all_leases = $this->creditors_model->get_creditor($creditor_id);
-  	foreach ($all_leases->result() as $leases_row)
-  	{
-  		$creditor_id = $leases_row->creditor_id;
-  		$creditor_name = $leases_row->creditor_name;
-      $opening_balance = $leases_row->opening_balance;
-  	}
-  $expense_accounts = $this->purchases_model->get_child_accounts("Expense Accounts");
-
-
-?>
-
-<?php
-$error = $this->session->userdata('error_message');
-$success = $this->session->userdata('success_message');
-
-if(!empty($error))
-{
-  echo '<div class="alert alert-danger">'.$error.'</div>';
-  $this->session->unset_userdata('error_message');
-}
-
-if(!empty($success))
-{
-  echo '<div class="alert alert-success">'.$success.'</div>';
-  $this->session->unset_userdata('success_message');
-}
-
-?>
-
 <div class="row">
   <section class="panel">
       <header class="panel-heading">
@@ -108,7 +31,7 @@ if(!empty($success))
           </div>
       </header>
       <div class="panel-body">
-        <?php echo form_open("finance/creditors/add_credit_note_item/".$creditor_id, array("class" => "form-horizontal"));?>
+        <?php echo form_open("finance/creditors/add_credit_note_item/".$creditor_id.'/'.$creditor_credit_note_id, array("class" => "form-horizontal"));?>
           <div class="modal-body">
 
               <input type="hidden" name="type_of_account" value="1">
@@ -180,9 +103,9 @@ if(!empty($success))
 
           <?php echo form_close();?>
 
-      <?php echo form_open("finance/creditors/confirm_credit_note/".$creditor_id, array("class" => "form-horizontal"));?>
+      <?php echo form_open("finance/creditors/confirm_credit_note/".$creditor_id.'/'.$creditor_credit_note_id, array("class" => "form-horizontal"));?>
       <?php
-      $invoice_where = 'creditor_credit_note_item.creditor_id = '.$creditor_id.' AND creditor_credit_note_item.account_to_id = account.account_id AND creditor_credit_note_item_status = 0';
+      $invoice_where = 'creditor_credit_note_item.creditor_id = '.$creditor_id.' AND creditor_credit_note_item.account_to_id = account.account_id AND creditor_credit_note_id = '.$creditor_credit_note_id;
       $invoice_table = 'creditor_credit_note_item,account';
       $invoice_order = 'creditor_credit_note_item_id';
 
@@ -191,6 +114,7 @@ if(!empty($success))
       $result_payment ='<table class="table table-bordered table-striped table-condensed">
                           <thead>
                             <tr>
+                              <th ></th>
                               <th >#</th>
                               <th >Desciption</th>
                               <th >Account</th>
@@ -248,7 +172,7 @@ if(!empty($success))
                                   <td>'.$vat.'</td>
                                   <td>'.number_format($vat_amount,2).'</td>
                                   <td>'.number_format($amount,2).'</td>
-                                  <td><a href="'.site_url().'delete-credit-note-item/'.$creditor_credit_note_item_id.'" type="submit" class="btn btn-sm btn-danger" ><i class="fa fa-trash"></i></a></td>
+                                  <td><a href="'.site_url().'delete-credit-note-item/'.$creditor_credit_note_item_id.'/'.$creditor_credit_note_id.'" type="submit" class="btn btn-sm btn-danger" ><i class="fa fa-trash"></i></a></td>
                               </tr>';
           // $result_payment .=form_close();
         }
@@ -258,7 +182,7 @@ if(!empty($success))
         $display = TRUE;
       }
       else {
-        $display = FALSE;
+        $display = TRUE;
       }
 
       $result_payment .='</tbody>
@@ -287,7 +211,7 @@ if(!empty($success))
                     <label class="col-md-4 control-label">Credit Note Number: </label>
 
                     <div class="col-md-7">
-                      <input type="text" class="form-control" name="credit_note_number" placeholder=""  autocomplete="off" value="">
+                      <input type="text" class="form-control" name="credit_note_number" placeholder="" value="<?php echo $invoice_number?>"  autocomplete="off" value="">
                     </div>
                   </div>
                   <div class="form-group">
@@ -301,9 +225,18 @@ if(!empty($success))
                         {
                           foreach ($creditor_invoices->result() as $key => $value) {
                             // code...
-                            $creditor_invoice_id = $value->creditor_invoice_id;
+                            $invoice_id = $value->creditor_invoice_id;
                             $invoice_number = $value->invoice_number;
-                            echo '<option value="'.$creditor_invoice_id.'"> '.$invoice_number.'</option>';
+
+                            if($creditor_invoice_id == $invoice_id)
+                            {
+                            	echo '<option value="'.$creditor_invoice_id.'" selected> '.$invoice_number.'</option>';	
+                            }
+                            else
+                            {
+                            	echo '<option value="'.$creditor_invoice_id.'"> '.$invoice_number.'</option>';
+                            }
+                            
                           }
                         }
                         ?>
@@ -339,14 +272,14 @@ if(!empty($success))
                             <span class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                             </span>
-                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="credit_note_date" placeholder="Credit Note Date" id="datepicker" value="<?php echo date('Y-m-d')?>" required>
+                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="credit_note_date" placeholder="Credit Note Date" id="datepicker" value="<?php echo $transaction_date?>" required>
                         </div>
                     </div>
                   </div>
 
                 <div class="col-md-12">
                     <div class="text-center">
-                      <button class="btn btn-info btn-sm " type="submit">Complete Credit Note </button>
+                      <button class="btn btn-info btn-sm " type="submit" onclick="return confirm('Are you sure you want to update the credit note ? ')">Update Credit Note </button>
                     </div>
                 </div>
               </div>
@@ -362,171 +295,3 @@ if(!empty($success))
     </div>
   </section>
 </div>
-
-
-<div class="row">
-  <div class="col-md-12">
-    <section class="panel">
-        <header class="panel-heading">
-            <h3 class="panel-title">Credit Notes </h3>
-        </header>
-        <div class="panel-body">
-            <table class="table table-hover table-condensed table-striped table-bordered col-md-12">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Credit Note Date</th>
-                  <th>Credit Note Number</th>
-                  <th>Document Number</th>
-                  <th>Tax Charged</th>
-                  <th>Toatl Bill</th>
-                  <th colspan="2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                	// $creditor_credit_notes = $this->creditors_model->get_creditor_credit_notes($creditor_id,10);
-                  // var_dump($tenant_query);die();
-                if($creditor_credit_notes->num_rows() > 0)
-                {
-                  $y = 0;
-                  foreach ($creditor_credit_notes->result() as $key) {
-                    # code...
-                    $total_amount = $key->total_amount;
-                    $creditor_credit_note_id = $key->creditor_credit_note_id;
-                    $creditor_invoice_id = $key->creditor_invoice_id;
-                    $transaction_date = $key->transaction_date;
-                    $document_number = $key->document_number;
-                    $invoice_number = $key->invoice_number;
-                    $vat_charged = $key->vat_charged;
-                    $created = $key->created;
-                    $created_by = $key->created_by;
-
-
-
-                    $payment_explode = explode('-', $transaction_date);
-
-                    $invoice_note_date = date('jS M Y',strtotime($transaction_date));
-                    $created = date('jS M Y',strtotime($created));
-                    $y++;
-
-                    ?>
-                    <tr>
-                      <td><?php echo $y?></td>
-                      <td><?php echo $transaction_date;?></td>
-                      <td><?php echo $invoice_number?></td>
-                      <td><?php echo $document_number?></td>
-                      <td><?php echo number_format($vat_charged,2);?></td>
-                      <td><?php echo number_format($total_amount,2);?></td>
-                      <td><a href="<?php echo site_url().'edit-creditor-credit-note/'.$creditor_credit_note_id;?>" class="btn btn-sm btn-success"><i class="fa fa-pencil"></i></a></td>
-                      <td><a href="<?php echo site_url().'delete-creditor-credit-note/'.$creditor_credit_note_id.'/'.$creditor_id;?>" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a></td>
-
-                    </tr>
-                    <?php
-
-                  }
-                }
-                ?>
-
-              </tbody>
-            </table>
-
-        </div>
-      </section>
-    </div>
-  </div>
-<?php
-
-
-
-}
-
-?>
-
-<script>
-function display_payment_model()
-{
-  $('#modal-defaults').modal('show');
-  $('#datepicker').datepicker({
-    autoclose: true,
-    format: 'yyyy-mm-dd',
-  })
-  // var quantity = document.getElementById("quantity");
-}
-function get_value()
-{
-  var quantity = document.getElementById("quantity").value;
-  var unit_price = document.getElementById("unit_price").value;
-  var tax_type_id = document.getElementById("tax_type_id").value;
-
-  var url = "<?php echo base_url();?>finance/creditors/calculate_value";
-   $.ajax({
-   type:'POST',
-   url: url,
-   data:{quantity: quantity,unit_price : unit_price, tax_type_id : tax_type_id},
-   dataType: 'text',
-   success:function(data){
-     var data = jQuery.parseJSON(data);
-     var amount = data.amount;
-      var vat = data.vat;
-      $( "#vat_amount" ).html("<h4>TAX KES. "+ vat +" </h4>");
-      $( "#total_units" ).html("<h3>TOTAL : KES. "+ amount +" </h3>");
-     document.getElementById("input-total-value").value = amount;
-     document.getElementById("vat-amount").value = vat;
-
-   },
-   error: function(xhr, status, error) {
-   alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
-
-   }
-   });
-
-}
-function check_payment_type(payment_type_id){
-
-  var myTarget1 = document.getElementById("cheque_div");
-
-  var myTarget2 = document.getElementById("mpesa_div");
-
-  var myTarget3 = document.getElementById("insuarance_div");
-
-  if(payment_type_id == 1)
-  {
-    // this is a check
-
-    myTarget1.style.display = 'block';
-    myTarget2.style.display = 'none';
-    myTarget3.style.display = 'none';
-  }
-  else if(payment_type_id == 2)
-  {
-    myTarget1.style.display = 'none';
-    myTarget2.style.display = 'none';
-    myTarget3.style.display = 'none';
-  }
-  else if(payment_type_id == 3)
-  {
-    myTarget1.style.display = 'none';
-    myTarget2.style.display = 'none';
-    myTarget3.style.display = 'block';
-  }
-  else if(payment_type_id == 4)
-  {
-    myTarget1.style.display = 'none';
-    myTarget2.style.display = 'none';
-    myTarget3.style.display = 'none';
-  }
-  else if(payment_type_id == 5)
-  {
-    myTarget1.style.display = 'none';
-    myTarget2.style.display = 'block';
-    myTarget3.style.display = 'none';
-  }
-  else
-  {
-    myTarget2.style.display = 'none';
-    myTarget3.style.display = 'block';
-  }
-
-}
-</script>

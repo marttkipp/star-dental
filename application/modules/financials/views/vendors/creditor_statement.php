@@ -8,7 +8,7 @@
         <section class="panel">
             <header class="panel-heading">
 
-                <h2 class="panel-title"><?php echo $title;?></h2>
+                <h2 class="panel-title"><?php echo ucfirst(strtolower($title));?></h2>
                 <a href="<?php echo site_url();?>accounting/creditors" class="btn btn-sm btn-warning pull-right" style="margin-top: -25px; "><i class="fa fa-arrow-left"></i> Back to creditors</a>
                 <a href="<?php echo base_url().'financials/company_financial/print_creditor_statement/'.$creditor_id?>" class="btn btn-sm btn-success pull-right"  style="margin-top: -25px;margin-right: 5px;" target="_blank"><i class="fa fa-print"></i> Print</a>
                 <a href="<?php echo site_url().'search-creditor-bill/'.$creditor_id?>" class="btn btn-sm btn-primary pull-right"  style="margin-top: -25px; margin-right: 5px;"><i class="fa fa-plus"></i> Add Bill</a>
@@ -62,12 +62,12 @@
 
 			?>
 
-				<table class="table table-hover table-bordered ">
+				<table class="table table-hover table-stripped table-condensed table-bordered ">
 				 	<thead>
 						<tr>
 						  <th>Transaction Date</th>
-						  <th>Document number</th>
-						  <th>Description</th>
+						  <th>Document Type</th>
+						  <th>Reference Code</th>
 						  <th>Debit</th>
 						  <th>Credit</th>
                           <th>Balance</th>
@@ -110,9 +110,11 @@
 				  				$transactionCode = $value->transactionCode;
 				  				$dr_amount = $value->dr_amount;
 				  				$cr_amount = $value->cr_amount;
+				  				$transactionName = $value->transactionName;
+				  				$transactionId = $value->transactionId;
 				  				$transactionDescription = $value->transactionDescription;
 				  				$transactionClassification = $value->transactionClassification;
-                  				$referenceId = $value->referenceId;
+                  				$transactionId = $value->transactionId;
                   				$transactionId = $value->transactionId;
 
 				  				$transactionDate = $value->transactionDate;
@@ -122,6 +124,7 @@
 				  				$total_cr_amount += $cr_amount;
 				  				$link = '';
                   				$button = '';
+                  				$color = 'default';
 				  				if($transactionClassification === "Supplies Invoices")
 				  				{
 				                    if($transactionClassification === "Creditors Invoices")
@@ -129,29 +132,50 @@
 				                      $button =  '';
 				                    }
 				                    else {
-				                      $button = '<td><a href="'.site_url().'inventory/orders/goods_received_notes/'.$referenceId.'" class="btn btn-xs btn-success" target="_blank"> View Invoice </a></td>';
+				                      $button = '<td><a href="'.site_url().'inventory/orders/goods_received_notes/'.$transactionId.'" class="btn btn-xs btn-success" target="_blank"> View Invoice </a></td>';
 
 				                    }
 
 				  					$transactionCode = $referenceCode;
+				  					$color = 'primary';
+				  					$type= 1;
 				  				}
                   				if($transactionClassification == "Supplies Credit Note")
 				  				{
-                    				$button = '<td><a href="'.site_url().'print-suppliers-credit-note/'.$referenceId.'" class="btn btn-xs btn-warning" target="_blank"> View Note </a></td>';
+                    				$button = '<td><a href="'.site_url().'print-suppliers-credit-note/'.$transactionId.'" class="btn btn-xs btn-warning" target="_blank"> View Note </a></td>';
+                    				$color = 'warning';
+                    				$type= 2;
 
 				  				}
 				  				if($transactionClassification == "Creditors Invoices")
 				  				{
                     				$button = '';
 
-                    				$link = 'onclick="get_invoice_details('.$referenceId.')"';
+                    				$link = 'onclick="get_invoice_details('.$transactionId.',3)"';
+                    				$color = 'primary';
+                    				$type= 3;
+				  				}
+
+				  				if($transactionClassification == 'Creditors Invoices Payments')
+				  				{
+				  					$link = 'onclick="get_payment_details('.$transactionId.',4)"';
+				  					$color = 'success';
+				  					$type= 4;
+				  				}
+				  				if($transactionClassification == 'Creditors Credit Notes')
+				  				{
+				  					$link = 'onclick="get_credit_note_details('.$transactionId.',5)"';
+				  					$color = 'danger';
+				  					$type= 5;
 				  				}
 
 				  				if($transactionDescription == "Payment on account")
 				  				{
-                    				$button = '<td><a href="'.site_url().'allocate-payment/'.$referenceId.'/'.$transactionId.'/'.$creditor_id.'" class="btn btn-xs btn-danger"> Allocate payment </a></td>';
+                    				$button = '<td><a href="'.site_url().'allocate-payment/'.$transactionId.'/'.$transactionId.'/'.$creditor_id.'" class="btn btn-xs btn-danger"> Allocate payment </a></td>';
 
 				  				}
+
+
 
 				  				if($transactionClassification == 'Creditor Opening Balance')
 				  				{
@@ -168,20 +192,22 @@
 				  				{
 				  					$result .= '<tr '.$link.'>
 								  					<td>'.$transactionDate.'</td>
-								  					<td>'.$transactionCode.'</td>
-								  					<td> '.$transactionDescription.'</td>
+								  					<td class="'.$color.'"> '.strtoupper($transactionName).'</td>
+								  					<td class="'.$color.'">'.strtoupper($referenceCode).'</td>
 								  					<td>'.number_format($dr_amount,2).'</td>
 								  					<td>'.number_format($cr_amount,2).'</td>
 								  					<td>'.number_format($balance,2).'</td>
-	                          						'.$button.'
 								  				</tr>';
 								 	$result .= '
-								 				<div id="table-row'.$referenceId.'" style="display:none;">
-
-								 				<tr >
-								  					<td id="link-details'.$referenceId.'" colspan="6" ></td>
-								  				</tr>
-								  				</div>';
+								 				 
+								 				<div id="table-row'.$transactionId.''.$type.'" class="table-rows" style="display:none;">
+								 					<tr>
+									  					<td colspan= 6>
+									  						<div id="link-details'.$transactionId.''.$type.'"></div>
+									  					</td>
+								  					</tr>
+								  				</div>
+								  				';
 							  		
 
 
@@ -210,7 +236,7 @@
        // $("#billed_supplier_id").customselect();
     });
 
-    function get_invoice_details(reference_id)
+    function get_invoice_details(reference_id,type)
     {
 
     	var XMLHttpRequestObject = false;
@@ -230,18 +256,145 @@
 		  
 		if(XMLHttpRequestObject) 
 		{
-			$('#table-row'+reference_id).css('display', 'block');
-			var obj = document.getElementById("link-details"+reference_id);
-			XMLHttpRequestObject.open("GET", url);
-			    
-			XMLHttpRequestObject.onreadystatechange = function(){
-			  
-			  if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
-			    obj.innerHTML = XMLHttpRequestObject.responseText;
-			  }
-			}
+			
+			// var checked_data = $('#checked_data'+reference_id).val();
+			// $('.table-rows').css('display', 'none');
+			var checked_id = $('#table-row'+reference_id+type).css('display');
+			
+			if(checked_id == 'block')
+			{
+				// alert(checked_id);
+				$('#table-row'+reference_id+type).css('display', 'none');
+				$('#link-details'+reference_id+type).css('display', 'none');
 
-			XMLHttpRequestObject.send(null);
+			}
+			else
+			{
+				$('#table-row'+reference_id+type).css('display', 'block');
+				$('#link-details'+reference_id+type).css('display', 'block');
+				var obj = document.getElementById("link-details"+reference_id+type);
+				XMLHttpRequestObject.open("GET", url);
+				    
+				XMLHttpRequestObject.onreadystatechange = function(){
+				  
+				  if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
+				    obj.innerHTML = XMLHttpRequestObject.responseText;
+				  }
+				}
+
+				XMLHttpRequestObject.send(null);
+			}
+			
+
+			
+		}
+    }
+
+    function get_payment_details(reference_id,type)
+    {
+
+    	var XMLHttpRequestObject = false;
+    
+		if (window.XMLHttpRequest) {
+
+		XMLHttpRequestObject = new XMLHttpRequest();
+		} 
+
+		else if (window.ActiveXObject) {
+		XMLHttpRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		var config_url = $('#config_url').val();
+		var url = "<?php echo site_url();?>finance/creditors/get_payment_details/"+reference_id;
+		// alert(url);
+
+		  
+		if(XMLHttpRequestObject) 
+		{
+			
+			// var checked_data = $('#checked_data'+reference_id).val();
+			// $('.table-rows').css('display', 'none');
+			var checked_id = $('#table-row'+reference_id+type).css('display');
+			
+			if(checked_id == 'block')
+			{
+				// alert(checked_id);
+				$('#table-row'+reference_id+type).css('display', 'none');
+				$('#link-details'+reference_id+type).css('display', 'none');
+
+			}
+			else
+			{
+				$('#table-row'+reference_id+type).css('display', 'block');
+				$('#link-details'+reference_id+type).css('display', 'block');
+				var obj = document.getElementById("link-details"+reference_id+type);
+				XMLHttpRequestObject.open("GET", url);
+				    
+				XMLHttpRequestObject.onreadystatechange = function(){
+				  
+				  if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
+				    obj.innerHTML = XMLHttpRequestObject.responseText;
+				  }
+				}
+
+				XMLHttpRequestObject.send(null);
+			}
+			
+
+			
+		}
+    }
+
+    function get_credit_note_details(reference_id,type)
+    {
+
+    	var XMLHttpRequestObject = false;
+    
+		if (window.XMLHttpRequest) {
+
+		XMLHttpRequestObject = new XMLHttpRequest();
+		} 
+
+		else if (window.ActiveXObject) {
+		XMLHttpRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		var config_url = $('#config_url').val();
+		var url = "<?php echo site_url();?>finance/creditors/get_credit_note_details/"+reference_id;
+		// alert(url);
+
+		  
+		if(XMLHttpRequestObject) 
+		{
+			
+			// var checked_data = $('#checked_data'+reference_id).val();
+			// $('.table-rows').css('display', 'none');
+			var checked_id = $('#table-row'+reference_id+type).css('display');
+			
+			if(checked_id == 'block')
+			{
+				// alert(checked_id);
+				$('#table-row'+reference_id+type).css('display', 'none');
+				$('#link-details'+reference_id+type).css('display', 'none');
+
+			}
+			else
+			{
+				$('#table-row'+reference_id+type).css('display', 'block');
+				$('#link-details'+reference_id+type).css('display', 'block');
+				var obj = document.getElementById("link-details"+reference_id+type);
+				XMLHttpRequestObject.open("GET", url);
+				    
+				XMLHttpRequestObject.onreadystatechange = function(){
+				  
+				  if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
+				    obj.innerHTML = XMLHttpRequestObject.responseText;
+				  }
+				}
+
+				XMLHttpRequestObject.send(null);
+			}
+			
+
+			
 		}
     }
 </script>
