@@ -135,7 +135,7 @@ if($creditor_id > 0)
 
                             if($cr_amount > 0)
                             {
-                              $color_checked = 'yellow';
+                              $color_checked = 'orange';
                             }
                             else if($cr_amount == 0)
                             {

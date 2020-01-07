@@ -303,7 +303,7 @@ class Creditors_model extends CI_Model
                             COALESCE (SUM(`creditor_invoice_item`.`total_amount`),0) AS dr_amount,
                             0 AS cr_amount
                             FROM (`creditor_invoice`,creditor_invoice_item)
-                            WHERE `creditor_invoice_item`.`creditor_invoice_id` = `creditor_invoice`.`creditor_invoice_id`
+                            WHERE `creditor_invoice_item`.`creditor_invoice_id` = `creditor_invoice`.`creditor_invoice_id` AND creditor_invoice.creditor_invoice_status = 1
                             GROUP BY `creditor_invoice`.`creditor_invoice_id`
 
                             UNION ALL 
@@ -318,7 +318,7 @@ class Creditors_model extends CI_Model
                             COALESCE (SUM(`creditor_credit_note_item`.`credit_note_amount`),0) AS cr_amount
                             FROM (`creditor_invoice`,creditor_credit_note,creditor_credit_note_item)
                             WHERE `creditor_credit_note_item`.`creditor_credit_note_id` = `creditor_credit_note`.`creditor_credit_note_id`
-                            AND `creditor_invoice`.`creditor_invoice_id` = `creditor_credit_note_item`.`creditor_invoice_id`
+                            AND `creditor_invoice`.`creditor_invoice_id` = `creditor_credit_note_item`.`creditor_invoice_id` AND creditor_credit_note.creditor_credit_note_status = 1
                             GROUP BY `creditor_credit_note_item`.`creditor_invoice_id`
 
                             UNION ALL
@@ -334,7 +334,7 @@ class Creditors_model extends CI_Model
                             COALESCE (SUM(`creditor_payment_item`.`amount_paid`),0) AS cr_amount
                             FROM (creditor_payment_item,creditor_payment,creditor_invoice)
                             WHERE `creditor_payment_item`.`creditor_invoice_id` = `creditor_invoice`.`creditor_invoice_id` 
-                            AND `creditor_payment_item`.`creditor_payment_id` = `creditor_payment`.`creditor_payment_id` AND creditor_payment_item.invoice_type = 0
+                            AND `creditor_payment_item`.`creditor_payment_id` = `creditor_payment`.`creditor_payment_id` AND creditor_payment_item.invoice_type = 0 AND creditor_payment.creditor_payment_status = 1
                             GROUP BY creditor_invoice.creditor_invoice_id
 
                             UNION ALL 
@@ -364,10 +364,10 @@ class Creditors_model extends CI_Model
                             FROM (creditor_payment_item,creditor_payment,creditor)
                             WHERE `creditor_payment_item`.`creditor_id` = `creditor`.`creditor_id` 
                             AND `creditor_payment_item`.`creditor_payment_id` = `creditor_payment`.`creditor_payment_id` 
-                            AND creditor_payment_item.invoice_type = 2
+                            AND creditor_payment_item.invoice_type = 2 AND creditor_payment.creditor_payment_status = 1
                             GROUP BY creditor.creditor_id
 
-                          ) AS data WHERE data.creditor_id = ".$creditor_id." GROUP BY data.invoice_number ";
+                          ) AS data WHERE data.creditor_id = ".$creditor_id."  GROUP BY data.invoice_number ORDER BY data.invoice_date ASC ";
                           $query = $this->db->query($select_statement);
                   return $query;
 
