@@ -12,8 +12,8 @@ SELECT
 	`account_type`.`account_type_name` AS `accountsclassfication`,
 	account.account_id AS `accountId`,
 	account.account_name AS `accountName`,
-	CONCAT('Opening Balance for petty cash') AS `transactionName`,
-	CONCAT('Opening Balance for petty cash') AS `transactionDescription`,
+	CONCAT('Opening Balance as from',' ',`account`.`start_date`) AS `transactionName`,
+	CONCAT('Opening Balance as from',' ',' ',`account`.`start_date`) AS `transactionDescription`,
 	`account`.`account_opening_balance` AS `dr_amount`,
 	'0' AS `cr_amount`,
 	`account`.`start_date` AS `transactionDate`,
@@ -30,7 +30,7 @@ LEFT JOIN `account_type` ON(
 				account_type.account_type_id = account.account_type_id
 			)
 		)
-WHERE account.account_id = 6
+WHERE account.parent_account = 2
 
 UNION ALL
 
@@ -47,7 +47,7 @@ SELECT
   	`finance_transfered`.`account_to_id` AS `accountId`,
   	`account`.`account_name` AS `accountName`,
   	`finance_transfered`.`remarks` AS `transactionName`,
-  	 CONCAT('Amount Received from ',(SELECT account_name FROM account WHERE account_id = finance_transfer.account_from_id )) AS `transactionDescription`,
+  	 CONCAT('Amount Received from ',(SELECT account_name FROM account WHERE account_id = finance_transfer.account_from_id ),' Ref. ', `finance_transfer`.`reference_number`) AS `transactionDescription`,
   	`finance_transfered`.`finance_transfered_amount` AS `dr_amount`,
      0 AS `cr_amount`,
   	`finance_transfer`.`transaction_date` AS `transactionDate`,
@@ -70,7 +70,7 @@ SELECT
   			)
   			JOIN account ON(
   				(
-  					account.account_id = finance_transfered.account_to_id
+  					account.account_id = finance_transfered.account_to_id 
   				)
   			)
   		)
@@ -97,7 +97,7 @@ SELECT
 	`finance_purchase_payment`.`account_from_id` AS `accountId`,
 	`account`.`account_name` AS `accountName`,
 	`finance_purchase`.`finance_purchase_description` AS `transactionName`,
-	CONCAT(`account`.`account_name`, ' paying for invoice ',`finance_purchase`.`transaction_number`) AS `transactionDescription`,
+	CONCAT(`account`.`account_name`, ' paying for invoice ',`finance_purchase`.`transaction_number`,' Ref. ', `finance_purchase`.`transaction_number`) AS `transactionDescription`,
 	0 AS `dr_amount`,
 	`finance_purchase_payment`.`amount_paid` AS `cr_amount`,
 	`finance_purchase`.`transaction_date` AS `transactionDate`,
@@ -148,7 +148,7 @@ SELECT
 	`finance_purchase`.`account_to_id` AS `accountId`,
 	`account`.`account_name` AS `accountName`,
 	`finance_purchase`.`finance_purchase_description` AS `transactionName`,
-	`finance_purchase`.`finance_purchase_description` AS `transactionDescription`,
+	CONCAT(`account`.`account_name`, ' paying for invoice ',`finance_purchase`.`transaction_number`,' Ref. ', `finance_purchase`.`transaction_number`) AS `transactionDescription`,
 	`finance_purchase`.`finance_purchase_amount` AS `dr_amount`,
 	0 AS `cr_amount`,
 	`finance_purchase`.`transaction_date` AS `transactionDate`,
@@ -236,8 +236,8 @@ UNION ALL
   SELECT
 	`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 	`creditor_payment`.`creditor_payment_id` AS `referenceId`,
-	`creditor_payment`.`reference_number` AS `referenceCode`,
 	`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+	`creditor_payment`.`reference_number` AS `referenceCode`,
 	`creditor_payment`.`document_number` AS `transactionCode`,
 	'' AS `patient_id`,
   	`creditor_payment`.`creditor_id` AS `recepientId`,
@@ -246,7 +246,7 @@ UNION ALL
 	`creditor_payment`.`account_from_id` AS `accountId`,
 	`account`.`account_name` AS `accountName`,
 	`creditor_payment_item`.`description` AS `transactionName`,
-	CONCAT('Payment for invoice of ',' ',`creditor_invoice`.`invoice_number`)  AS `transactionDescription`,
+	CONCAT('Payment for invoice of ',' ',`creditor_invoice`.`invoice_number`,' Ref. ', `creditor_payment`.`reference_number`)  AS `transactionDescription`,
 	0 AS `dr_amount`,
 	`creditor_payment_item`.`amount_paid` AS `cr_amount`,
 	`creditor_payment`.`transaction_date` AS `transactionDate`,
@@ -291,8 +291,8 @@ UNION ALL
  SELECT
 `creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 `creditor_payment`.`creditor_payment_id` AS `referenceId`,
-`creditor_payment`.`reference_number` AS `referenceCode`,
 `creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+`creditor_payment`.`reference_number` AS `referenceCode`,
 `creditor_payment`.`document_number` AS `transactionCode`,
 '' AS `patient_id`,
 `creditor_payment`.`creditor_id` AS `recepientId`,
@@ -301,7 +301,7 @@ UNION ALL
 `creditor_payment`.`account_from_id` AS `accountId`,
 `account`.`account_name` AS `accountName`,
 `creditor_payment_item`.`description` AS `transactionName`,
-CONCAT('Payment for invoice of ',' ',`orders`.`supplier_invoice_number`)  AS `transactionDescription`,
+CONCAT('Payment for invoice of ',' ',`orders`.`supplier_invoice_number`,' Ref. ', `creditor_payment`.`reference_number`)  AS `transactionDescription`,
 0 AS `dr_amount`,
 `creditor_payment_item`.`amount_paid` AS `cr_amount`,
 `creditor_payment`.`transaction_date` AS `transactionDate`,
@@ -318,7 +318,7 @@ FROM
 			`creditor_payment_item`
 			JOIN `creditor_payment` ON(
 				(
-					creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+					creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id  AND creditor_payment.creditor_payment_status = 1
 				)
 			)
 		)
@@ -346,8 +346,8 @@ UNION ALL
 SELECT
 `creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
 `creditor_payment`.`creditor_payment_id` AS `referenceId`,
-`creditor_payment`.`reference_number` AS `referenceCode`,
 `creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+`creditor_payment`.`reference_number` AS `referenceCode`,
 `creditor_payment`.`document_number` AS `transactionCode`,
 '' AS `patient_id`,
 `creditor_payment`.`creditor_id` AS `recepientId`,
@@ -356,7 +356,7 @@ SELECT
 `creditor_payment`.`account_from_id` AS `accountId`,
 `account`.`account_name` AS `accountName`,
 `creditor_payment_item`.`description` AS `transactionName`,
-CONCAT('Payment on account')  AS `transactionDescription`,
+CONCAT('Payment for creditor invoice',' Ref. ', `creditor_payment`.`reference_number`)  AS `transactionDescription`,
 0 AS `dr_amount`,
 `creditor_payment_item`.`amount_paid` AS `cr_amount`,
 `creditor_payment`.`transaction_date` AS `transactionDate`,
@@ -373,7 +373,7 @@ FROM
 			`creditor_payment_item`
 			JOIN `creditor_payment` ON(
 				(
-					creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id
+					creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
 				)
 			)
 		)
@@ -395,6 +395,62 @@ FROM
 	)
 )
 WHERE creditor_payment_item.invoice_type = 2
+
+
+UNION ALL
+
+SELECT
+`creditor_payment_item`.`creditor_payment_item_id` AS `transactionId`,
+`creditor_payment`.`creditor_payment_id` AS `referenceId`,
+`creditor_payment_item`.`creditor_invoice_id` AS `payingFor`,
+`creditor_payment`.`reference_number` AS `referenceCode`,
+`creditor_payment`.`document_number` AS `transactionCode`,
+'' AS `patient_id`,
+`creditor_payment`.`creditor_id` AS `recepientId`,
+`account`.`parent_account` AS `accountParentId`,
+`account_type`.`account_type_name` AS `accountsclassfication`,
+`creditor_payment`.`account_from_id` AS `accountId`,
+`account`.`account_name` AS `accountName`,
+`creditor_payment_item`.`description` AS `transactionName`,
+CONCAT('Payment on account',' Ref. ', `creditor_payment`.`reference_number`)  AS `transactionDescription`,
+0 AS `dr_amount`,
+`creditor_payment_item`.`amount_paid` AS `cr_amount`,
+`creditor_payment`.`transaction_date` AS `transactionDate`,
+`creditor_payment`.`created` AS `createdAt`,
+`creditor_payment_item`.`creditor_payment_item_status` AS `status`,
+'Expense Payment' AS `transactionCategory`,
+'Creditors Invoices Payments' AS `transactionClassification`,
+'creditor_payment' AS `transactionTable`,
+'creditor_payment_item' AS `referenceTable`
+FROM
+(
+	(
+		(
+			`creditor_payment_item`
+			JOIN `creditor_payment` ON(
+				(
+					creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1
+				)
+			)
+		)
+		JOIN account ON(
+			(
+				account.account_id = creditor_payment.account_from_id
+			)
+		)
+	)
+	JOIN `account_type` ON(
+		(
+			account_type.account_type_id = account.account_type_id
+		)
+	)
+	JOIN `creditor` ON(
+		(
+			creditor.creditor_id = creditor_payment_item.creditor_id
+		)
+	)
+)
+WHERE creditor_payment_item.invoice_type = 3
 ;
 
 

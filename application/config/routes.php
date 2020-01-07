@@ -1578,3 +1578,18 @@ $route['inventory/send-general-order-for-approval/(:num)/(:num)'] = 'inventory/o
 $route['inventory/print-general-order/(:num)'] = 'inventory/orders/print_general_order/$1';
 
 
+$route['company-financials/accounts-ledgers'] = 'financials/ledgers/accounts_ledgers';
+$route['company-financials/accounts-ledgers/(:num)'] = 'financials/ledgers/accounts_ledgers/(:num)';
+$route['print-account-ledger']  = 'financials/ledgers/print_account_ledger';
+$route['export-account-ledger'] = 'financials/ledgers/export_account_ledger';
+
+
+
+$route['accounting/general-journal-entries'] = 'financials/company_financial/account_balances';
+$route['accounting/general-journal-entries/activate-account/(:num)'] = 'financials/company_financial/activate_account/$1';
+$route['accounting/general-journal-entries/deactivate-account/(:num)'] = 'financials/company_financial/deactivate_account/$1';
+$route['accounting/general-journal-entries/edit-account/(:num)'] = 'financials/company_financial/edit_account/$1';
+$route['accounting/add-account'] = 'financials/company_financial/add_account';
+
+
+

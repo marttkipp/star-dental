@@ -1,4 +1,33 @@
 <div class="padd">
+
+
+    <h3 class="page-">General Accounting</h3>
+
+    <div class="row">
+        <div class="col-md-6">
+
+                <section class="panel">
+                    <header class="panel-heading">
+                        <h5 class="pull-left"><i class="icon-reorder"></i>Account Ledgers</h5>
+                        <div class="clearfix"></div>
+                    </header>
+                    <!-- /.box-header -->
+                    <div class="panel-body">
+                      <a href="<?php echo site_url().'company-financials/accounts-ledgers'?>" style="text-decoration: none !important;">
+                        <blockquote>
+                            <p>General statements of bank accounts and statements from transactions completed.</p>
+                            <small>Bank accounts<cite title="Source Title"> statements</cite></small>
+                        </blockquote>
+                      </a>
+                    </div>
+                    <!-- /.panel-body -->
+                </section>
+
+
+        </div>
+    </div>
+
+
   <h3 class="page-">Financial Statements</h3>
     <div class="row">
         <div class="col-md-6">

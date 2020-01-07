@@ -2312,5 +2312,187 @@ class Company_financial extends admin
     $this->load->view('admin/templates/general_page', $data);
 
   }
+
+
+
+
+  	public function account_balances()
+	{
+		$order = 'account.account_type_id';
+		$order_method ='ASC';
+		$where = 'account_id > 0 AND account_type.account_type_id = account.account_type_id';
+		$table = 'account,account_type';
+
+		$search = $this->session->userdata('search_petty_cash1');
+		$where .= $search;
+		
+		$segment = 3;
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'accounting/general-journal-entries';
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->company_financial_model->get_all_cash_accounts($table, $where, $config["per_page"], $page, $order, $order_method);
+		
+		//change of order method 
+		if($order_method == 'DESC')
+		{
+			$order_method = 'ASC';
+		}
+		
+		else
+		{
+			$order_method = 'DESC';
+		}
+		
+		$data['title'] = 'Accounts';
+		$v_data['title'] = $data['title'];
+		
+		$v_data['order'] = $order;
+		$v_data['order_method'] = $order_method;
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$data['content'] = $this->load->view('accounts/all_accounts', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	public function deactivate_account($account_id)
+	{
+		if($this->company_financial_model->deactivate_account($account_id))
+		{
+			$this->session->set_userdata('success_message', 'Account deactivated successfully');
+		}
+		else
+		{
+			$this->session->set_userdata('error_message', 'Account deactivation failed');
+		}
+		
+		redirect('accounting/general-journal-entries');
+	}
+	public function activate_account($account_id)
+	{
+		if($this->company_financial_model->activate_account($account_id))
+		{
+			$this->session->set_userdata('success_message', 'Account activated successfully');
+		}
+		else
+		{
+			$this->session->set_userdata('error_message', 'Account activation failed');
+		}
+		
+		redirect('accounting/general-journal-entries');
+	}
+	public function edit_account($account_id)
+	{
+		//form validation
+		$this->form_validation->set_rules('account_name', 'Name','required|xss_clean');
+		$this->form_validation->set_rules('account_balance', 'Opening Balance','required|xss_clean');
+		$this->form_validation->set_rules('account_type_id', 'Account type','required|xss_clean');
+		$this->form_validation->set_rules('start_date', 'Start Date','required|xss_clean');
+
+		
+		if ($this->form_validation->run())
+		{
+			//update order
+			if($this->company_financial_model->update_account($account_id))
+			{
+				$this->session->set_userdata('success_message', 'Account updated successfully');
+				redirect('accounting/general-journal-entries');
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Could not update account. Please try again');
+			}
+		}
+		
+		//open the add new order
+		$data['title'] = $v_data['title']= 'Edit Account';
+		$v_data['types'] = $this->company_financial_model->get_type();
+		$v_data['parent_accounts'] = $this->company_financial_model->get_parent_accounts();
+		
+		//select the order from the database
+		$query = $this->company_financial_model->get_account($account_id);
+		$v_data['query'] = $query;
+		$data['content'] = $this->load->view('accounts/edit_account', $v_data, true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+	public function add_account()
+	{
+		//form validation
+		$this->form_validation->set_rules('account_name', 'Name','required|xss_clean');
+		$this->form_validation->set_rules('account_balance', 'Opening Balance','required|xss_clean');
+		$this->form_validation->set_rules('account_type_id', 'Account_type','required|xss_clean');
+		$this->form_validation->set_rules('start_date', 'Start Date','required|xss_clean');
+		
+		if ($this->form_validation->run())
+		{
+			//update order
+			if($this->company_financial_model->add_account())
+			{
+				$this->session->set_userdata('success_message', 'Account updated successfully');
+				redirect('accounting/general-journal-entries');
+			}
+			
+			else
+			{
+				$this->session->set_userdata('error_message', 'Could not update account. Please try again');
+			}
+		}
+		
+		//open the add new order
+		$v_data['types'] = $this->company_financial_model->get_type();
+		$v_data['parent_accounts'] = $this->company_financial_model->get_parent_accounts();
+		$data['title'] = $v_data['title']= 'Add Account';
+		$data['content'] = $this->load->view('accounts/add_account', $v_data, true);
+		$this->load->view('admin/templates/general_page', $data);
+	}
+
+	public function search_accounts()
+	{
+		$account_name = $this->input->post('account_name');
+		
+		if(!empty($account_name))
+		{
+			$this->session->set_userdata('search_petty_cash1', ' AND account.account_name LIKE \'%'.$account_name.'%\'');
+		}
+		
+		redirect('accounting/general-journal-entries');
+	}
+	
+	public function close_search_petty_cash()
+	{
+		$this->session->unset_userdata('search_petty_cash1');
+		
+		redirect('accounting/general-journal-entries');
+	}
 }
 ?>

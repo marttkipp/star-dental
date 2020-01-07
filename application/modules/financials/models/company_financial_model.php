@@ -3571,21 +3571,186 @@ class Company_financial_model extends CI_Model
 	}
 
 	public function get_creditor_amount_paid($creditor_invoice_id,$creditor_id)
-	  {
-	     $this->db->where('creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1 AND creditor_payment_item.creditor_invoice_id ='.$creditor_invoice_id.' AND creditor_payment_item.creditor_id = '.$creditor_id);
-	     $this->db->select('SUM(creditor_payment_item.amount_paid) AS total_paid');
-	     $query = $this->db->get('creditor_payment,creditor_payment_item');
+	{
+		 $this->db->where('creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1 AND creditor_payment_item.creditor_invoice_id ='.$creditor_invoice_id.' AND creditor_payment_item.creditor_id = '.$creditor_id);
+		 $this->db->select('SUM(creditor_payment_item.amount_paid) AS total_paid');
+		 $query = $this->db->get('creditor_payment,creditor_payment_item');
 
 
-	     $total_paid = 0;
-	     if($query->num_rows() > 0)
-	     {
-	      foreach ($query->result() as $key => $value) {
-	        # code...
-	        $total_paid = $value->total_paid;
-	      }
-	     }
-	     return $total_paid;
-	  }
+		 $total_paid = 0;
+		 if($query->num_rows() > 0)
+		 {
+		  foreach ($query->result() as $key => $value) {
+		    # code...
+		    $total_paid = $value->total_paid;
+		  }
+		 }
+		 return $total_paid;
+	}
+
+	public function get_all_cash_accounts($table, $where, $config, $page, $order, $order_method)
+	{
+		//retrieve all accounts
+		$this->db->from($table);
+		$this->db->select('*');
+		$this->db->where($where);
+		$this->db->order_by($order, $order_method);
+		$query = $this->db->get('', $config, $page);
+		
+		return $query;
+	}
+
+	public function deactivate_account($account_id)
+	{
+		$this->db->where('account_id = '.$account_id);
+		if($this->db->update('account',array('account_status'=>0)))
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	public function activate_account($account_id)
+	{
+		$this->db->where('account_id = '.$account_id);
+		if($this->db->update('account',array('account_status'=>1)))
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	public function get_account($account_id)
+	{
+		$this->db->select('*');
+		$this->db->where('account_id = '.$account_id);
+		$query = $this->db->get('account');
+		
+		return $query->row();
+	}
+
+	public function update_account($account_id)
+		{
+			$account_data = array(
+						'account_name'=>$this->input->post('account_name'),
+						'account_type_id'=>$this->input->post('account_type_id'),
+						'parent_account'=>$this->input->post('parent_account'),
+						'account_opening_balance'=>$this->input->post('account_balance'),
+						'start_date'=>$this->input->post('start_date')
+						);
+			$this->db->where('account_id = '.$account_id);
+			if($this->db->update('account', $account_data))
+			{
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+		public function add_account()
+		{
+			$account = array(
+						'account_name'=>$this->input->post('account_name'),
+						'account_opening_balance'=>$this->input->post('account_balance'),
+						'parent_account'=>$this->input->post('parent_account'),
+						'account_type_id'=>$this->input->post('account_type_id'),
+	                    'account_status'=>$this->input->post('account_status'),
+						'start_date'=>$this->input->post('start_date')
+						);
+			if($this->db->insert('account',$account))
+			{
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+
+		public function get_account_id($account_name)
+		{
+			$account_id = 0;
+			
+			$this->db->select('account_id');
+			$this->db->where('account_name = "'.$account_name.'"');
+			$query = $this->db->get('account');
+			
+			$bal = $query->row();
+			$account_id = $bal->account_id;
+			// var_dump($account_id); die();
+			return $account_id;
+			
+		}
+		public function get_account_opening_bal($account)
+		{
+			$opening_bal = 0;
+			
+			$this->db->select('account_opening_balance');
+			$this->db->where('account_id = '.$account);
+			$query = $this->db->get('account');
+			
+			$bal = $query->row();
+			$opening_bal = $bal->account_opening_balance;
+
+			return $opening_bal;
+			
+		}
+		public function get_total_opening_bal()
+		{
+			$opening_bal = 0;
+			
+			$this->db->select('SUM(account_opening_balance) AS total_opening_bal');
+			$query = $this->db->get('account');
+			
+			$bal = $query->row();
+			$opening_bal = $bal->total_opening_bal;
+
+			return $opening_bal;
+		}
+		 public function get_parent_accounts()		
+		{
+			//retrieve all users
+			$this->db->from('account');
+			$this->db->select('*');
+			$this->db->where('parent_account = 0');
+			$query = $this->db->get();
+			
+			return $query;    	
+	 
+	    }
+	    public function get_type()		
+		{
+			//retrieve all users
+			$this->db->from('account_type');
+			$this->db->select('*');
+			$this->db->where('account_type_id > 0 ');
+			$query = $this->db->get();
+			
+			return $query;    	
+	 
+	    }
+
+	    public function get_parent_account($parent_account)
+	    {
+	    	$this->db->from('account');
+			$this->db->select('*');
+			$this->db->where('account_id = '.$parent_account);
+			$query = $this->db->get();
+			$account_name = '';
+			if($query->num_rows() > 0)  
+			{
+				foreach ($query->result() as $key => $value) {
+					# code...
+					$account_name = $value->account_name;
+				}
+			}
+
+			return $account_name;
+	    }
 }
 ?>
