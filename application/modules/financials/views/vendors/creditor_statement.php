@@ -116,6 +116,8 @@
 				  				$transactionClassification = $value->transactionClassification;
                   				$transactionId = $value->transactionId;
                   				$transactionId = $value->transactionId;
+                  				$recepientId = $value->recepientId;
+
 
 				  				$transactionDate = $value->transactionDate;
 				  				$balance += $dr_amount;
@@ -125,6 +127,7 @@
 				  				$link = '';
                   				$button = '';
                   				$color = 'default';
+                  				$custom_color = 'default';
 				  				if($transactionClassification === "Supplies Invoices")
 				  				{
 				                    if($transactionClassification === "Creditors Invoices")
@@ -135,7 +138,34 @@
 				                      $button = '<td><a href="'.site_url().'inventory/orders/goods_received_notes/'.$transactionId.'" class="btn btn-xs btn-success" target="_blank"> View Invoice </a></td>';
 
 				                    }
+				                    $amount_paid = $this->creditors_model->get_creditor_amount_paid($transactionId,$recepientId);
 
+
+				                    if($dr_amount == $amount_paid)
+				                    {
+				                    	$custom = 'fully paid';
+				                    	$custom_color = 'success';
+				                    }
+				                    else if($dr_amount > $amount_paid AND $amount_paid > 0)
+				                    {
+				                    	$custom = 'partially paid';
+				                    	$custom_color = 'warning';
+
+				                    }
+				                    else if($dr_amount > $amount_paid AND $amount_paid == 0)
+				                    {
+				                    	$custom = 'Not paid';
+				                    	$custom_color = 'info';
+
+				                    }
+
+				                    else
+				                    {
+				                    	$custom = 'over paid';
+				                    	$custom_color = 'danger';
+				                    }
+
+				                    $referenceCode .= ' - '.$custom;
 				  					$transactionCode = $referenceCode;
 				  					$color = 'primary';
 				  					$type= 1;
@@ -150,7 +180,34 @@
 				  				if($transactionClassification == "Creditors Invoices")
 				  				{
                     				$button = '';
+                    				$amount_paid = $this->company_financial_model->get_creditor_amount_paid($transactionId,$recepientId);
 
+
+				                    if($dr_amount == $amount_paid)
+				                    {
+				                    	$custom = 'fully paid';
+				                    	$custom_color = 'success';
+				                    }
+				                    else if($dr_amount > $amount_paid AND $amount_paid > 0)
+				                    {
+				                    	$custom = 'partially paid';
+				                    	$custom_color = 'warning';
+
+				                    }
+				                    else if($dr_amount > $amount_paid AND $amount_paid == 0)
+				                    {
+				                    	$custom = 'Not paid';
+				                    	$custom_color = 'info';
+
+				                    }
+
+				                    else
+				                    {
+				                    	$custom = 'over paid';
+				                    	$custom_color = 'danger';
+				                    }
+
+				                    $referenceCode .= ' - '.$custom;
                     				$link = 'onclick="get_invoice_details('.$transactionId.',3)"';
                     				$color = 'primary';
                     				$type= 3;
@@ -194,7 +251,7 @@
 								  					<td>'.$transactionDate.'</td>
 								  					<td class="'.$color.'"> '.strtoupper($transactionName).'</td>
 								  					<td class="'.$color.'">'.strtoupper($referenceCode).'</td>
-								  					<td>'.number_format($dr_amount,2).'</td>
+								  					<td class="'.$custom_color.'">'.number_format($dr_amount,2).'</td>
 								  					<td>'.number_format($cr_amount,2).'</td>
 								  					<td>'.number_format($balance,2).'</td>
 								  				</tr>';

@@ -967,7 +967,20 @@ class Creditors_model extends CI_Model
       $query = $this->db->get();
       return $query;
   }
-
+  
+  public function get_content($table, $where,$select,$group_by=NULL,$limit=NULL)
+  {
+    $this->db->from($table);
+    $this->db->select($select);
+    $this->db->where($where);
+    if($group_by != NULL)
+    {
+      $this->db->group_by($group_by);
+    }
+    $query = $this->db->get('');
+    
+    return $query;
+  }
 
 }
 ?>

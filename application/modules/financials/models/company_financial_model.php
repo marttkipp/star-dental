@@ -3569,5 +3569,23 @@ class Company_financial_model extends CI_Model
 		
 		return $query;
 	}
+
+	public function get_creditor_amount_paid($creditor_invoice_id,$creditor_id)
+	  {
+	     $this->db->where('creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1 AND creditor_payment_item.creditor_invoice_id ='.$creditor_invoice_id.' AND creditor_payment_item.creditor_id = '.$creditor_id);
+	     $this->db->select('SUM(creditor_payment_item.amount_paid) AS total_paid');
+	     $query = $this->db->get('creditor_payment,creditor_payment_item');
+
+
+	     $total_paid = 0;
+	     if($query->num_rows() > 0)
+	     {
+	      foreach ($query->result() as $key => $value) {
+	        # code...
+	        $total_paid = $value->total_paid;
+	      }
+	     }
+	     return $total_paid;
+	  }
 }
 ?>

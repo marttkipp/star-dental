@@ -114,6 +114,9 @@ if($creditor_id > 0)
                             $invoice_number = $value->invoice_number;
                             $creditor_invoice_type = $value->creditor_invoice_type;
                             $balance = $value->balance;
+                            $dr_amount = $value->dr_amount;
+                            $cr_amount = $value->cr_amount;
+                            $invoice_date = $value->invoice_date;
 
 
 
@@ -130,10 +133,23 @@ if($creditor_id > 0)
                               $invoice_type = 0;
                             }
 
+                            if($cr_amount > 0)
+                            {
+                              $color_checked = 'yellow';
+                            }
+                            else if($cr_amount == 0)
+                            {
+                              $color_checked = 'red';
+                            }
+                            else
+                            {
+                              $color_checked = 'white';
+                            }
+
                             // var_dump($creditor_invoice_id);die();
                             if($balance > 0)
                             {
-                               echo '<option value="'.$creditor_invoice_id.'.'.$invoice_number.'.'.$invoice_type.'"> #'.$invoice_number.' kes.'.number_format($balance,2).'</option>';
+                               echo '<option value="'.$creditor_invoice_id.'.'.$invoice_number.'.'.$invoice_type.'" style="background:'.$color_checked.';color:white;"> '.$invoice_date.' # '.$invoice_number.' Bill .'.number_format($dr_amount,2).' Payments.('.number_format($cr_amount,2).') Bal.'.number_format($balance,2).'</option>';
                             }
                            
                           }
