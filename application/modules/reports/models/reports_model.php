@@ -1201,7 +1201,7 @@ class Reports_model extends CI_Model
 				$report[$row_count][1] = $patient_number;
 				$report[$row_count][2] = $visit_date;
 				$report[$row_count][3] = $patient_surname;
-				$report[$row_count][4] = $patient_phone1;
+				$report[$row_count][4] = $patient_phone;
 				$report[$row_count][5] = $procedure_done;
 				$report[$row_count][6] = $visit_type_name;
 				$report[$row_count][7] = $time_start;
