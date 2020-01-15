@@ -809,5 +809,160 @@ class Reports extends MX_Controller
 		$this->reports_model->export_visit_procedures_report($service_charge_id);
 	}
 
+	public function appointments_report()
+	{
+
+
+		$where = 'visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.visit_delete = 0';
+		$table = 'visit,patients';
+		$visit_report_search = $this->session->userdata('appointment_report_search');
+		
+		if(!empty($visit_report_search))
+		{
+			$where .= $visit_report_search;
+		}
+		else
+		{
+			// $where .= ' AND visit.visit_date = "'.date('Y-m-d').'"';
+		}
+		$segment = 3;
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'management-reports/appointments-report';
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->reports_model->get_all_patients_appointments($table, $where, $config["per_page"], $page, 'ASC');
+		// var_dump($query);die();
+		$page_title = 'Appointments Report'; 
+		$data['title'] = $v_data['title'] = $page_title;
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		
+		
+		$data['content'] = $this->load->view('appointments_report', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+
+	}
+
+	public function search_appointment_report_search()
+	{
+		$visit_date_from = $this->input->post('visit_date_from');
+		$visit_date_to = $this->input->post('visit_date_to');
+		$patient_name = $this->input->post('patient_name');
+		$close_card = $this->input->post('close_card');
+		$visit_search_title ='';
+		if(!empty($visit_date_from) && !empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+
+			$visit_search_title = 'Visit From '.$visit_date_from.' To '.$visit_date_to.'';
+		}
+		
+		else if(!empty($visit_date_from))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_search_title = 'Visit From '.$visit_date_from.' ';
+		}
+		
+		else if(!empty($visit_date_to))
+		{
+			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_search_title = 'Visit To '.$visit_date_to.'';
+		}
+		
+		else
+		{
+			$visit_date = '';
+
+		}
+		
+
+		if(!empty($patient_name))
+		{
+			$patient_name = ' AND patients.patient_surname LIKE \'%'.$patient_name.'%\'';
+			$visit_search_title .= ' Patient Name '.$patient_name.'';
+		}
+		
+		else
+		{
+			$patient_name = '';
+
+		}
+
+		if(!empty($close_card))
+		{
+			if($close_card == 1)
+			{
+				$close_card = ' AND visit.close_card <> 2';
+				$closed_name = 'Showed';
+			}
+			else
+			{
+				$close_card = ' AND visit.close_card = 2';
+				$closed_name = 'No Show';
+			}
+			
+			$visit_search_title .= $closed_name;
+		}
+		
+		else
+		{
+			$close_card = '';
+
+			$visit_search_title .= ' ALL';
+		}
+
+		
+		$search = $visit_date.$patient_name.$close_card;
+		
+		$this->session->set_userdata('appointment_report_search', $search);
+		$this->session->set_userdata('appointment_report_title', $visit_search_title);
+		
+		redirect('management-reports/appointments-report');
+	}
+
+	public function close_appointments_report_search()
+	{
+		# code...
+		$this->session->unset_userdata('appointment_report_search');
+		$this->session->unset_userdata('appointment_report_title');
+
+		redirect('management-reports/appointments-report');
+	}
+
+	public function export_appointment_report()
+	{
+		$this->reports_model->export_appointment_report();
+	}
 }
 ?>

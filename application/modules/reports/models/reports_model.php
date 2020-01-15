@@ -1035,6 +1035,189 @@ class Reports_model extends CI_Model
 		$this->excel->generateXML ($title);
 	}
 
+
+	public function get_all_patients_appointments($table, $where, $per_page, $page, $order = NULL)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('*');
+		$this->db->where($where);
+		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_id', 'left');
+		$this->db->order_by('visit.visit_date','ASC');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+
+	public function export_appointment_report()
+	{
+
+		$this->load->library('excel');
+		
+		
+		$where = 'visit.patient_id = patients.patient_id AND visit.appointment_id = 1 AND visit.visit_delete = 0';
+		$table = 'visit,patients';
+		$visit_report_search = $this->session->userdata('appointment_report_search');
+		$appointment_report_title = $this->session->userdata('appointment_report_title');
+		
+		if(!empty($visit_report_search))
+		{
+			$where .= $visit_report_search;
+		}
+		else
+		{
+			// $where .= ' AND visit.visit_date = "'.date('Y-m-d').'"';
+		}
+		
+		$this->db->where($where);
+		$this->db->select('*');
+		$this->db->join('visit_type', 'visit_type.visit_type_id = visit.visit_id', 'left');
+		$this->db->order_by('visit.visit_date','ASC');
+		$visits_query = $this->db->get($table);
+		
+		$title = 'Appointments Report '.$appointment_report_title;
+
+		
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][0] = '#';
+			$report[$row_count][1] = 'Patient Number';
+			$report[$row_count][2] = 'Visit Date';
+			$report[$row_count][3] = 'Patient';
+			$report[$row_count][4] = 'Phone';
+			$report[$row_count][5] = 'Procedure';
+			$report[$row_count][6] = 'Visit Type';
+			$report[$row_count][7] = 'Time Start';
+			$report[$row_count][8] = 'Doctor';
+			$report[$row_count][9] = 'Status';
+
+
+			//get & display all services
+			$personnel_query = $this->personnel_model->get_all_personnel();
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$total_invoiced = 0;
+				$visit_date = date('jS M Y',strtotime($row->visit_date));
+				$visit_date_old = $row->visit_date;
+				$visit_time = date('H:i a',strtotime($row->visit_time));
+				if($row->visit_time_out != '0000-00-00 00:00:00')
+				{
+					$visit_time_out = date('H:i a',strtotime($row->visit_time_out));
+				}
+				else
+				{
+					$visit_time_out = '-';
+				}
+				$visit_id = $row->visit_id;
+				$patient_id = $row->patient_id;
+				$personnel_id3 = $row->personnel_id;
+				$dependant_id = $row->dependant_id;
+				$strath_no = $row->strath_no;
+				$visit_type_id = $row->visit_type_id;
+				$visit_type = $row->visit_type;
+				$patient_number = $row->patient_number;
+				$room_id2 = $row->room_id;
+				$patient_year = $row->patient_year;
+				$visit_table_visit_type = $visit_type;
+				$patient_table_visit_type = $visit_type_id;
+				$coming_from = $this->reception_model->coming_from($visit_id);
+				$sent_to = $this->reception_model->going_to($visit_id);
+				$visit_type_name = $row->visit_type_name;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
+				$patient_date_of_birth = $row->patient_date_of_birth;
+				$patient_national_id = $row->patient_national_id;
+				$patient_phone = $row->patient_phone1;
+				$time_start = $row->time_start;
+				$time_end = $row->time_end;
+				$procedure_done = $row->procedure_done;
+				$close_card = $row->close_card;
+				
+				$last_visit = $row->last_visit;
+				$last_visit_date = $row->last_visit;
+
+				if($last_visit != NULL)
+				{
+					$last_visit = date('jS M Y',strtotime($last_visit));
+				}
+				
+				else
+				{
+					$last_visit = '';
+				}
+				//creators and editors
+				if($personnel_query->num_rows() > 0)
+				{
+					$personnel_result = $personnel_query->result();
+					
+					foreach($personnel_result as $adm)
+					{
+						$personnel_id2 = $adm->personnel_id;
+						
+						if($personnel_id3 == $personnel_id2)
+						{
+							$doctor = $adm->personnel_fname;
+							break;
+						}
+						
+						else
+						{
+							$doctor = '-';
+						}
+					}
+				}
+				
+				else
+				{
+					$doctor = '-';
+				}
+				
+				if($close_card <> 2)
+				{
+					$visit_status = 'Showed';
+					$color = 'success';
+				}
+				else
+				{
+					$visit_status = 'No Show';
+					$color = 'warning';
+				}
+
+				$count++;
+				
+				
+
+				//display the patient data
+				$report[$row_count][0] = $count;
+				$report[$row_count][1] = $patient_number;
+				$report[$row_count][2] = $visit_date;
+				$report[$row_count][3] = $patient_surname;
+				$report[$row_count][4] = $patient_phone1;
+				$report[$row_count][5] = $procedure_done;
+				$report[$row_count][6] = $visit_type_name;
+				$report[$row_count][7] = $time_start;
+				$report[$row_count][8] = $doctor;
+				$report[$row_count][9] = $visit_status;
+					
+				
+				
+			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+	}
+
 }
 
 

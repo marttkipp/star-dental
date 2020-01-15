@@ -98,13 +98,13 @@
        <?php
         
 
-      $where = 'creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1 AND creditor_payment.account_from_id = account.account_id AND creditor_payment_item.creditor_invoice_id ='.$creditor_invoice_id.' AND creditor_payment_item.creditor_id = '.$creditor_id;
+      $where = 'creditor_payment.creditor_payment_id = creditor_payment_item.creditor_payment_id AND creditor_payment.creditor_payment_status = 1 AND creditor_payment.account_from_id = account.account_id AND creditor_payment_item.creditor_invoice_id ='.$creditor_invoice_id;
       $table = 'creditor_payment,creditor_payment_item,account';
       $select = 'creditor_payment.*,SUM(creditor_payment_item.amount_paid) AS sum_paid,account.account_name';
       $group_by = 'creditor_payment.creditor_payment_id';
 
 
-      $creditor_payments = $this->creditors_model->get_content($table, $where,$select,$group_by=NULL,$limit=NULL);
+      $creditor_payments = $this->creditors_model->get_content($table, $where,$select,$group_by,$limit=NULL);
 
       $payment_result ='
                       <h4>Payments</h4>

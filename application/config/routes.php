@@ -1322,8 +1322,11 @@ $route['update-debtor-balance/(:num)'] =  'accounting/debtors/update_opening_bal
 $route['management-reports/patients-turnover'] = 'admin/patients_turnover';
 $route['management-reports/procedures-report'] = 'reports/procedures_report';
 $route['management-reports/procedures-report/(:num)'] = 'reports/procedures_report/$1';
+$route['management-reports/appointments-report'] = 'reports/appointments_report';
+$route['management-reports/appointments-report/(:num)'] = 'reports/appointments_report/$1';
 $route['reports/export-procedures'] = 'reports/export_procedures_report';
 $route['reports/export-procedures/(:num)'] = 'reports/export_visit_procedures_report/$1';
+$route['export-appointments-report'] = 'reports/export_appointment_report';
 
 
 
