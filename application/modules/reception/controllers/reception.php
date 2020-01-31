@@ -2917,7 +2917,7 @@ public function save_visit2($patient_id)
 
         // var_dump($amount); die();
 		$this->db->select('*');
-		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0');
+		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND schedule_id = 0');
 		$query = $this->db->get('visit,patients');
 		// var_dump($query); die();
 		if($query->num_rows() > 0)
