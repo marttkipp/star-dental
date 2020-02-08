@@ -144,6 +144,7 @@
 							<td>'.$modified_by.'</td>
 							<td>'.$status.'</td>
 							<td><a href="'.site_url().'hospital-administration/service-charges/'.$service_id.'" class="btn btn-sm btn-warning"><i class="fa fa-money"></i> Charges</a></td>
+							<td><a href="'.site_url().'hospital-administration/export-charges/'.$service_id.'" class="btn btn-sm btn-primary"><i class="fa fa-minus"></i> Export</a></td>
 							<td><a href="'.site_url().'hospital-administration/import-charges/'.$service_id.'" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Import</a></td>
 							<td>'.$button.'</td>
 							<td><a href="'.site_url().'hospital-administration/edit-service/'.$service_id.'" class="btn btn-sm btn-info"> <i class="fa fa-pencil"></i> Edit</a></td>

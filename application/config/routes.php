@@ -302,6 +302,12 @@ $route['hospital-administration/import-payments-values']= 'hospital_administrati
 $route['hospital-administration/import-patients-data'] = 'hospital_administration/import_patients_update';
 $route['hospital-administration/import-patients-data-template'] = 'hospital_administration/import_patients_template';
 $route['hospital-administration/import-patients-data-values']= 'hospital_administration/do_patients_update_import';
+
+
+
+$route['hospital-administration/export-charges/(:num)'] = 'hospital_administration/services/export_charges/$1';
+$route['inventory/deduct-product/(:num)/(:num)'] = 'inventory_management/deduct_product/$1/$2';
+
 /*
 *	Accounts Routes
 */
@@ -1593,6 +1599,9 @@ $route['accounting/general-journal-entries/activate-account/(:num)'] = 'financia
 $route['accounting/general-journal-entries/deactivate-account/(:num)'] = 'financials/company_financial/deactivate_account/$1';
 $route['accounting/general-journal-entries/edit-account/(:num)'] = 'financials/company_financial/edit_account/$1';
 $route['accounting/add-account'] = 'financials/company_financial/add_account';
+
+
+
 
 
 

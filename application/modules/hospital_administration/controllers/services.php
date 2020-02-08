@@ -602,6 +602,84 @@ class Services extends Hospital_administration
 		$this->load->view('admin/templates/general_page', $data);
 	}
 
+	public function export_charges($service_id)
+	{
+
+		$this->load->library('excel');
+		
+		
+		$where = 'service_id = '.$service_id;
+		$table = 'service';
+		$this->db->where($where);
+		$this->db->select('*');
+		$service_query = $this->db->get($table);
+		$service_name = '';
+		if($service_query->num_rows() > 0)
+		{
+			foreach ($service_query->result() as $key => $value) {
+				# code...
+				$service_name = $value->service_name;
+			}
+		}
+
+
+
+		$where = 'service_id = '.$service_id.' and service_charge_delete = 0';
+		$table = 'service_charge';
+		
+		
+		$this->db->where($where);
+		$this->db->select('*');
+
+		
+		// $this->db->order_by('visit.visit_date','DESC');
+		// $this->db->group_by('visit.visit_id');
+		$visits_query = $this->db->get($table);
+		
+		$title = $service_name.' Charge List';
+		$col_count = 0;
+		
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][$col_count] = '#';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Service Charge Name';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Service Charge Amount';
+			
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$service_charge_id = $row->service_charge_id;
+				$service_charge_amount = $row->service_charge_amount;
+				$service_charge_name = $row->service_charge_name;
+				
+				$count++;
+				
+				//display services charged to patient
+				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $service_charge_name;
+				$col_count++;
+				$report[$row_count][$col_count] = $service_charge_amount;
+
+				
+			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+
+	}
+
 
 	
 }
