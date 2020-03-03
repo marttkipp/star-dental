@@ -207,7 +207,7 @@ $rs_schemes = $this->payroll_model->get_loan_schemes();
 											<td>
 												<table class="table table-condensed">
 													<tr>
-														<td><strong>ALEXANDRIA CANCER CEMTRE AND PALLIATIVE CARE HOSPITAL .</strong></td>
+														<td><strong>'.strtoupper(strtolower($contacts['company_name'])).'.</strong></td>
 													</tr>
 													<tr>
 														<td>'.$personnel_fname.' '.$personnel_onames.'</td>

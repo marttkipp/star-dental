@@ -538,6 +538,10 @@ class Payroll_model extends CI_Model
 			foreach ($result->result() as $row):
 				$personnel_id = $row->personnel_id;
 				$personnel_number = $row->personnel_number;
+				$nssf_status = $row->nssf_status;
+				$nhif_status = $row->nhif_status;
+
+
 				$total_benefits = $total_payments = $total_allowances = $total_deductions = $total_other_deductions = 0;
 				$this->db->where('personnel_id  = '.$personnel_id.' AND payroll_id = '.$payroll_id);
 				$this->db->update('payroll_item', array("payroll_item_status"=>0));
@@ -790,49 +794,59 @@ class Payroll_model extends CI_Model
 					NSSF
 					--------------------------------------------------------------------------------------
 				*/
-				$nssf_query = $this->payroll_model->get_nssf();
-				$nssf = 0;
-				
-				if(($nssf_query->num_rows() > 0) && ($gross_taxable > 0))
+
+				if($nssf_status == 1)
 				{
-					foreach ($nssf_query->result() as $row2)
+					$nssf_query = $this->payroll_model->get_nssf();
+					$nssf = 0;
+					
+					if(($nssf_query->num_rows() > 0) && ($gross_taxable > 0))
 					{
-						$nssf_id = $row2->nssf_id;
-						$nssf = $row2->amount;
-						
-						$nssf_percentage = $row2->percentage;
-						
-						if($nssf_percentage == 1)
+						foreach ($nssf_query->result() as $row2)
 						{
-							$nssf_deduction_amount = $gross_taxable;
+							$nssf_id = $row2->nssf_id;
+							$nssf = $row2->amount;
 							
-							if($nssf_deduction_amount > 18000)
+							$nssf_percentage = $row2->percentage;
+							
+							if($nssf_percentage == 1)
 							{
-								$nssf_deduction_amount = 18000;
+								$nssf_deduction_amount = $gross_taxable;
+								
+								if($nssf_deduction_amount > 18000)
+								{
+									$nssf_deduction_amount = 18000;
+								}
+								$nssf = $nssf_deduction_amount * ($nssf/100);
 							}
-							$nssf = $nssf_deduction_amount * ($nssf/100);
 						}
 					}
+							
+					if(!isset($total_nssf_amount[$personnel_id]))
+					{
+						$total_nssf_amount[$personnel_id] = 0;
+					}
+					
+					$total_nssf_amount[$personnel_id] = round($nssf);
+					
+					$taxable = $gross_taxable - $nssf;
+					
+					$table_nssf = $this->get_table_id("nssf");
+					
+					$items = array(
+						"payroll_id" => $payroll_id,
+						"table" => $table_nssf,
+						"table_id" => 1,
+						"personnel_id" => $personnel_id,
+						"payroll_item_amount" => round($nssf)
+					);
 				}
-						
-				if(!isset($total_nssf_amount[$personnel_id]))
+				else
 				{
+					$taxable = $gross_taxable;
 					$total_nssf_amount[$personnel_id] = 0;
 				}
 				
-				$total_nssf_amount[$personnel_id] = round($nssf);
-				
-				$taxable = $gross_taxable - $nssf;
-				
-				$table_nssf = $this->get_table_id("nssf");
-				
-				$items = array(
-					"payroll_id" => $payroll_id,
-					"table" => $table_nssf,
-					"table_id" => 1,
-					"personnel_id" => $personnel_id,
-					"payroll_item_amount" => round($nssf)
-				);
 				
 				/*if($personnel_id == 242)
 				{
@@ -943,34 +957,46 @@ class Payroll_model extends CI_Model
 					--------------------------------------------------------------------------------------
 				*/
 				$gross = ($total_payments + $total_allowances + $total_overtime_for_tax);
-				$nhif_query = $this->payroll_model->calculate_nhif($gross);
-				$nhif = 0;
-				
-				if(($nhif_query->num_rows() > 0) && ($gross_taxable > 0))
+
+				if($nhif_status == 1)
 				{
-					foreach ($nhif_query->result() as $row2)
+					$nhif_query = $this->payroll_model->calculate_nhif($gross);
+					$nhif = 0;
+					
+					if(($nhif_query->num_rows() > 0) && ($gross_taxable > 0))
 					{
-						$nhif = $row2->amount;
+						foreach ($nhif_query->result() as $row2)
+						{
+							$nhif = $row2->amount;
+						}
 					}
-				}
-				$table_nhif = $this->get_table_id("nhif");
+					$table_nhif = $this->get_table_id("nhif");
+					
+					$items = array(
+						"payroll_id" => $payroll_id,
+						"table" => $table_nhif,
+						"table_id" => 1,
+						"personnel_id" => $personnel_id,
+						"payroll_item_amount" => round($nhif)
+					);
+
 				
-				$items = array(
-					"payroll_id" => $payroll_id,
-					"table" => $table_nhif,
-					"table_id" => 1,
-					"personnel_id" => $personnel_id,
-					"payroll_item_amount" => round($nhif)
-				);
-			
-				$this->db->insert($table, $items);
-						
-				if(!isset($total_nhif_amount[$personnel_id]))
+					$this->db->insert($table, $items);
+							
+					if(!isset($total_nhif_amount[$personnel_id]))
+					{
+						$total_nhif_amount[$personnel_id] = 0;
+					}
+					$total_nhif_amount[$personnel_id] = round($nhif);
+				}
+				else
 				{
+
 					$total_nhif_amount[$personnel_id] = 0;
 				}
 				
-				$total_nhif_amount[$personnel_id] = round($nhif);
+				
+				
 				
 				/*
 					--------------------------------------------------------------------------------------

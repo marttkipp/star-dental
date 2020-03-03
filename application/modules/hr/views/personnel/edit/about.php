@@ -28,6 +28,8 @@ $engagement_date = $row->engagement_date;
 $image = $row->image;
 $bank_code = $row->bank_code;
 $bank_id = $row->bank_id;
+$nhif_status = $row->nhif_status;
+$nssf_status = $row->nssf_status;
 
 
 //repopulate data if validation errors occur
@@ -59,6 +61,8 @@ if(!empty($validation_error))
 	$bank_id2 = set_value('bank_id');
 	$bank_branch_id2 = set_value('bank_branch_id');
 	$bank_code = set_value('bank_code');
+    $nssf_status = set_value('nssf_status');
+    $nhif_status = set_value('nhif_status');
 }
 ?>
 <section class="panel">
@@ -434,7 +438,61 @@ if(!empty($validation_error))
             	<input type="text" class="form-control" name="bank_code" placeholder="Bank Branch Code" value="<?php echo $bank_code;?>">
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="col-lg-6 control-label">NSSF Status?</label>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <?php
+                        if($nssf_status == 1){echo '<input id="optionsRadios1" type="radio" checked value="1" name="nssf_status">';}
+                        else{echo '<input id="optionsRadios1" type="radio" value="1" name="nssf_status">';}
+                        ?>
+                        Yes
+                    </label>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <?php
+                        if($nssf_status == 0){echo '<input id="optionsRadios1" type="radio" checked value="0" name="nssf_status">';}
+                        else{echo '<input id="optionsRadios1" type="radio" value="0" name="nssf_status">';}
+                        ?>
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-lg-6 control-label">NHIF Status?</label>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <?php
+                        if($nhif_status == 1){echo '<input id="optionsRadios1" type="radio" checked value="1" name="nhif_status">';}
+                        else{echo '<input id="optionsRadios1" type="radio" value="1" name="nhif_status">';}
+                        ?>
+                        Yes
+                    </label>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <?php
+                        if($nhif_status == 0){echo '<input id="optionsRadios1" type="radio" checked value="0" name="nhif_status">';}
+                        else{echo '<input id="optionsRadios1" type="radio" value="0" name="nhif_status">';}
+                        ?>
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+               
 	</div>
+
 </div>
 <div class="row" style="margin-top:10px;">
 	<div class="col-md-12">

@@ -46,10 +46,10 @@ $created_by = $this->session->userdata('first_name');
         <div class="row">
 			<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
 				<div class="row">
-					<strong>
-						ALEXANDRIA CANCER CEMTRE AND PALLIATIVE CARE HOSPITAL<br/>
-					</strong>
-					<h4><?php echo strtoupper($personnel_name) ?></br></h4>
+					<h4><strong>
+						<?php echo strtoupper($contacts['company_name'])?><br/>
+					</strong></h4>
+					<h5><strong><?php echo strtoupper($personnel_name) ?> </strong></br></h5>
 					<h5>STAFF NUMBER. <?php echo  $personnel_number ?></br>
 					NSSF NO.<?php  echo $nssf_number ?></br>
 					NHIF NO. <?php echo $nhif_number?></br>

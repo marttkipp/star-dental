@@ -376,6 +376,45 @@ $engagement_date = set_value('engagement_date');
             	<input type="text" class="form-control" name="bank_code" placeholder="Bank Code" value="<?php echo $bank_code;?>">
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-lg-6 control-label">NSSF Status?</label>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios1" type="radio" checked value="1" name="nssf_status">
+                        Yes
+                    </label>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios2" type="radio" value="0" name="nssf_status">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+
+         <div class="form-group">
+            <label class="col-lg-6 control-label">NHIF Status?</label>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios1" type="radio" checked value="1" name="nhif_status">
+                        Yes
+                    </label>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="radio">
+                    <label>
+                        <input id="optionsRadios2" type="radio" value="0" name="nhif_status">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row" style="margin-top:10px;">

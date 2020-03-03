@@ -539,7 +539,7 @@ class Payroll extends accounts
 	
 	public function print_nssf_report($payroll_id)
 	{
-		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		$where = 'payroll_item.personnel_id = personnel.personnel_id AND personnel.nssf_status = 1 AND payroll_item.payroll_id = '.$payroll_id;
 		
 		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
 		$branches = $this->db->get('payroll, branch');
@@ -591,7 +591,7 @@ class Payroll extends accounts
 	
 	public function print_nhif_report($payroll_id)
 	{
-		$where = 'payroll_item.personnel_id = personnel.personnel_id AND payroll_item.payroll_id = '.$payroll_id;
+		$where = 'payroll_item.personnel_id = personnel.personnel_id  AND personnel.nhif_status = 1  AND payroll_item.payroll_id = '.$payroll_id;
 		
 		$this->db->where('payroll.branch_id = branch.branch_id AND payroll.payroll_id = '.$payroll_id);
 		$branches = $this->db->get('payroll, branch');
@@ -657,6 +657,7 @@ class Payroll extends accounts
 		$data['payments'] = $this->payroll_model->get_all_payments();
 		$data['savings_table'] = $this->payroll_model->get_table_id("savings");
 		$data['loan_scheme_table'] = $this->payroll_model->get_table_id("loan_scheme");
+		$data['contacts'] = $this->site_model->get_contacts();
 		
 		//$data['payroll_items'] = $this->payroll_model->get_payroll_items($payroll_id);
 		$data['benefits'] = $this->payroll_model->get_all_benefits();
@@ -749,6 +750,8 @@ class Payroll extends accounts
 		$data['payroll_year'] = $payroll_year;
 		$data['month'] = $month;
 		$data['payroll_created_for'] = $payroll_created_for;*/
+		$data['contacts'] = $this->site_model->get_contacts();
+		
 		$personnel = $this->personnel_model->retrieve_payroll_personnel($where);
 		
 		$personnel_string = json_encode($personnel->result());
@@ -829,6 +832,7 @@ class Payroll extends accounts
 		$data['overtime'] = $this->payroll_model->get_overtime();
 		$data['payroll_year'] = $payroll_year;
 		$data['payroll_created_for'] = $payroll_created_for;
+		$data['contacts'] = $this->site_model->get_contacts();
 	
 		$this->load->view('payroll/payroll/monthly_payslips', $data);
 	}

@@ -126,7 +126,7 @@ if ($total_rows > 0)
 								<td>
 									<table class="table table-condensed">
 										<tr>
-											<td><strong>DENTAL CLINIC.</strong></td>
+											<td><strong>'.strtoupper(strtolower($contacts['company_name'])).'.</strong></td>
 										</tr>
 										<tr>
 											<td>'.$personnel_fname.' '.$personnel_onames.'</td>
