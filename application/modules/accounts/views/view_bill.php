@@ -78,6 +78,7 @@ echo"
 <tr bgcolor='#D9EDF7'>
 <td></td>
 <td></td>
+<td></td>
 <th>Grand Total: </th>
 <th colspan='3'><div id='grand_total'>".number_format($total)."</div></th>
 <td></td>
