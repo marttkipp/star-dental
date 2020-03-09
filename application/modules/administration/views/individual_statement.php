@@ -188,6 +188,7 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 									  <thead>
 										<tr>
 										  <th >Name</th>
+										  <th >Teeth</th>
 										  <th >Units</th>
 										  <th >Charge</th>
 										  <th >Total</th>										
@@ -206,11 +207,13 @@ $next_of_kin_contact = $res->patient_kin_phonenumber1;
 						$service_name = $key_items->service_name;
 						$units = $key_items->visit_charge_units;
 						$service_id = $key_items->service_id;
+						$teeth = $key_items->teeth;
 						$personnel_id = $key_items->personnel_id;
 						$total += $units*$visit_charge_amount;
 
 						$charged_services .=  '<tr>
 													<td>'.$service_charge_name.'</td>
+													<td>'.$teeth.'</td>
 													<td>'.$units.'</td>
 													<td>'.$visit_charge_amount.'</td>
 													<td> '.number_format($units*$visit_charge_amount,2).'</td>

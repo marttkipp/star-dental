@@ -2174,6 +2174,14 @@ class Reception_model extends CI_Model
 	{
 		//add charge for visit
 		$service_charge = $this->reception_model->get_service_charge($service_charge_id);		
+
+		$rs = $this->nurse_model->check_visit_type($visit_id);
+		if(count($rs)>0){
+		  foreach ($rs as $rs1) {
+			# code...
+			  $visit_t = $rs1->visit_type;
+		  }
+		}
 		
 		$visit_charge_data = array(
 			"visit_id" => $visit_id,
@@ -2181,7 +2189,8 @@ class Reception_model extends CI_Model
 			"created_by" => $this->session->userdata("personnel_id"),
 			"date" => date("Y-m-d"),
 			"visit_charge_amount" => $service_charge,
-			"charged"=>1
+			"charged"=>1,
+			"charged_to"=> $visit_t
 		);
 		if($this->db->insert('visit_charge', $visit_charge_data))
 		{

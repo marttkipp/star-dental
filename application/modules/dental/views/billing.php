@@ -512,6 +512,39 @@
 	   //  }
 	}
 
+	 function calculatebillingtotal(visit_charge_id, procedure_id, visit_id)
+	 {
+
+      var config_url = $('#config_url').val();
+
+      var units = $('#units'+visit_charge_id).val();
+
+       var data_url = config_url+"dental/billing_total/"+visit_charge_id+"/"+units;
+        
+        var teeth_details = $('#teeth'+visit_charge_id).val();
+        var amount = $('#billed_amount'+visit_charge_id).val();
+
+
+        $.ajax({
+        type:'POST',
+        url: data_url,
+        data:{notes: teeth_details,visit_charge_amount:amount},
+        dataType: 'text',
+        success:function(data){
+        //obj.innerHTML = XMLHttpRequestObject.responseText;
+           window.alert("You have successfully updated the bill");
+           display_billing(visit_id);
+           
+        },
+        error: function(xhr, status, error) {
+        //alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+        alert(error);
+        }
+
+        });
+      // end of saving
+  }
+
 	function delete_procedure(id, visit_id){
 	    var XMLHttpRequestObject = false;
 	        

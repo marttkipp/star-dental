@@ -1441,7 +1441,7 @@ class Accounts extends MX_Controller
 		if($status)
 		{
 			$notes = $this->input->post('notes');
-			$visit_data = array('visit_charge_units'=>$units,'visit_charge_notes'=>$notes,'visit_charge_amount'=>$amount, 'modified_by'=>$this->session->userdata("personnel_id"),'date_modified'=>date("Y-m-d"));
+			$visit_data = array('visit_charge_units'=>$units,'teeth'=>$notes,'visit_charge_amount'=>$amount, 'modified_by'=>$this->session->userdata("personnel_id"),'date_modified'=>date("Y-m-d"));
 			$this->db->where(array("visit_charge_id"=>$procedure_id));
 			$this->db->update('visit_charge', $visit_data);
 

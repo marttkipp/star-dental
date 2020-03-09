@@ -421,10 +421,19 @@ class Dental extends auth
 		$data = array('procedure_id'=>$service_id,'visit_id'=>$visit_id,'suck'=>$suck);
 		$this->load->view('billing/billing',$data);	
 	}
-	public function billing_total($procedure_id,$units,$amount){
-		$visit_data = array('visit_charge_units'=>$units,'charged'=>1);
+	public function billing_total($procedure_id,$units){
+		// $visit_data = array('visit_charge_units'=>$units,'charged'=>1);
+		// $this->db->where(array("visit_charge_id"=>$procedure_id));
+		// $this->db->update('visit_charge', $visit_data);
+
+		$teeth = $this->input->post('notes');
+		$visit_charge_amount = $this->input->post('visit_charge_amount');
+
+		$visit_data = array('visit_charge_units'=>$units, 'visit_charge_amount'=>$visit_charge_amount,'teeth'=>$teeth,'charged'=>1);
 		$this->db->where(array("visit_charge_id"=>$procedure_id));
 		$this->db->update('visit_charge', $visit_data);
+
+
 	}
 	public function save_other_deductions($visit_id)
 	{

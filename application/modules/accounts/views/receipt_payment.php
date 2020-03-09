@@ -159,7 +159,7 @@ $visit_prescription = count($rs_pa);
 		<div class="row">
 			<div class="col-md-12">
 
-				<div class="col-md-6">
+				<div class="col-md-7">
 					<section class="panel panel-featured panel-featured-info">
 						<header class="panel-heading">
 							<h2 class="panel-title">Invoice</h2>
@@ -338,7 +338,7 @@ $visit_prescription = count($rs_pa);
 
 
 				?>
-				<div class="col-md-6">
+				<div class="col-md-5">
 					<section class="panel panel-featured panel-featured-info">
 						<header class="panel-heading">
 

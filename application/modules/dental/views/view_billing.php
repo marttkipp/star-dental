@@ -8,6 +8,7 @@ echo "
 	<tr>
 		
 		<th>Visit Charge</th>
+		<th>Teeth</th>
 		<th>Units</th>
 		<th>Unit Cost</th>
 		<th>Total</th>
@@ -27,6 +28,7 @@ echo "
 				$procedure_name = $key1->service_charge_name;
 				$service_id = $key1->service_id;
 				$visit_type_id = $key1->visit_type_id;
+				$teeth = $key1->teeth;
 
 				if($visit_type_id == 1)
 				{
@@ -34,7 +36,7 @@ echo "
 				}
 				else
 				{
-					$visit = 'INSURANCE';
+					$visit = 'INS';
 				}
 			
 				$total= $total +($units * $visit_charge_amount);
@@ -43,19 +45,20 @@ echo "
 				if($personnel_check)
 				{
 					$checked = "<td>
-								<a class='btn btn-sm btn-primary'  onclick='calculatetotal(".$visit_charge_amount.",".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-pencil'></i></a>
+								<a class='btn btn-xs btn-primary'  onclick='calculatebillingtotal(".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-pencil'></i></a>
 								</td>
 								<td>
-								<a class='btn btn-sm btn-danger'  onclick='change_payer(".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-recycle'></i></a>
+								<a class='btn btn-xs btn-danger'  onclick='change_payer(".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-recycle'></i></a>
 								</td>
 								<td>
-									<a class='btn btn-sm btn-danger' href='#' onclick='delete_procedure(".$v_procedure_id.", ".$visit_id.")'><i class='fa fa-trash'></i></a>
+									<a class='btn btn-xs btn-danger' href='#' onclick='delete_procedure(".$v_procedure_id.", ".$visit_id.")'><i class='fa fa-trash'></i></a>
 								</td>";
 				}
 				
 				echo"
 						<tr> 
 							<td align='center'>".$procedure_name."</td>
+							<td align='center'><input type='text' class='form-control' id='teeth".$v_procedure_id."' value='".$teeth."' size='5'/></td>
 							<td align='center'>
 								<input type='text' id='units".$v_procedure_id."' class='form-control' value='".$units."' size='3' />
 							</td>

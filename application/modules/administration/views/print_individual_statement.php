@@ -112,6 +112,7 @@ if ($query->num_rows() > 0)
 							  <thead>
 								<tr>
 								  <th >Name</th>
+								  <th >teeth</th>
 								  <th >Units</th>
 								  <th >Charge</th>
 								  <th >Total</th>										
@@ -131,10 +132,12 @@ if ($query->num_rows() > 0)
 				$units = $key_items->visit_charge_units;
 				$service_id = $key_items->service_id;
 				$personnel_id = $key_items->personnel_id;
+				$teeth = $key_items->teeth;
 				$total += $units*$visit_charge_amount;
 
 				$charged_services .=  '<tr>
 											<td>'.$service_charge_name.'</td>
+											<td>'.$teeth.'</td>
 											<td>'.$units.'</td>
 											<td>'.$visit_charge_amount.'</td>
 											<td> '.number_format($units*$visit_charge_amount,2).'</td>

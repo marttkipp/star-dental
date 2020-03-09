@@ -8,7 +8,7 @@ echo "
 	<tr>
 
 		<th>Visit Charge</th>
-		<th>Tooth Number</th>
+		<th>Teeth</th>
 		<th>Units</th>
 		<th>Unit Cost</th>
 		<th>Total</th>
@@ -24,7 +24,7 @@ echo "
 				$v_procedure_id = $key1->visit_charge_id;
 				$procedure_id = $key1->service_charge_id;
 				$visit_charge_amount = $key1->visit_charge_amount;
-				$visit_charge_notes = $key1->visit_charge_notes;
+				$teeth = $key1->teeth;
 				$units = $key1->visit_charge_units;
 				$procedure_name = $key1->service_charge_name;
 				$service_id = $key1->service_id;
@@ -36,7 +36,7 @@ echo "
 				}
 				else
 				{
-					$visit = 'INSURANCE';
+					$visit = 'INS';
 				}
 				$total= $total +($units * $visit_charge_amount);
 				$checked="";
@@ -44,13 +44,13 @@ echo "
 				// if($personnel_check)
 				// {
 					$checked = "<td>
-								<a class='btn btn-sm btn-primary'  onclick='calculatetotal(".$visit_charge_amount.",".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-pencil'></i></a>
+								<a class='btn btn-xs btn-primary'  onclick='calculatetotal(".$visit_charge_amount.",".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-pencil'></i></a>
 								</td>
 								<td>
-								<a class='btn btn-sm btn-danger'  onclick='change_payer(".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-recycle'></i></a>
+								<a class='btn btn-xs btn-danger'  onclick='change_payer(".$v_procedure_id.", ".$procedure_id.",".$visit_id.")'><i class='fa fa-recycle'></i></a>
 								</td>
 								<td>
-									<a class='btn btn-sm btn-danger' href='#' onclick='delete_procedure(".$v_procedure_id.", ".$visit_id.")'><i class='fa fa-trash'></i></a>
+									<a class='btn btn-xs btn-danger' href='#' onclick='delete_procedure(".$v_procedure_id.", ".$visit_id.")'><i class='fa fa-trash'></i></a>
 								</td>";
 				// }
 
@@ -58,7 +58,7 @@ echo "
 						<tr>
 							<td align='center'>".$procedure_name."</td>
 							<td align='center'>
-								<input type='text' id='notes".$v_procedure_id."' class='form-control' value='".$visit_charge_notes."'  />
+								<input type='text' id='notes".$v_procedure_id."' class='form-control' value='".$teeth."'  size='3'  />
 							</td>
 							<td align='center'>
 								<input type='text' id='units".$v_procedure_id."' class='form-control' value='".$units."' size='3' />
