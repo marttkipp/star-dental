@@ -910,7 +910,7 @@ class Debtors_model extends CI_Model
 
 				$doctor = $row->personnel_onames.' '.$row->personnel_fname;
 				
-				$count++;
+				
 				
 				//payment data
 				$charges = '';
@@ -940,24 +940,28 @@ class Debtors_model extends CI_Model
 						$procedures .= strtoupper($service_charge_name).',';
 					endforeach;
 				}
-
-				//display the patient data
-				$report[$row_count][$col_count] = $count;
-				$col_count++;
-				$report[$row_count][$col_count] = $visit_date;
-				$col_count++;
-				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
-				$col_count++;
-				$report[$row_count][$col_count] = $visit_id;
-				$col_count++;
-				$report[$row_count][$col_count] = $procedures;
-				$col_count++;
-				$report[$row_count][$col_count] = $doctor;
-				$col_count++;
-				$report[$row_count][$col_count] = $invoice_total;
-				$col_count++;
-				$report[$row_count][$col_count] = $balance;
-				$col_count++;
+				
+				if($balance > 0)
+				{
+					$count++;
+					//display the patient data
+					$report[$row_count][$col_count] = $count;
+					$col_count++;
+					$report[$row_count][$col_count] = $visit_date;
+					$col_count++;
+					$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
+					$col_count++;
+					$report[$row_count][$col_count] = $visit_id;
+					$col_count++;
+					$report[$row_count][$col_count] = $procedures;
+					$col_count++;
+					$report[$row_count][$col_count] = $doctor;
+					$col_count++;
+					$report[$row_count][$col_count] = $invoice_total;
+					$col_count++;
+					$report[$row_count][$col_count] = $balance;
+					$col_count++;
+				}
 				
 				
 				
