@@ -1,7 +1,7 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once "./application/modules/administration/controllers/administration.php";
-
+error_reporting(0);
 class Reports extends administration
 {	
 	function __construct()

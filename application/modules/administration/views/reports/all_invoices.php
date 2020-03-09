@@ -181,7 +181,7 @@
 								<td>'.$doctor.'</td>
 								<td>'.number_format($invoice_total,2).'</td>
 								<td>'.number_format($payments_value,2).'</td>
-								<td>'.number_format($balance,2).'</td>
+								<td>'.$balance.'</td>
 								
 								<td><button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#book-appointment'.$visit_id.'">UPDATE </button>
 								<div class="modal fade " id="book-appointment'.$visit_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
