@@ -146,5 +146,17 @@ class Transfer_model extends CI_Model
 
     return $query;
   }
+  public function get_creditor_name($creditor_id)
+    {
+      $account_name = '';
+      $this->db->select('creditor_name');
+      $this->db->where('creditor_id = '.$creditor_id);
+      $query = $this->db->get('creditor');
+      
+      $account_details = $query->row();
+      $account_name = $account_details->creditor_name;
+      
+      return $account_name;
+    }
 }
 ?>

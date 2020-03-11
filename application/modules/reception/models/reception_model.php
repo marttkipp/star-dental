@@ -2190,7 +2190,7 @@ class Reception_model extends CI_Model
 			"date" => date("Y-m-d"),
 			"visit_charge_amount" => $service_charge,
 			"charged"=>1,
-			"charged_to"=> $visit_t
+			"charge_to"=> $visit_t
 		);
 		if($this->db->insert('visit_charge', $visit_charge_data))
 		{

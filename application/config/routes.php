@@ -1605,3 +1605,23 @@ $route['accounting/add-account'] = 'financials/company_financial/add_account';
 
 
 
+
+$route['accounting/charts-of-accounts'] = 'financials/company_financial/account_balances';
+$route['accounting/charts-of-accounts/(:num)'] = 'financials/company_financial/account_balances/$1';
+$route['accounting/charts-of-accounts/activate-account/(:num)'] = 'financials/company_financial/activate_account/$1';
+$route['accounting/charts-of-accounts/deactivate-account/(:num)'] = 'financials/company_financial/deactivate_account/$1';
+$route['accounting/charts-of-accounts/edit-account/(:num)'] = 'financials/company_financial/edit_account/$1';
+$route['accounting/add-account'] = 'financials/company_financial/add_account';
+
+
+$route['accounting/direct-payments'] = 'finance/transfer/direct_payments';
+$route['accounting/direct-payments/(:num)'] = 'finance/transfer/direct_payments/$1';
+$route['delete-payment-direct-payments/(:num)'] = 'accounting/petty_cash/delete_direct_payment/$1';
+
+
+$route['accounting/journal-entry'] = 'finance/transfer/journal_entry';
+$route['accounting/journal-entry/(:num)'] = 'finance/transfer/journal_entry/$1';
+$route['delete-journal-entry/(:num)'] = 'accounting/petty_cash/delete_journal_entry/$1';
+
+
+
