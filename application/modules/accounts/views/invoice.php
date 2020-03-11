@@ -1115,7 +1115,7 @@ if($all_notes->num_rows() > 0)
 														$procedure_name = $key1->service_charge_name;
 														$service_id = $key1->service_id;
 														$provider_id = $key1->provider_id;
-														$visit_charge_notes = $key1->visit_charge_notes;
+														$visit_charge_notes = $key1->teeth;
 														$sub_total= $sub_total +($units * $visit_charge_amount);
 														$visit_date = date('l d F Y',strtotime($date));
 														$visit_time = date('H:i A',strtotime($visit_charge_timestamp));
