@@ -374,7 +374,7 @@ if($all_notes->num_rows() > 0)
 													echo"
 															<tr>
 																<td >".$count."</td>
-																<td >".strtoupper($procedure_name)." ".$visit_charge_notes."</td>
+																<td >".strtoupper($procedure_name)." - ".$visit_charge_notes."</td>
 																<td >".$units."</td>
 																<td >".number_format($visit_charge_amount,2)."</td>
 																<td >".number_format($units * $visit_charge_amount,2)."</td>
@@ -777,7 +777,7 @@ if($all_notes->num_rows() > 0)
 													echo"
 															<tr>
 																<td >".$count."</td>
-																<td >".strtoupper($procedure_name)." ".$visit_charge_notes."</td>
+																<td >".strtoupper($procedure_name)." - ".$visit_charge_notes."</td>
 																<td>".$units."</td>
 																<td>".number_format($visit_charge_amount,2)."</td>
 																<td>".number_format($units * $visit_charge_amount,2)."</td>
@@ -1173,7 +1173,7 @@ if($all_notes->num_rows() > 0)
 														echo"
 																<tr>
 																	<td >".$count."</td>
-																	<td >".strtoupper($procedure_name)." ".$visit_charge_notes."</td>
+																	<td >".strtoupper($procedure_name)." - ".$visit_charge_notes."</td>
 																	<td >".$units."</td>
 																	<td >".number_format($visit_charge_amount,2)."</td>
 																	<td >".number_format($units * $visit_charge_amount,2)."</td>
