@@ -1,7 +1,7 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 // require_once "./application/modules/auth/controllers/auth.php";
 date_default_timezone_set('Africa/Nairobi');
-error_reporting(0);
+// error_reporting(0);
 class Reception  extends MX_Controller
 {	
 	var $csv_path;
