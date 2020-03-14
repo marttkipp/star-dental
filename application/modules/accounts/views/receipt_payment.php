@@ -546,6 +546,7 @@ $visit_prescription = count($rs_pa);
 										<input type="password" class="form-control" name="password" placeholder="">
 									</div>
 								</div>
+								<br>
 								<?php
 								$personnel_id = $this->session->userdata('personnel_id');
 
