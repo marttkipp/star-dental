@@ -502,16 +502,16 @@ class Accounts_model extends CI_Model
 			$amount = $amount;
 		}
 
-		// $payment_date = $this->input->post('payment_date');
+		$payment_date = $this->input->post('payment_date');
 
-		// if(!empty($payment_date))
-		// {
-		// 	$payment_date = $payment_date;
-		// }
-		// else
-		// {
+		if(!empty($payment_date))
+		{
+			$payment_date = $payment_date;
+		}
+		else
+		{
 			$payment_date = date('Y-m-d');
-		// }
+		}
 		$data = array(
 			'visit_id' => $visit_id,
 			'payment_method_id'=>$payment_method,
@@ -522,7 +522,7 @@ class Accounts_model extends CI_Model
 			'reason'=>$reason,
 			'payment_service_id'=>$payment_service_id,
 			'change'=>$change,
-			'payment_created'=>%$payment_date,
+			'payment_created'=>$payment_date,
 			'payment_created_by'=>$this->session->userdata("personnel_id"),
 			'approved_by'=>$personnel_id,'date_approved'=>date('Y-m-d')
 		);
