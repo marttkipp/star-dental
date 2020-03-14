@@ -485,7 +485,8 @@ $visit_prescription = count($rs_pa);
 										<label class="col-lg-4 control-label">Payment Method: </label>
 
 										<div class="col-lg-8">
-											<select class="form-control" name="payment_method" onchange="check_payment_type(this.value)">
+											<select class="form-control" name="payment_method" onchange="check_payment_type(this.value)" required="required">
+												<option value="">--Select a payment method--</option>
                                             	<?php
 												  $method_rs = $this->accounts_model->get_payment_methods();
 												  $num_rows = count($method_rs);
@@ -545,6 +546,29 @@ $visit_prescription = count($rs_pa);
 										<input type="password" class="form-control" name="password" placeholder="">
 									</div>
 								</div>
+								<?php
+								$personnel_id = $this->session->userdata('personnel_id');
+
+								if($personnel_id == 0 OR $personnel_id == 1)
+								{
+
+
+								?>
+									<div class="form-group">
+										<label class="col-lg-4 control-label">Payment Date: </label>
+
+										<div class="col-lg-8">
+											<div class="input-group">
+	                                            <span class="input-group-addon">
+	                                                <i class="fa fa-calendar"></i>
+	                                            </span>
+	                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="visit_date" placeholder="Payment Date" value="<?php echo date('Y-m-d');?>">
+	                                        </div>
+										</div>
+									</div>
+								<?php
+								}
+								?>
 								<br>
 								<div class="center-align">
 									<button class="btn btn-info btn-sm" type="submit">Add Payment Information</button>
