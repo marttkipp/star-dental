@@ -507,7 +507,7 @@ $visit_prescription = count($rs_pa);
 										  </div>
 									</div>
 								</div>
-
+								<br>
 								<div id="mpesa_div" class="form-group" style="display:none;" >
 									<label class="col-lg-4 control-label"> Mpesa TX Code: </label>
 
