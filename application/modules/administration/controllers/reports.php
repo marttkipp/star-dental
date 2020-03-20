@@ -3323,13 +3323,13 @@ class Reports extends administration
 		if(!empty($invoice_number))
 		{
 			$search_title .= ' Invoice number <strong>'.$invoice_number.'</strong>';
-			$invoice_number = ' AND visit.visit_id ='.$invoice_number.'';
+			$invoice_number = ' AND visit.visit_id = "'.$invoice_number.'"';
 		}
 
 		if(!empty($patient_number))
 		{
 			$search_title .= ' Invoice number <strong>'.$patient_number.'</strong>';
-			$patient_number = ' AND patients.patient_number ='.$patient_number.'';
+			$patient_number = ' AND patients.patient_number ="'.$patient_number.'"';
 		}
 
 
