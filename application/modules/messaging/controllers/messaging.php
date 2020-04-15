@@ -1269,20 +1269,20 @@ class Messaging extends MX_Controller
         $dt1 = strtotime($dt);
         $dt2 = date("l", $dt1);
         $dt3 = strtolower($dt2);
-    	if(($dt3 == "sunday"))
-		{
-            // echo $dt3.' is weekend'."\n";
+  //   	if(($dt3 == "sunday"))
+		// {
+  //           // echo $dt3.' is weekend'."\n";
 
-            $date_tomorrow = strtotime('+1 day', strtotime($dt));
-            $date_tomorrow = date("Y-m-d",$date_tomorrow);
-            $date_to_send = 'Monday';
-        } 
-    	else
-		{
+  //           $date_tomorrow = strtotime('+1 day', strtotime($dt));
+  //           $date_tomorrow = date("Y-m-d",$date_tomorrow);
+  //           $date_to_send = 'Monday';
+  //       } 
+  //   	else
+		// {
             // echo $dt3.' is not weekend'."\n";
              $date_tomorrow = $dt;
              $date_to_send = 'tomorrow';
-        }
+        // }
 
 
         // var_dump($amount); die();
@@ -1303,7 +1303,7 @@ class Messaging extends MX_Controller
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
 				// $time_start = date('H:i A',strtotime($time_start));
 				$message = 'Hello '.$patient_surname.', please remember that you have a dental appointment scheduled for '.$date_to_send.' '.$visit_date.' at '.$time_start.'. For more information contact 0717123440.';
-				// $patient_phone = 734808007;
+				$patient_phone = 734808007;
 				$message_data = array(
 						"phone_number" => $patient_phone,
 						"entryid" => $patient_id,

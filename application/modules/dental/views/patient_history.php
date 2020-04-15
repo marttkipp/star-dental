@@ -807,8 +807,9 @@
 
 
 							if($tca_num_rows > 0){
+								$tca_description = '';
 								foreach ($get_tca_rs as $key7):
-									$tca_description = $key7->tca_description;
+									$tca_description = strip_tags($key7->tca_description);
 								endforeach;
 								$notes .= '<p><span class="bold">TCA : </span> '.$tca_description.'</p>';
 								$todays_new_notes .= '<br/>
@@ -827,21 +828,20 @@
 							}
 							else
 							{
-								$notes .= '';
-								$todays_new_notes .= '<br/>
-													<div class="row">
-														<div class="col-md-12">
-															<div class="form-group">
-																<label class="col-lg-2 control-label">TCA : </label>
-																<div class="col-lg-8">
-																	<p> (Please enumerate the items)</p>
-																	<textarea id="tca'.$visit_id1.'" name="tca'.$visit_id1.'" rows="4" cols="40" class="form-control cleditor col-md-6" ></textarea>
-																</div>
-															</div>
-														</div>
-													</div>
-													<br/>	
-											';
+								// $notes .= '';
+								// $todays_new_notes .= '<br/>
+								// 					<div class="row">
+								// 						<div class="col-md-12">
+								// 							<div class="form-group">
+								// 								<label class="col-lg-2 control-label">TCA : </label>
+								// 								<div class="col-lg-8">
+								// 									<p> (Please enumerate the items)</p>
+								// 									<textarea id="tca'.$visit_id1.'" name="tca'.$visit_id1.'" rows="4" cols="40" class="form-control cleditor col-md-6" ></textarea>
+								// 								</div>
+								// 							</div>
+								// 						</div>
+								// 					</div>
+								// 		';
 							}
 								$todays_new_notes .= '<br/><div class="row">
 														<div class="col-md-12">
