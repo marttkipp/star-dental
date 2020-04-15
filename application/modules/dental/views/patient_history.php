@@ -828,20 +828,20 @@
 							}
 							else
 							{
-								// $notes .= '';
-								// $todays_new_notes .= '<br/>
-								// 					<div class="row">
-								// 						<div class="col-md-12">
-								// 							<div class="form-group">
-								// 								<label class="col-lg-2 control-label">TCA : </label>
-								// 								<div class="col-lg-8">
-								// 									<p> (Please enumerate the items)</p>
-								// 									<textarea id="tca'.$visit_id1.'" name="tca'.$visit_id1.'" rows="4" cols="40" class="form-control cleditor col-md-6" ></textarea>
-								// 								</div>
-								// 							</div>
-								// 						</div>
-								// 					</div>
-								// 		';
+								$notes .= '';
+								$todays_new_notes .= '<br/>
+													<div class="row">
+														<div class="col-md-12">
+															<div class="form-group">
+																<label class="col-lg-2 control-label">TCA : </label>
+																<div class="col-lg-8">
+																	<p> (Please enumerate the items)</p>
+																	<textarea id="tca'.$visit_id1.'" name="tca'.$visit_id1.'" rows="4" cols="40" class="form-control cleditor col-md-6" ></textarea>
+																</div>
+															</div>
+														</div>
+													</div>
+										';
 							}
 								$todays_new_notes .= '<br/><div class="row">
 														<div class="col-md-12">
