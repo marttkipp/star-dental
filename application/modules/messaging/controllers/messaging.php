@@ -1287,7 +1287,7 @@ class Messaging extends MX_Controller
 
         // var_dump($amount); die();
 		$this->db->select('*');
-		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND schedule_id = 0');
+		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0');
 		$query = $this->db->get('visit,patients');
 		// var_dump($query); die();
 		if($query->num_rows() > 0)
@@ -1303,7 +1303,7 @@ class Messaging extends MX_Controller
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
 				// $time_start = date('H:i A',strtotime($time_start));
 				$message = 'Hello '.$patient_surname.', please remember that you have a dental appointment scheduled for '.$date_to_send.' '.$visit_date.' at '.$time_start.'. For more information contact 0717123440.';
-				$patient_phone = 734808007;
+				// $patient_phone = 734808007;
 				$message_data = array(
 						"phone_number" => $patient_phone,
 						"entryid" => $patient_id,

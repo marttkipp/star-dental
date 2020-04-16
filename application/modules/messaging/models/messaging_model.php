@@ -335,12 +335,30 @@ class Messaging_model extends CI_Model
 		// max of 160 characters
 		// to get a unique name make payment of 8700 to Africastalking/SMSLeopard
 		// unique name should have a maximum of 11 characters
+		$phone = str_replace(' ', '', $phone);
+		
 		if (substr($phone, 0, 1) === '0') 
 		{
 			$phone = ltrim($phone, '0');
+			$phone = '+254'.$phone;
 		}
+
+		else if (substr($phone, 0, 4) === '+254')
+		{
+			$phone = $phone;
+		}
+
+		else if (substr($phone, 0, 3) === '254')
+		{
+			$phone = '+'.$phone;
+		}
+		else if (substr($phone, 0, 1) === '7')
+		{
+			$phone = '+254'.$phone;
+		}
+
 		
-		$phone_number = '+254'.$phone;
+		$phone_number= str_replace(' ', '', $phone);
 		// get items 
 
 		$configuration = $this->messaging_model->get_configuration();
