@@ -1357,7 +1357,7 @@ class Messaging extends MX_Controller
 				$branch = $this->config->item('branch_name');
 				$message_result['subject'] = $date_tomorrow.' Appointment report';
 				$v_data['persons'] = $email_message;
-				$text =  $this->load->view('emails_items',$v_data,true);
+				$text =  $this->load->view('reception/emails_items',$v_data,true);
 
 				// echo $text; die();
 				$message_result['text'] = $text;
