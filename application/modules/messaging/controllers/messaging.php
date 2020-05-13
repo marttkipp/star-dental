@@ -1263,7 +1263,6 @@ class Messaging extends MX_Controller
 	public function send_appointments()
 	{
 		$date_tomorrow = date("Y-m-d",strtotime("tomorrow"));
-		$date_tomorrow = date("Y-m-d");
 
 		// $amount = $this->reception_model->get_total_unsent_appointments();
 		$dt= $date_tomorrow;
@@ -1282,13 +1281,13 @@ class Messaging extends MX_Controller
 		// {
             // echo $dt3.' is not weekend'."\n";
              $date_tomorrow = $dt;
-             $date_to_send = 'today';
+             $date_to_send = 'tomorrow';
         // }
 
 
         // var_dump($amount); die();
 		$this->db->select('*');
-		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0  AND visit.visit_id = 1334');
+		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND visit.schedule_id = 0 ');
 		$query = $this->db->get('visit,patients');
 		// var_dump($query); die();
 		if($query->num_rows() > 0)
