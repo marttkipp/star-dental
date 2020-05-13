@@ -1282,13 +1282,13 @@ class Messaging extends MX_Controller
 		// {
             // echo $dt3.' is not weekend'."\n";
              $date_tomorrow = $dt;
-             $date_to_send = 'tomorrow';
+             $date_to_send = 'today';
         // }
 
 
         // var_dump($amount); die();
 		$this->db->select('*');
-		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND visit.schedule_id = 0 AND visit.visit_id = 1334');
+		$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0  AND visit.visit_id = 1334');
 		$query = $this->db->get('visit,patients');
 		// var_dump($query); die();
 		if($query->num_rows() > 0)
