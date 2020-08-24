@@ -3101,7 +3101,7 @@ class Reception_model extends CI_Model
 
 	
 
-	public function initiate_appointment_visit($insurance_description, $insurance_number, $insurance_description,$visit_id,$visit_type_id,$mcc,$patient_id)
+	public function initiate_appointment_visit($insurance_description, $insurance_number,$visit_id,$visit_type_id,$mcc,$patient_id)
 	{
 		$this->update_patient_detail($visit_id);
 		$visit_data = array(
@@ -3124,7 +3124,7 @@ class Reception_model extends CI_Model
 		return $visit_id;
 	}
 	
-	public function update_visit($visit_date, $visit_id, $doctor_id, $insurance_description, $insurance_number, $visit_type_id, $timepicker_start, $timepicker_end, $appointment_id, $close_card, $visit_id)
+	public function update_visit($visit_date, $visit_id, $doctor_id, $insurance_description, $insurance_number, $visit_type_id, $timepicker_start, $timepicker_end, $appointment_id, $close_card)
 	{
 		$visit_data = array(
 			"branch_code" => $this->session->userdata('branch_code'),

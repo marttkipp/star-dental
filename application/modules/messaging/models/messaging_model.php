@@ -1025,7 +1025,7 @@ class Messaging_model extends CI_Model
 
 		
 	}
-	public function add_patient_to_message($patient_id,$message_batch_id,$message_batch_id)
+	public function add_patient_to_message($patient_id,$message_batch_id,$message_template_id)
 	{
 			$where = 'message_batch_id  = '.$message_batch_id;
 			$this->db->where($where);

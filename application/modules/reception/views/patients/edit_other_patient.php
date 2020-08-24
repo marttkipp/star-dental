@@ -291,7 +291,7 @@ if(!empty($validation_error))
                                         ?>
                                     </select>
                                 </div>
-                            </div> -->
+                            </div> 
                             
                         </div>
                     </div>
@@ -299,7 +299,33 @@ if(!empty($validation_error))
                 <div class="center-align">
                     <button class="btn btn-info btn-sm" type="submit">Edit Patient</button>
                 </div>
-    <?php echo form_close();?>
+                <?php echo form_close();?>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-warning center-align">Merge Patients Records</div>
+                    </div>
+                    <div class="col-md-12">
+                        <?php echo form_open($this->uri->uri_string(), array("class" => "form-horizontal"));?>
+                            <div class="row">
+                                <div class="col-md-6">
+                                  
+                                    
+                                    <div class="form-group">
+                                        <label class="col-md-4 control-label">Name: </label>
+                                        
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" name="patient_surname" placeholder="Names" value="<?php echo $patient_surname;?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                    <br/>
+                                <div class="center-align">
+                                    <button class="btn btn-info btn-sm" type="submit">Edit Patient</button>
+                                </div>
+                        <?php echo form_close();?>
+                    </div>
+                </div>
               </div>
             </div>
             <!-- Widget ends -->

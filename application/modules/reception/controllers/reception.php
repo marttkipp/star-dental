@@ -1721,7 +1721,7 @@ public function save_visit2($patient_id)
 			if($visit_date == date('Y-m-d'))
 			{
 				//update visit
-				$visit_id_new = $this->reception_model->initiate_appointment_visit($insurance_description, $insurance_number, $insurance_description,$visit_id,$visit_type_id,$mcc,$patient_id);
+				$visit_id_new = $this->reception_model->initiate_appointment_visit($insurance_description, $insurance_number,$visit_id,$visit_type_id,$mcc,$patient_id);
 				$data['status'] = 1;
 				$this->session->set_userdata('success_message', 'You have successfully initiated a visit');
 
