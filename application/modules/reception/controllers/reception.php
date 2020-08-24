@@ -5161,5 +5161,50 @@ public function save_visit2($patient_id)
 		$this->reception_model->export_appointments($list_id);
 	}
 
+	public function merge_patient($patient_id){
+		$this->form_validation->set_rules('patient_other_number', 'Patient Number', 'required');		
+		
+		if ($this->form_validation->run() == FALSE)
+		{
+			$this->session->set_userdata('error_message', validation_errors());
+			$data['message'] = validation_errors();
+			// $data['message'] = 'fail';
+			redirect('reception/edit_patient/'.$patient_id);
+		} else {
+			$patient_number= $this->input->post('patient_other_number');
+
+			$this->db->where('patient_number = "'.$patient_number.'"');
+			$query = $this->db->get('patients');
+
+			if($query->num_rows() == 1)
+			{
+				foreach ($query->result() as $key => $value) {
+					# code...
+					$other_patient_id = $value->patient_id;
+				}
+
+				$update_array['patient_id'] = $other_patient_id;
+
+				$this->db->where('patient_id', $patient_id);
+				$this->db->update('visit',$update_array);
+
+				$delete_array['patient_delete'] = 1;
+				$delete_array['deleted_by'] = $this->session->userdata('personnel_id');
+				$delete_array['date_deleted'] = date('Y-m-d');
+
+				$this->db->where('patient_id', $patient_id);
+				$this->db->update('patients',$delete_array);
+
+			$this->session->set_userdata('success_message','Successfully Merged the patients');
+
+				redirect('patients');
+			} else {
+			$this->session->set_userdata('error_message','Patient Number could not be found');
+			redirect('reception/edit_patient/'.$patient_id);
+			}
+		}
+
+	}
+
 }
 ?>

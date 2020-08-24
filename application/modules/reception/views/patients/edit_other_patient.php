@@ -4,6 +4,7 @@ $row = $patient->row();
 $patient_surname = $row->patient_surname;
 $patient_othernames = $row->patient_othernames;
 $title_id = $row->title_id;
+$patient_id = $row->patient_id;
 $patient_date_of_birth = $row->patient_date_of_birth;
 $gender_id = $row->gender_id;
 $religion_id = $row->religion_id;
@@ -299,29 +300,29 @@ if(!empty($validation_error))
                 <div class="center-align">
                     <button class="btn btn-info btn-sm" type="submit">Edit Patient</button>
                 </div>
-                <?php echo form_close();?>
+                <?php echo form_close();?> 
                 <hr>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="alert alert-warning center-align">Merge Patients Records</div>
+                        <div class="alert alert-warning center-align">Merge Patients Records(Please enter the other patients number)</div>
                     </div>
                     <div class="col-md-12">
-                        <?php echo form_open($this->uri->uri_string(), array("class" => "form-horizontal"));?>
+                        <?php echo form_open('merge-patient-record/'.$patient_id,  array("class" => "form-horizontal"));?>
                             <div class="row">
                                 <div class="col-md-6">
                                   
                                     
                                     <div class="form-group">
-                                        <label class="col-md-4 control-label">Name: </label>
+                                        <label class="col-md-4 control-label">Patient Number: </label>
                                         
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" name="patient_surname" placeholder="Names" value="<?php echo $patient_surname;?>">
+                                            <input type="text" class="form-control" name="patient_other_number" placeholder="Number">
                                         </div>
                                     </div>
                                 </div>
                                     <br/>
                                 <div class="center-align">
-                                    <button class="btn btn-info btn-sm" type="submit">Edit Patient</button>
+                                    <button class="btn btn-info btn-sm" type="submit">Update Records</button>
                                 </div>
                         <?php echo form_close();?>
                     </div>

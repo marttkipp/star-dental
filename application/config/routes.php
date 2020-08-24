@@ -1624,4 +1624,7 @@ $route['accounting/journal-entry/(:num)'] = 'finance/transfer/journal_entry/$1';
 $route['delete-journal-entry/(:num)'] = 'accounting/petty_cash/delete_journal_entry/$1';
 
 
+$route['merge-patient-record/(:num)'] = 'reception/merge_patient/$1';
+
+
 
