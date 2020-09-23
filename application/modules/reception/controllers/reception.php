@@ -1191,12 +1191,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\')';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')';
 				}
 				
 				else
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\') AND ';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
 				}
 				$count++;
 			}
@@ -1261,12 +1261,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1285,12 +1285,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1351,12 +1351,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1375,12 +1375,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -2048,12 +2048,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -2077,12 +2077,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -2271,12 +2271,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -2300,12 +2300,12 @@ public function save_visit2($patient_id)
 			{
 				if($count == $total)
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}

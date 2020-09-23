@@ -2394,12 +2394,12 @@ class Reports extends administration
 			{
 				if($count == $total)
 				{
-					$department_mane .= ' visit.department_name LIKE \'%'.mysql_real_escape_string($dpt_name[$r]).'%\'';
+					$department_mane .= ' visit.department_name LIKE \'%'.addslashes($dpt_name[$r]).'%\'';
 				}
 				
 				else
 				{
-					$department_mane .= ' visit.department_name LIKE \'%'.mysql_real_escape_string($dpt_name[$r]).'%\' AND ';
+					$department_mane .= ' visit.department_name LIKE \'%'.addslashes($dpt_name[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -2532,12 +2532,12 @@ class Reports extends administration
 			{
 				if($count == $total)
 				{
-					$department_mane .= ' visit.department_name LIKE \'%'.mysql_real_escape_string($dpt_name[$r]).'%\'';
+					$department_mane .= ' visit.department_name LIKE \'%'.addslashes($dpt_name[$r]).'%\'';
 				}
 				
 				else
 				{
-					$department_mane .= ' visit.department_name LIKE \'%'.mysql_real_escape_string($dpt_name[$r]).'%\' AND ';
+					$department_mane .= ' visit.department_name LIKE \'%'.addslashes($dpt_name[$r]).'%\' AND ';
 				}
 				$count++;
 			}
