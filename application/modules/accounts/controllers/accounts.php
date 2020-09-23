@@ -184,12 +184,12 @@ class Accounts extends MX_Controller
 		{
 			if($count == $total)
 			{
-				$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+				$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 			}
 
 			else
 			{
-				$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+				$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 			}
 			$count++;
 		}
@@ -205,12 +205,12 @@ class Accounts extends MX_Controller
 		{
 			if($count == $total)
 			{
-				$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+				$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 			}
 
 			else
 			{
-				$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+				$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 			}
 			$count++;
 		}
