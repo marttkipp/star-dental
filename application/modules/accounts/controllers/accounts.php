@@ -1,5 +1,5 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-error_reporting(0);
+error_reporting(E_ALL);
 class Accounts extends MX_Controller
 {
 	function __construct()
