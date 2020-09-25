@@ -1776,7 +1776,7 @@ public function save_visit2($patient_id)
 				$visit_id = $res->visit_id;
 				$strath_no = $res->strath_no;
 				$room_id = $res->room_id;
-				$room_name = $res->room_name;
+				// $room_name = $res->room_name;
 				$procedure_done = $res->procedure_done;
 				$time_checked = $res->time_start;
 				$patient_data = $patient_surname.' '.$patient_othernames;
@@ -1809,7 +1809,7 @@ public function save_visit2($patient_id)
 				$data['title'][$r] = $patient_data;
 				$data['start'][$r] = $time_start;
 				$data['end'][$r] = $time_end;
-				$data['room_name'][$r] = $room_name;
+				$data['room_name'][$r] = '';
 				$data['procedure_done'][$r] = $procedure_done;
 				$data['backgroundColor'][$r] = $color;
 				$data['borderColor'][$r] = $color;
