@@ -185,7 +185,7 @@
 						<td>'.$time_start.'</td>
 						<td>'.$last_visit.'</td>
 						<td>'.$doctor.'</td>
-						<td><a class="btn btn-sm btn-primary" onclick="start_appointment_visit('.$visit_id.')">Queue</a>
+						<td><a class="btn btn-sm btn-primary" onclick="start_appointment_visit('.$visit_id.','.$patient_id.')">Queue</a>
 						</td>
 						<td><button type="button" class="btn btn-sm btn-success " data-toggle="modal" data-target="#book-appointment'.$visit_id.'"><i class="fa fa-pencil"></i> Edit </button>
 								<div class="modal fade " id="book-appointment'.$visit_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -477,11 +477,11 @@
 
 	    });
 	}
-	function start_appointment_visit(visit_id)
+	function start_appointment_visit(visit_id,patient_id)
 	{
 		var config_url = document.getElementById("config_url").value;
 
-        var data_url = config_url+"reception/initiate_visit_appointment/"+visit_id;
+        var data_url = config_url+"reception/initiate_visit_appointment/"+visit_id+"/"+patient_id;
 
 
 		var insurance_description = $('#insurance_description'+visit_id).val();   
