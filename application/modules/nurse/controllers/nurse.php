@@ -1413,12 +1413,12 @@ class Nurse extends auth
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1442,12 +1442,12 @@ class Nurse extends auth
 			{
 				if($count == $total)
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1878,7 +1878,7 @@ class Nurse extends auth
 		
 		$this->load->view('admin/templates/general_page', $data);	
 	}
-	public function search_patient_treatment_statement($module)
+	public function search_patient_treatment_statement($module=null)
 	{
 		$patient_number = $this->input->post('patient_number');
 		
@@ -1907,12 +1907,12 @@ class Nurse extends auth
 			{
 				if($count == $total)
 				{
-					$surname .= ' patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'  OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\')AND ';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\'  OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')AND ';
 				}
 				$count++;
 			}
@@ -1936,12 +1936,12 @@ class Nurse extends auth
 				{
 					if($count == $total)
 					{
-						$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+						$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 					}
 					
 					else
 					{
-						$other_name .= ' patients.patient_othernames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+						$other_name .= ' patients.patient_othernames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 					}
 					$count++;
 				}
