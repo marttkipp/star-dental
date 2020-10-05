@@ -1884,7 +1884,7 @@ class Nurse extends auth
 		
 		if(!empty($patient_number))
 		{
-			$patient_number = ' AND patients.patient_number = '.$patient_number.' ';
+			$patient_number = ' AND patients.patient_number = "'.$patient_number.'" ';
 		}
 
 		$visit_date = $this->input->post('visit_date');
