@@ -861,7 +861,7 @@ class Messaging_model extends CI_Model
 			$message_batch_id = $this->db->insert_id();
 
 			// var_dump($contact_category_id); die();
-			$where = 'patient_status  = 1';
+			$where = 'patient_id  > 0';
 			$this->db->where($where);
 			$query = $this->db->get('patients');
 
