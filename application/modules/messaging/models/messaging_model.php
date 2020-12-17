@@ -892,7 +892,7 @@ class Messaging_model extends CI_Model
 						}
 					}
 					$entryid = $key_item->patient_id;
-					$Phonenumber = $key_item->patient_phone;
+					$Phonenumber = $key_item->patient_phone1;
 					
 					$message_data = array(
 						"phone_number" => $Phonenumber,
