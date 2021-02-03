@@ -1,11 +1,12 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once "./application/modules/accounts/controllers/accounts.php";
-
+error_reporting(0);
 class Petty_cash extends accounts 
 {
 	function __construct()
 	{
+		$this->load->model('accounting_model');
 		parent:: __construct();
 	}
 	
@@ -473,7 +474,7 @@ class Petty_cash extends accounts
 				$this->session->set_userdata('success_message', 'Cheque successfully writted to account');
 
 
-				redirect('accounting/write-cheque');
+				redirect('accounting/direct-purchases');
 			}
 			
 			else
@@ -487,17 +488,40 @@ class Petty_cash extends accounts
 		}
 
 
-		
-		//open the add new order
+				//open the add new order
 		$v_data['accounts'] = $this->petty_cash_model->get_child_accounts("Bank");
+
+		$branch_session = $this->session->userdata('branch_id');
+	    $personnel_id = $this->session->userdata('personnel_id');
+
+	    $branch_add = '';
+	    // if($branch_session > 0)
+	    // {
+	    //   $branch_add = ' AND branch_id = '.$branch_session;
+	    // }
 
 		$where = 'account_payment_deleted = 0 ';
 		$table = 'account_payments';
+		$search = $this->session->userdata('accounts_cheques_search');
+		if(!empty($search))
+		{
+			$where.= $search;
+		}
+		else
+		{
+			// $where.=' AND account.account_name = "Petty Cash"';
+
+			$search_title = ' Cheques for '.date('M Y').' ';
+			$this->session->set_userdata('accounts_search_title_list', $search_title);
+
+
+			// $where .= ' AND MONTH(payment_date) = "'.date('m').'" AND YEAR(payment_date) = '.date('Y').' ';
+		}  
 
 		
 		$segment = 3;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'accounting/write-cheque';
+		$config['base_url'] = site_url().'accounting/direct-purchases';
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -529,7 +553,7 @@ class Petty_cash extends accounts
 		
 		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
         $v_data["links"] = $this->pagination->create_links();
-		$query = $this->petty_cash_model->get_account_payments_transactions($table, $where, $config["per_page"], $page, $order='account_payments.created', $order_method='DESC');
+		$query = $this->petty_cash_model->get_account_payments_transactions($table, $where, $config["per_page"], $page, $order='account_payments.payment_date', $order_method='DESC');
 		// var_dump($query); die();
 	
 		$data['title'] = 'Accounts';
@@ -538,7 +562,7 @@ class Petty_cash extends accounts
 		$v_data['query'] = $query;
 		$v_data['page'] = $page;
 
-		$data['title'] = $v_data['title']= 'Write Cheque';
+		$data['title'] = $v_data['title']= 'Direct Payments';
 
 		$data['content'] = $this->load->view('accounting/accounting/write_cheques', $v_data, true);
 		$this->load->view('admin/templates/general_page', $data);
@@ -615,7 +639,7 @@ class Petty_cash extends accounts
 		$this->db->where('account_payment_id',$account_payment_id);
 		$this->db->update('account_payments',$array);
 		$this->session->set_userdata('success_message', 'You have successfully removed the entry');
-		redirect('accounting/write-cheque');
+		redirect('accounting/direct-purchases');
     }	
 
     public function get_department_accounts($department_id)
@@ -734,6 +758,126 @@ class Petty_cash extends accounts
 		
 		redirect('accounting/general-journal-entries');
 	}
+
+
+	public function search_cheques()
+	{
+		$date_from = $this->input->post('date_from');
+		$date_to = $this->input->post('date_to');
+		$amount_paid = $this->input->post('amount_paid');
+		$account_where = '';
+		$date_where = '';
+		$search_title = '';
+
+		// var_dump($_POST);die();
+		if(!empty($amount_paid))
+		{
+
+			// $this->db->where('amount_paid',$amount_paid);
+			
+			$account_where = ' AND account_payments.amount_paid = '.$amount_paid;
+			$search_title = 'Search amount '.$amount_paid;
+		}
+		
+		if(!empty($date_from) && !empty($date_to))
+		{
+			$date_where = ' AND (account_payments.payment_date >= \''.$date_from.'\' AND account_payments.payment_date <= \''.$date_to.'\')';
+			//$where .= ' AND account_payments.payment_date BETWEEN \''.$date_from.'\' AND \'account_payments.payment_date <= '.$date_to.'\')';
+			$search_title = 'Cheques from '.date('jS M Y', strtotime($date_from)).' to '.date('jS M Y', strtotime($date_to)).' ';
+		}
+		
+		else if(!empty($date_from) AND empty($date_to))
+		{
+			$date_where = ' AND account_payments.payment_date >= \''.$date_from.'\'';
+			$search_title = 'Cheques of '.date('jS M Y', strtotime($date_from)).' ';
+		}
+		
+		else if(!empty($date_to) AND empty($date_from))
+		{
+			$date_where = ' AND account_payments.payment_date <= \''.$date_to.'\'';
+			$search_title = 'Cheques of '.date('jS M Y', strtotime($date_to)).' ';
+		} 
+
+
+		$search = $account_where.$date_where;
+		$this->session->set_userdata('accounts_cheques_search', $search);
+		$this->session->set_userdata('accounts_search_title_list', $search_title);
+		$this->session->set_userdata('cheque_date_from',$date_from);
+		$this->session->set_userdata('cheque_date_to',$date_to);
+		$this->session->set_userdata('amount_paid',$amount_paid);
+		
+		redirect('accounting/direct-purchases');
+		
+		
+	
+	}
+	public function close_cheques_search()
+	{
+
+		$this->session->unset_userdata('accounts_cheques_search');
+		$this->session->unset_userdata('accounts_search_title_list');
+		$this->session->unset_userdata('cheque_date_from');
+		$this->session->unset_userdata('cheque_date_to');
+		$this->session->unset_userdata('amount_paid');
+		redirect('accounting/direct-purchases');
+	}
+
+	
+	public function edit_account_payment($account_payment_id)
+	{
+		$data['accounts'] = $this->petty_cash_model->get_child_accounts("Bank");
+
+		$data['expense_accounts'] = $this->petty_cash_model->get_all_expense_accounts();
+		$data['account_payment_id'] = $account_payment_id;
+
+		
+		$page = $this->load->view('accounting/accounting/edit_payment',$data,true);
+		// var_dump($page);die();
+		echo $page;
+
+	}
+
+	public function edit_direct_payment_data()
+	{
+		$this->form_validation->set_rules('account_from_id', 'From','required|xss_clean');
+		$this->form_validation->set_rules('account_to_id', 'Account To','required|xss_clean');
+		$this->form_validation->set_rules('amount', 'Amount','required|xss_clean');
+		$this->form_validation->set_rules('description', 'Description','required|xss_clean');
+		$this->form_validation->set_rules('account_to_type', 'Account To Type','required|xss_clean');
+		$this->form_validation->set_rules('payment_date', 'Payment Date','required|xss_clean');
+		$this->form_validation->set_rules('account_payment_id', 'Account Payment','required|xss_clean');
+		
+		if ($this->form_validation->run())
+		{
+			//update order
+			if($this->petty_cash_model->edit_account_payment())
+			{
+				// $this->session->set_userdata('success_message', 'Cheque successfully writted to account');
+
+
+				$response['message'] ='success';
+				$response['result'] ='You have successfully updated the payment';
+
+			}
+			
+			else
+			{
+				// $this->session->set_userdata('error_message', 'Could not Direct Purchases. Please try again');
+				$response['message'] ='fail';
+				$response['result'] ='Sorry could not update this payment detail';
+			}
+		}
+		else
+		{
+			// $this->session->set_userdata('error_message', validation_errors());	
+
+			$response['message'] ='fail';
+			$response['result'] = strip_tags(validation_errors());
+		}
+
+		echo json_encode($response);
+	}
+
     
 
 }

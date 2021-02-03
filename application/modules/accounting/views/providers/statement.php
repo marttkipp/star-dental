@@ -1,9 +1,9 @@
 
-<?php //echo $this->load->view('search/providers', '', TRUE);?>
+<?php echo $this->load->view('search/providers', '', TRUE);?>
 <!-- search -->
 <!-- end search -->
 
-<div class="row" style="margin-top: 5px;">
+<div class="row">
     <div class="col-md-12">
 
         <section class="panel">
@@ -28,7 +28,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Record Payment</h4>
+                                <h4 class="modal-title" id="myModalLabel">Record Transaction</h4>
                             </div>
                             <div class="modal-body">
                                 <?php echo form_open("accounting/creditors/record_provider_account/".$provider_id."/0", array("class" => "form-horizontal"));?>
@@ -38,8 +38,8 @@
                                  <div class="form-group">
                                     <label class="col-lg-4 control-label">Account To</label>
                                     <div class="col-lg-8">
-                                        <select id="account_to_id" name="account_to_id" class="form-control" required="required">
-                                            <option value="">--- Account ---</option>
+                                        <select id="account_to_id" name="account_to_id" class="form-control">
+                                            <option value="0">--- Account ---</option>
                                             <?php
                                             if($accounts->num_rows() > 0)
                                             {   
@@ -64,20 +64,7 @@
                                             <span class="input-group-addon">
                                                 <i class="fa fa-calendar"></i>
                                             </span>
-                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="creditor_account_date" placeholder="Month date" required="required">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-md-4 control-label">Payment Date: </label>
-                                    
-                                    <div class="col-md-8">
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-calendar"></i>
-                                            </span>
-                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="payment_date" placeholder="Payment date" value="<?php echo date('Y-m-d')?>" required="required">
+                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="creditor_account_date" placeholder="Transaction date">
                                         </div>
                                     </div>
                                 </div>
@@ -88,27 +75,19 @@
                                         <textarea class="form-control" name="creditor_account_description"></textarea>
                                     </div>
                                 </div>
-                                <input type="hidden" name="redirect_url" id="redirect_url" value="<?php echo $this->uri->uri_string()?>">
+                                
                                 <div class="form-group">
                                     <label class="col-md-4 control-label">Amount *</label>
                                     
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control" name="creditor_account_amount" placeholder="Amount" required="required"/>
-                                    </div>
-                                </div>
-
-                                 <div class="form-group">
-                                    <label class="col-md-4 control-label">Transaction Code *</label>
-                                    
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control" name="transaction_code" placeholder="Cheque/Mpesa code" required="required" />
+                                        <input type="text" class="form-control" name="creditor_account_amount" placeholder="Amount"/>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-8 col-md-offset-4">
                                         <div class="center-align">
-                                            <button type="submit" class="btn btn-primary" onclick="return confirm('Do you want to save this record ? ')">Save record</button>
+                                            <button type="submit" class="btn btn-primary">Save record</button>
                                         </div>
                                     </div>
                                 </div>
@@ -149,21 +128,21 @@
                 echo $search_title;
             }   
 
-                $creditor_result = $this->creditors_model->get_provider_statement($provider_id,$personnel_type_id,$personnel_percentage);
+                $creditor_result = $this->creditors_model->get_provider_statement($provider_id);
             ?>
 
                 <table class="table table-hover table-bordered ">
                     <thead>
                         <tr>
-                          <th>Period Date</th> 
-                          <th>Cash</th>
-                          <th>Insurance</th>
-                          <th>Gross Payable</th>
-                          <th>Lab Work</th>
-                          <th>Total Payable</th>
-                          <th>60 %</th> 
-                          <th>40 %</th>
+                          <th>Transaction Date</th> 
+                         <th>Insurance </th>  
+                         <th>App. Insurance </th>                 
+                          <th>Gross Payable</th> 
+                         <th>Lab Work</th>  
+                          <th>WHT</th>
+                          <th>Net Payable</th>
                           <th>Payments</th>   
+                          <th>Rejected</th> 
                           <th>Balance</th>                    
                         </tr>
                      </thead>

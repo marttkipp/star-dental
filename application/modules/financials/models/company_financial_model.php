@@ -253,6 +253,46 @@ class Company_financial_model extends CI_Model
 		return $query;
 	}
 
+	public function get_operational_cost_value_by_classification($accountsclassification)
+	{
+
+		$search_status = $this->session->userdata('income_statement_search');
+		$search_payments_add = '';
+		$search_invoice_add = '';
+		if($search_status == 1)
+		{
+			$date_from = $this->session->userdata('date_from_income_statement');
+			$date_to = $this->session->userdata('date_to_income_statement');
+
+			if(!empty($date_from) AND !empty($date_to))
+			{
+
+				$search_invoice_add =  ' AND (referenceDate >= \''.$date_from.'\' AND referenceDate <= \''.$date_to.'\') ';
+			}
+			else if(!empty($date_from))
+			{
+				$search_invoice_add = ' AND referenceDate = \''.$date_from.'\'';
+			}
+			else if(!empty($date_to))
+			{
+				$search_invoice_add = ' AND referenceDate = \''.$date_to.'\'';
+			}
+		}
+		else
+		{
+			$search_invoice_add = '';
+
+		}
+		//retrieve all users
+		$this->db->from('v_general_ledger');
+		$this->db->select('SUM(dr_amount) AS total_amount,accountName,accountId');
+		$this->db->where('accountId > 0 AND accountsclassfication = "'.$accountsclassification.'" '.$search_invoice_add);
+		$this->db->group_by('accountId');
+		$query = $this->db->get();
+
+		return $query;
+	}
+
 
 	public function get_cog_value($transactionCategory)
 	{
@@ -349,13 +389,7 @@ class Company_financial_model extends CI_Model
 
 		$this->db->from('v_account_ledger_by_date,account');
 		$this->db->select('(SUM(dr_amount) - SUM(cr_amount)) AS total_amount,accountName,account_id');
-		$this->db->where('accountParentId = 2 AND v_account_ledger_by_date.accountId = account.account_id AND account.paying_account = 0 
-			AND (
-				v_account_ledger_by_date.transactionClassification = "Purchase Payment" 
-				OR 
-				v_account_ledger_by_date.transactionCategory = "Transfer"
-				OR 
-				v_account_ledger_by_date.transactionCategory = "Expense Payment") '.$search_invoice_add);
+		$this->db->where('accountParentId = 2 AND v_account_ledger_by_date.accountId = account.account_id AND account.account_status = 1 AND account.paying_account = 0  '.$search_invoice_add);
 		$this->db->group_by('v_account_ledger_by_date.accountId');
 		$query = $this->db->get();
 
@@ -876,16 +910,19 @@ class Company_financial_model extends CI_Model
 
 		//retrieve all users
 		$this->db->from('v_transactions');
-		$this->db->select('SUM(dr_amount) - SUM(cr_amount) AS total_amount');
+		$this->db->select('SUM(dr_amount) AS dr_amount,SUM(cr_amount) AS cr_amount');
 		$this->db->where('payment_type = '.$visit_type_id.'  AND party = "Patient" '.$search_invoice_add);
 		// $this->db->group_by('accountId');
 		$query = $this->db->get();
 		$query_row = $query->row();
-		$total_invoices_balance = $query_row->total_amount;
+		// $total_invoices_balance = $query_row->total_amount;
+		$payments = $query_row->cr_amount;
+		$invoices = $query_row->dr_amount;
+		$checked['invoice'] = $invoices;
+		$checked['payments'] = $payments;
 
 
-
-		return $total_invoices_balance;
+		return $checked;
 
 	}
 
@@ -2593,12 +2630,9 @@ class Company_financial_model extends CI_Model
 		$this->db->from('v_account_ledger_by_date');
 		$this->db->select('v_account_ledger_by_date.*');
 		$this->db->where('accountsclassfication = "Bank"
-						AND 
-						(v_account_ledger_by_date.transactionClassification = "Purchase Payment" AND accountId = '.$account_id.')
-									OR (v_account_ledger_by_date.transactionCategory = "Transfer" AND  accountId = '.$account_id.')
-									OR (v_account_ledger_by_date.transactionCategory = "Expense Payment" AND  accountId = '.$account_id.')
+							AND  accountId = '.$account_id.'
 						'.$search_invoice_add);
-		$this->db->order_by('v_account_ledger_by_date.transactionDate','DESC');
+		$this->db->order_by('v_account_ledger_by_date.transactionDate','ASC');
 		$query = $this->db->get();
 
 		return $query;
@@ -3557,10 +3591,7 @@ class Company_financial_model extends CI_Model
 						    ON asset_amortization.asset_id = assets_details.asset_id
 						  LEFT JOIN asset_category
 						    ON assets_details.asset_category_id = asset_category.asset_category_id
-						WHERE MONTH (
-						    asset_amortization.amortizationDate
-						  ) = MONTH("'.$date_to.'")
-						  AND YEAR (
+						WHERE  YEAR (
 						    asset_amortization.amortizationDate
 						  ) = YEAR("'.$date_to.'")
 						GROUP BY assets_details.asset_category_id
@@ -3640,6 +3671,7 @@ class Company_financial_model extends CI_Model
 						'account_type_id'=>$this->input->post('account_type_id'),
 						'parent_account'=>$this->input->post('parent_account'),
 						'account_opening_balance'=>$this->input->post('account_balance'),
+						'paying_account'=>$this->input->post('paying_account'),
 						'start_date'=>$this->input->post('start_date')
 						);
 			$this->db->where('account_id = '.$account_id);
@@ -3660,6 +3692,7 @@ class Company_financial_model extends CI_Model
 						'parent_account'=>$this->input->post('parent_account'),
 						'account_type_id'=>$this->input->post('account_type_id'),
 	                    'account_status'=>$this->input->post('account_status'),
+	                    'paying_account'=>$this->input->post('paying_account'),
 						'start_date'=>$this->input->post('start_date')
 						);
 			if($this->db->insert('account',$account))
@@ -3752,5 +3785,198 @@ class Company_financial_model extends CI_Model
 
 			return $account_name;
 	    }
+
+	    public function get_account_value_by_type($account_type_name)
+	{
+
+		$search_status = $this->session->userdata('balance_sheet_search');
+		$search_payments_add = '';
+		$search_invoice_add = '';
+		if($search_status == 1)
+		{
+			$date_from = $this->session->userdata('date_from_balance_sheet');
+			$date_to = $this->session->userdata('date_to_balance_sheet');
+
+			if(!empty($date_from) AND !empty($date_to))
+			{
+				$search_invoice_add =  ' AND (transactionDate >= \''.$date_from.'\' AND transactionDate <= \''.$date_to.'\') ';
+			}
+			else if(!empty($date_from))
+			{
+				$search_invoice_add = ' AND transactionDate = \''.$date_from.'\'';
+			}
+			else if(!empty($date_to))
+			{
+				$search_invoice_add = ' AND transactionDate = \''.$date_to.'\'';
+			}
+		}
+		else
+		{
+			$search_invoice_add =  ' AND (transactionDate >= \''.date("Y-01-01").'\' AND transactionDate <= \''.date("Y-m-d").'\') ';
+
+		}
+		//retrieve all users
+
+		$this->db->from('v_account_ledger_by_date,account');
+		$this->db->select('(SUM(dr_amount) - SUM(cr_amount)) AS total_amount,accountName,account_id');
+		$this->db->where('v_account_ledger_by_date.accountId = account.account_id
+			 AND v_account_ledger_by_date.accountsclassfication = "'.$account_type_name.'" '.$search_invoice_add);
+		$this->db->group_by('v_account_ledger_by_date.accountId');
+		$query = $this->db->get();
+
+		return $query;
+
+	}
+
+	
+	public function get_account_share_capital_by_type($account_type_name)
+	{
+
+		$search_status = $this->session->userdata('balance_sheet_search');
+		$search_payments_add = '';
+		$search_invoice_add = '';
+		if($search_status == 1)
+		{
+			$date_from = $this->session->userdata('date_from_balance_sheet');
+			$date_to = $this->session->userdata('date_to_balance_sheet');
+
+			if(!empty($date_from) AND !empty($date_to))
+			{
+				// $search_invoice_add =  ' AND (transactionDate >= \''.$date_from.'\' AND transactionDate <= \''.$date_to.'\') ';
+				$search_invoice_add =  ' AND (transactionDate <= \''.$date_to.'\') ';
+			}
+			else if(!empty($date_from))
+			{
+				$search_invoice_add = ' AND transactionDate = \''.$date_from.'\'';
+			}
+			else if(!empty($date_to))
+			{
+				$search_invoice_add = ' AND transactionDate = \''.$date_to.'\'';
+			}
+		}
+		else
+		{
+			$search_invoice_add =  ' AND (transactionDate >= \''.date("Y-01-01").'\' AND transactionDate <= \''.date("Y-m-d").'\') ';
+
+		}
+		//retrieve all users
+
+		$this->db->from('v_account_ledger_by_date,account');
+		$this->db->select('(SUM(cr_amount) - SUM(dr_amount)) AS total_amount,accountName,account_id');
+		$this->db->where('v_account_ledger_by_date.accountId = account.account_id
+			 AND v_account_ledger_by_date.accountsclassfication = "'.$account_type_name.'" '.$search_invoice_add);
+		$this->db->group_by('v_account_ledger_by_date.accountId');
+		$query = $this->db->get();
+
+		return $query;
+
+	}
+
+	public function get_payroll_list($table, $where, $per_page, $page, $order = 'v_payroll.payroll_created_for', $order_method = 'ASC')
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('*');
+		$this->db->where($where);
+		$this->db->order_by($order, $order_method);
+		$query = $this->db->get('', $per_page, $page);
+
+		return $query;
+	}
+
+
+	public function export_salary()
+	{
+
+		$this->load->library('excel');
+	
+
+		$where = 'payroll_id > 0';
+
+		$search_status = $this->session->userdata('income_statement_search');
+		$search_payments_add = '';
+		$search_invoice_add = '';
+		if($search_status == 1)
+		{
+			$date_from = $this->session->userdata('date_from_income_statement');
+			$date_to = $this->session->userdata('date_to_income_statement');
+
+			if(!empty($date_from) AND !empty($date_to))
+			{
+				$search_invoice_add =  ' AND (payroll_created_for >= \''.$date_from.'\' AND payroll_created_for <= \''.$date_to.'\') ';
+			}
+			else if(!empty($date_from))
+			{
+				$search_invoice_add = ' AND payroll_created_for = \''.$date_from.'\'';
+			}
+			else if(!empty($date_to))
+			{
+				$search_invoice_add = ' AND payroll_created_for = \''.$date_to.'\'';
+			}
+		}
+		else
+		{
+			$search_invoice_add = '';
+
+		}
+
+		$where .= $search_invoice_add;
+		//retrieve all users
+
+		$table = 'v_payroll';
+
+
+		$this->db->where($where);
+		$this->db->select('*');
+		$visits_query = $this->db->get($table);
+
+		$title = 'Payroll Export '.date('jS M Y H:i a',strtotime(date('Y-m-d H:i:s')));
+		$col_count = 0;
+
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][$col_count] = '#';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Period Payroll';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Amount';
+			$col_count++;
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+					$period = date('M Y',strtotime($row->payroll_created_for));
+				$total_payroll = $row->total_payroll;
+
+				$total_payroll_amount += $total_payroll;
+				$count++;
+
+
+				//display the patient data
+				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $period;
+				$col_count++;
+				$report[$row_count][$col_count] = round($total_payroll);
+				$col_count++;
+
+
+
+
+			}
+		}
+
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+
+	}
 }
 ?>

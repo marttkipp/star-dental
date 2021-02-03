@@ -1,16 +1,29 @@
 <div class="row">
   <div class="col-md-12">
 
-    <section class="panel">
-        <header class="panel-heading">
-            <h2 class="panel-title">Search List
-            </h2>
-        </header>
-        <div class="panel-body">
+      <section class="panel panel-info">
+          <header class="panel-heading">
+              <h3 class="panel-title">Search Petty Cash</h3>
+          </header>
+          <div class="panel-body">
+               
 
            <?php echo form_open("finance/transfer/search_transfers", array("class" => "form-horizontal"));?>
              <div class="row">
                <div class="col-md-12">
+
+                <div class="col-md-3">
+                     <div class="form-group">
+                         <label class="col-md-4 control-label">Ref No *</label>
+
+                         <div class="col-md-8">
+                             <input type="text" class="form-control" name="transaction_number" placeholder="Transaction Number" autocomplete="off" />
+                         </div>
+                     </div>
+
+
+
+                </div>
                <div class="col-md-3">
                      <div class="form-group">
                          <label class="col-md-4 control-label">Date From: </label>
@@ -20,65 +33,48 @@
                                  <span class="input-group-addon">
                                      <i class="fa fa-calendar"></i>
                                  </span>
-                                 <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="date_from" placeholder="Transaction date" value="" id="datepicker" >
+                                 <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="date_from" placeholder="Transaction date"  id="datepicker"  autocomplete="off">
                              </div>
                          </div>
                      </div>
-
-
-
-
-               </div>
+                </div>
                <div class="col-md-3">
 
-                       <div class="form-group">
-                           <label class="col-md-4 control-label">Date To: </label>
-
-                           <div class="col-md-8">
-                               <div class="input-group">
-                                   <span class="input-group-addon">
-                                       <i class="fa fa-calendar"></i>
-                                   </span>
-                                   <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="date_ro" placeholder="Transaction date" value="" id="datepicker1" >
-                               </div>
-                           </div>
-                       </div>
-
-
-               </div>
-               <div class="col-md-3">
                  <div class="form-group">
-                     <label class="col-md-4 control-label">Ref No *</label>
+                     <label class="col-md-4 control-label">Date To: </label>
 
                      <div class="col-md-8">
-                         <input type="text" class="form-control" name="transaction_number" placeholder="Transaction Number" />
+                         <div class="input-group">
+                             <span class="input-group-addon">
+                                 <i class="fa fa-calendar"></i>
+                             </span>
+                             <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="date_ro" placeholder="Transaction date" value="<?php echo date('Y-m-d');?>" id="datepicker1" autocomplete="off" >
+                         </div>
                      </div>
                  </div>
                </div>
-               <div class="col-md-3">
-                 <div class="form-group">
-                   <div class="text-center">
-                       <button type="submit" class="btn btn-sm btn-primary">Search record</button>
-                   </div>
-                 </div>
-              </div>
+              <div class="col-md-3">
+                       <div class="form-group">
+                         <div class="text-center">
+                             <button type="submit" class="btn btn-sm btn-primary">Search record</button>
+                         </div>
+                       </div>
+
+               </div>
                </div>
 
 
              </div>
              <?php echo form_close();?>
-            <hr>
-
           </div>
       </section>
   </div>
   <div class="col-md-12">
-    <section class="panel">
-        <header class="panel-heading">
-            <h2 class="panel-title">Make Transfer
-            </h2>
-        </header>
-        <div class="panel-body">
+      <section class="panel panel-info">
+          <header class="panel-heading">
+              <h3 class="panel-title">Add a transfer</h3>
+          </header>
+          <div class="panel-body">
             <?php echo form_open_multipart($this->uri->uri_string(), array("class" => "form-horizontal", "role" => "form"));?>
                 <div class="row">
                     <div class="col-md-6">
@@ -86,7 +82,7 @@
                             <label class="col-lg-4 control-label">Account From</label>
                             <div class="col-lg-8">
                                 <select id="account_from_id" name="account_from_id" class="form-control" onchange="get_accounty_type_list(this.value)" required>
-                                    <option value="">--- Account ---</option>
+                                    <option value="0">--- Account ---</option>
                                     <?php
                                      if($accounts->num_rows() > 0)
                                      {
@@ -134,7 +130,7 @@
 
                             <div class="col-lg-8">
                                 <select name="account_to_id" class="form-control select2" id="charge_to_id" required>
-                                  <option value="">---- select an account to transfer to ------</option>
+                                  <option value="0">---- select an account to transfer to ------</option>
 
                                 </select>
                             </div>
@@ -148,7 +144,7 @@
                         <div class="form-group">
                             <label class="col-lg-4 control-label">Description *</label>
                             <div class="col-lg-8">
-                                <textarea class="form-control" name="description" placeholder="Transfer Description" required="required"></textarea>
+                                <textarea class="form-control" name="description" placeholder="Transfer Description" required></textarea>
                             </div>
                         </div>
                         <div class="form-actions center-align">
@@ -160,18 +156,17 @@
 
                 </div>
             <?php echo form_close();?>
-        </div>
+          </div>
       </section>
   </div>
 </div>
 <div class="row">
   <div class="col-md-12">
-    <section class="panel">
-        <header class="panel-heading">
-            <h2 class="panel-title">Transfers
-            </h2>
-        </header>
-        <div class="panel-body">
+        <section class="panel panel-info">
+          <header class="panel-heading">
+              <h3 class="panel-title">Make a transfer</h3>
+          </header>
+          <div class="panel-body">
             <?php
             $search = $this->session->userdata('search_transfers');
             if(!empty($search))
@@ -205,8 +200,7 @@
                                 <th>Transfer Date</th>
                                 <th>Reference Number</th>
                                 <th>Account From</th>
-                                <th>Account To</th>                                
-                                <th>Remarks</th>
+                                <th>Account To</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -219,40 +213,45 @@
                                 $x=$page;
                                    foreach ($query->result() as $key => $value) {
                                        # code...
+                                        $finance_transfer_id = $value->finance_transfer_id;
                                        $account_from_id = $value->account_from_id;
                                        $account_to_id = $value->account_to_id;
+                                       $finance_transfer_deleted = $value->finance_transfer_deleted;
                                        $transaction_date = $value->transaction_date;
-                                       $reference_number = $value->reference_number;
+                                       $receipt_number = $value->reference_number;
+                                       $document_number = $value->document_number;
                                        $amount_paid = $value->finance_transfer_amount;
-                                       $finance_transfer_id = $value->finance_transfer_id;
-                                       $remarks = $value->remarks;
-                                       if(!empty($account_from_id))
-                                       {
-                                         $account_from_name = $this->transfer_model->get_account_name($account_from_id);
-                                       }
-                                       else {
-                                         $account_from_name = '';
-                                       }
-                                       if(!empty($account_to_id))
-                                       {
-                                         $account_to_name = $this->transfer_model->get_account_name($account_to_id);
-                                       }
-                                       else {
-                                         $account_to_name = '';
-                                       }
-                                       $link = '<td><a href="'.site_url().'edit-transfer-entry/'.$finance_transfer_id.'" class="btn btn-xs btn-success fa fa-pencil" ></a></td><td><a href="'.site_url().'remove-transfer-entry/'.$finance_transfer_id.'" class="btn btn-xs btn-danger fa fa-trash" onclick="return confirm(\'Do you really want remove this entry?\');"></a></td>';
+                                       $account_from_name = $this->transfer_model->get_account_name($account_from_id);
+                                       $account_to_name = $this->transfer_model->get_account_name($account_to_id);
+
+
+
+                                       if($finance_transfer_deleted == 0)
+                                        {
+                                          $delete_status = '<span class="label label-xs label-default"> Active</span>';
+                                        }
+                                        else if($finance_transfer_deleted == 1)
+                                        {
+                                          $delete_status = '<span class="label label-xs label-warning">Pending Delete Approval</span>';
+                                        }
+                                        else if($finance_transfer_deleted == 2)
+                                        {
+                                          $delete_status = '<span class="label label-xs label-danger">Deleted</span>';
+                                        }
 
                                        $x++;
-                                       $transaction_date = date('jS M Y',strtotime($transaction_date));
+                                        $checked = '
+                                                      <td><a href="'.base_url().'delete-transfered-payment/'.$finance_transfer_id.'" class="btn btn-xs btn-danger" onclick="return confirm(\'Are you sure you want to delete this transfer record ? \')" ><i class="fa fa-trash"></i></a></td>';
                                        $result .= '<tr>
                                                        <td>'.$x.'</td>
                                                        <td>'.$transaction_date.'</td>
-                                                       <td>'.strtoupper($reference_number).'</td>
+                                                       <td>'.strtoupper($receipt_number).'</td>
                                                        <td>'.$account_from_name.'</td>
                                                        <td>'.$account_to_name.'</td>
-                                                       <td>'.ucfirst($remarks).'</td>
                                                        <td>'.number_format($amount_paid,2).'</td>
-                                                        '.$link.'
+                                                       <td>'.$delete_status.'</td>
+                                                       '.$checked.'
+
                                                    </tr>';
 
                                    }
@@ -280,7 +279,7 @@
         var type = radio_name;
         // $("#charge_to_id").customselect()="";
         // alert(radio_name);
-        var url = "<?php echo site_url();?>finance/transfer/get_list_type/" + type;
+        var url = "<?php echo site_url();?>finance/transfer/get_account_list_type/" + type;
         // alert(url);
         //get department services
         $.get(url, function(data) {

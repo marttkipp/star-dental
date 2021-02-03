@@ -5,6 +5,16 @@
 $income_rs = $this->company_financial_model->get_payables_aging_report();
 $income_result = '';
 $total_income = 0;
+$total_income = 0;
+$total_thirty = 0;
+$total_sixty = 0;
+$total_ninety = 0;
+$total_over_ninety = 0;
+$total_coming_due = 0;
+$grand_total = 0;
+$total_unallocated = 0;
+$grand_dr =0;
+$grand_cr = 0;
 if($income_rs->num_rows() > 0)
 {
 	foreach ($income_rs->result() as $key => $value) {
@@ -18,7 +28,22 @@ if($income_rs->num_rows() > 0)
 		$coming_due = $value->coming_due;
 		$creditor_id = $value->recepientId;
 		$Total = $value->Total;
-		$total_unallocated = $this->company_financial_model->get_unallocated_funds($creditor_id);
+		$total_dr = $value->total_dr;
+		$total_cr = $value->total_cr;
+
+		$unallocated = $this->company_financial_model->get_unallocated_funds($creditor_id);
+		$total_thirty += $thirty_days;
+		$total_sixty += $sixty_days;
+		$total_ninety += $ninety_days;
+		$total_over_ninety += $over_ninety_days;
+		$total_coming_due += $coming_due;
+		
+		$total_unallocated += $unallocated;
+		$grand_dr += $total_dr;
+		$grand_cr += $total_cr;
+		$balance = $total_dr - $total_cr;
+		$Total = $balance;
+		$grand_total += $Total;
 		$income_result .='<tr>
 							<td class="text-left">'.strtoupper($payables).'</td>
 							<td class="text-right">'.number_format($coming_due,2).'</td>
@@ -26,12 +51,27 @@ if($income_rs->num_rows() > 0)
 							<td class="text-right">'.number_format($sixty_days,2).'</td>
 							<td class="text-right">'.number_format($ninety_days,2).'</td>
 							<td class="text-right">'.number_format($over_ninety_days,2).'</td>
-							<td class="text-right">'.number_format($total_unallocated,2).'</td>
-							<td class="text-right">'.number_format($Total,2).'</td>
+							<td class="text-right">'.number_format($unallocated,2).'</td>
+							<td class="text-right">'.number_format($total_dr,2).'</td>
+							<td class="text-right">('.number_format($total_cr,2).')</td>
+							<td class="text-right">'.number_format($total_dr-$total_cr,2).'</td>
 							<td class="text-right"><a href="'.site_url().'creditor-statement/'.$creditor_id.'" class="btn btn-warning btn-xs"> Open Account</a></td>
 							<td class="text-right"><a href="'.site_url().'finance/edit-creditor/'.$creditor_id.'" class="btn btn-success btn-xs"> Edit Account</a></td>
 							</tr>';
 	}
+
+	$income_result .='<tr>
+						<th class="text-left">TOTALS</th>
+						<th class="text-right">'.number_format($total_coming_due,2).'</th>
+						<th class="text-right">'.number_format($total_thirty,2).'</th>
+						<th class="text-right">'.number_format($total_sixty,2).'</th>
+						<th class="text-right">'.number_format($total_ninety,2).'</th>
+						<th class="text-right">'.number_format($total_over_ninety,2).'</th>
+						<th class="text-right">'.number_format($total_unallocated,2).'</th>
+						<th class="text-right">'.number_format($grand_dr,2).'</th>
+						<th class="text-right">('.number_format($grand_cr,2).')</th>
+						<th class="text-right">'.number_format($grand_total,2).'</th>
+					</tr>';
 
 }
 ?>
@@ -39,7 +79,8 @@ if($income_rs->num_rows() > 0)
 <section class="panel">
 		<header class="panel-heading">
 				<h3 class="panel-title">Payables </h3>
-				<div class="box-tools pull-right">
+				<div class="widget-tools pull-right" style="margin-top: -25px;">
+					<a href="<?php echo site_url();?>finance/export-payables" class="btn btn-sm btn-info" target="_blank" ><i class="fa fa-plus"></i> Export Payables Report</a>
                     <a href="<?php echo site_url();?>finance/add-creditor" class="btn btn-sm btn-primary" ><i class="fa fa-plus"></i> Add Creditor</a>
                 </div>
 		</header>
@@ -63,7 +104,9 @@ if($income_rs->num_rows() > 0)
 					<th class="text-right">61 - 90 Days</th>
 					<th class="text-right">Over 90 Days</th>
 					<th class="text-right">Unallocated Funds</th>
-					<th class="text-right">Total</th>
+					<th class="text-right">Total Debits</th>
+					<th class="text-right">Total Credits</th>
+					<th class="text-right">Balance</th>
 					<th class="text-right">Action</th>
 				</tr>
 			</thead>

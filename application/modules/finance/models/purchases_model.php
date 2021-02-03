@@ -263,7 +263,7 @@ class Purchases_model extends CI_Model
   {
       $this->db->from('account');
       $this->db->select('*');
-      $this->db->where('(parent_account = 2 OR parent_account =19) AND paying_account = 0');
+      $this->db->where('(parent_account = 2 OR parent_account =19) AND paying_account = 0 AND account_status = 1');
       $query = $this->db->get();     
 
       return $query;     
@@ -291,7 +291,7 @@ class Purchases_model extends CI_Model
         //retrieve all users
         $this->db->from('account');
         $this->db->select('*');
-        $this->db->where('paying_account = 0 AND parent_account = '.$account_id.$values);
+        $this->db->where('paying_account = 0 AND account_status = 1 AND parent_account = '.$account_id.$values);
         $query = $this->db->get();
 
         return $query;
@@ -396,6 +396,27 @@ class Purchases_model extends CI_Model
     $query = $this->db->get($table);
 
     return $query;
+  }
+
+  
+  public function get_all_accounts($account_id = NULL)
+  {
+      if(!empty($account_id))
+      {
+        $add = ' AND account_id <> '.$account_id;
+      }
+      else
+      {
+        $add ='';
+      }
+      $this->db->from('account');
+      $this->db->select('*');
+      $this->db->where('parent_account <> 0'.$add);
+      $this->db->order_by('parent_account','ASC');
+      $query = $this->db->get();
+
+       return $query;
+
   }
 }
 ?>

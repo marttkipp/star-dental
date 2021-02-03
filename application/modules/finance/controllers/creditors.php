@@ -987,6 +987,13 @@ class Creditors extends admin
     $data['creditor_invoice_id'] = $creditor_invoice_id;
     $this->load->view('creditors/view_creditor_invoice', $data);  
   }
+
+
+  public function get_suppliers_invoice_details($order_id)
+  {
+    $data['order_id'] = $order_id;
+    $this->load->view('creditors/view_supplier_invoice', $data);  
+  }
   public function get_payment_details($creditor_payment_id)
   {
     $data['creditor_payment_id'] = $creditor_payment_id;

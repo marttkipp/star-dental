@@ -14,19 +14,25 @@
             echo form_open("financials/company_financial/search_accounts", array("class" => "form-horizontal"));
             ?>
             <div class="row">
-                  <div class="form-group" style="width:800px; margin:0 auto;">
+                <div class="col-md-6">
+                    <div class="form-group" >
                         <label class="col-lg-4 control-label">Account name: </label>
                         
                         <div class="col-lg-8">
                             <input type="text" class="form-control" name="account_name" placeholder="Account Name">
                         </div>
                     </div>
+                </div>               
+                <div class="col-md-6">
+                    <div class="form-group" >
+                        <div class="center-align">
+                            <button type="submit" class="btn btn-info btn-sm">Search</button>
+                        </div>
+                    </div>
                 </div>
-
-            <br/>
-            <div class="center-align">
-                <button type="submit" class="btn btn-info btn-sm">Search</button>
             </div>
+            
+           
             <?php
             echo form_close();
             ?>

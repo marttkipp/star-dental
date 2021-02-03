@@ -2,7 +2,7 @@
     <header class="panel-heading">
           <h4 class="pull-left"><i class="icon-reorder"></i><?php echo $title;?></h4>
           <div class="widget-icons pull-right">
-                <a href="<?php echo base_url();?>accounting/general-journal-entries" class="btn btn-primary pull-right btn-sm">Back to accounts</a>
+                <a href="<?php echo base_url();?>accounting/charts-of-accounts" class="btn btn-primary pull-right btn-sm">Back to accounts</a>
           </div>
           <div class="clearfix"></div>
     </header>
@@ -21,6 +21,7 @@
         $account_id2 = $query->parent_account;
         $start_date = $query->start_date;
         $account_status = $query->account_status;
+        $paying_account = $query->paying_account;
         
         $validation_errors = validation_errors();
         
@@ -33,6 +34,7 @@
             $account_id2 = set_value('parent_account');
             $start_date = set_value('start_date');
             $account_status = set_value('account_status');
+            $paying_account = set_value('paying_account');
     		
             echo '<div class="alert alert-danger"> Oh snap! '.$validation_errors.' </div>';
         }
@@ -71,6 +73,30 @@
 		                </div>
 					</div>
 				</div>
+
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Paying Account?</label>
+                    <div class="col-lg-4">
+                        <div class="radio">
+                            <label>
+                                <?php
+                                if($paying_account == 1){echo '<input id="optionsRadios1" type="radio" checked value="0" name="paying_account">';}
+                                else{echo '<input id="optionsRadios1" type="radio" value="0" name="paying_account">';}
+                                ?>
+                                No
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <?php
+                                if($paying_account == 0){echo '<input id="optionsRadios1" type="radio" checked value="1" name="paying_account">';}
+                                else{echo '<input id="optionsRadios1" type="radio" value="1" name="paying_account">';}
+                                ?>
+                                Yes
+                            </label>
+                        </div>
+                    </div>
+                </div>
                
             </div>
             <div class="col-md-6">

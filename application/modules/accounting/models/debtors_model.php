@@ -789,9 +789,10 @@ class Debtors_model extends CI_Model
 	{
 		$this->load->library('excel');
 		
+		$branch_id = $this->session->userdata('branch_id');
 		
-		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_delete = 0 AND visit.visit_type = '.$visit_type_id.' AND (visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$end_date.'" ) ';
-		$table = 'visit, patients, visit_type';
+		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit_invoice.bill_to AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_delete = 0 AND visit_invoice.bill_to = '.$visit_type_id.' AND (visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$end_date.'" ) AND visit_invoice.visit_id = visit.visit_id AND visit_invoice.visit_invoice_delete = 0 AND visit.branch_id = '.$branch_id;
+		$table = 'visit, patients, visit_type,visit_invoice';
 		$visit_search = $this->session->userdata('debtors_search_query');
 		// var_dump($visit_search);die();
 		if(!empty($visit_search))
@@ -875,7 +876,6 @@ class Debtors_model extends CI_Model
 				$patient_surname = $row->patient_surname;
 				$rejected_amount = $row->amount_rejected;
 				$parent_visit = $row->parent_visit;
-				$invoice_number = $row->invoice_number;
 				$patient_date_of_birth = $row->patient_date_of_birth;
 				if(empty($rejected_amount))
 				{
@@ -910,7 +910,7 @@ class Debtors_model extends CI_Model
 
 				$doctor = $row->personnel_onames.' '.$row->personnel_fname;
 				
-				
+				$count++;
 				
 				//payment data
 				$charges = '';
@@ -940,28 +940,24 @@ class Debtors_model extends CI_Model
 						$procedures .= strtoupper($service_charge_name).',';
 					endforeach;
 				}
-				
-				if($balance > 0)
-				{
-					$count++;
-					//display the patient data
-					$report[$row_count][$col_count] = $count;
-					$col_count++;
-					$report[$row_count][$col_count] = $visit_date;
-					$col_count++;
-					$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
-					$col_count++;
-					$report[$row_count][$col_count] = $visit_id;
-					$col_count++;
-					$report[$row_count][$col_count] = $procedures;
-					$col_count++;
-					$report[$row_count][$col_count] = $doctor;
-					$col_count++;
-					$report[$row_count][$col_count] = $invoice_total;
-					$col_count++;
-					$report[$row_count][$col_count] = $balance;
-					$col_count++;
-				}
+
+				//display the patient data
+				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $visit_date;
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
+				$col_count++;
+				$report[$row_count][$col_count] = $visit_id;
+				$col_count++;
+				$report[$row_count][$col_count] = $procedures;
+				$col_count++;
+				$report[$row_count][$col_count] = $doctor;
+				$col_count++;
+				$report[$row_count][$col_count] = $invoice_total;
+				$col_count++;
+				$report[$row_count][$col_count] = $balance;
+				$col_count++;
 				
 				
 				
@@ -1017,5 +1013,7 @@ class Debtors_model extends CI_Model
 		
 		
 	}
+
+	
 }
 ?>

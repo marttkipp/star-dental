@@ -1,5 +1,6 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 require_once "./application/modules/admin/controllers/admin.php";
+error_reporting(E_ALL);
 class Company_financial extends admin
 {
     var $documents_path;
@@ -2320,7 +2321,7 @@ class Company_financial extends admin
 	{
 		$order = 'account.account_type_id';
 		$order_method ='ASC';
-		$where = 'account_id > 0 AND account_type.account_type_id = account.account_type_id';
+		$where = 'account_deleted  = 0 AND account_type.account_type_id = account.account_type_id';
 		$table = 'account,account_type';
 
 		$search = $this->session->userdata('search_petty_cash1');
@@ -2328,7 +2329,7 @@ class Company_financial extends admin
 		
 		$segment = 3;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'accounting/general-journal-entries';
+		$config['base_url'] = site_url().'accounting/charts-of-accounts';
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -2395,7 +2396,7 @@ class Company_financial extends admin
 			$this->session->set_userdata('error_message', 'Account deactivation failed');
 		}
 		
-		redirect('accounting/general-journal-entries');
+		redirect('accounting/charts-of-accounts');
 	}
 	public function activate_account($account_id)
 	{
@@ -2408,7 +2409,7 @@ class Company_financial extends admin
 			$this->session->set_userdata('error_message', 'Account activation failed');
 		}
 		
-		redirect('accounting/general-journal-entries');
+		redirect('accounting/charts-of-accounts');
 	}
 	public function edit_account($account_id)
 	{
@@ -2425,7 +2426,7 @@ class Company_financial extends admin
 			if($this->company_financial_model->update_account($account_id))
 			{
 				$this->session->set_userdata('success_message', 'Account updated successfully');
-				redirect('accounting/general-journal-entries');
+				redirect('accounting/charts-of-accounts');
 			}
 			
 			else
@@ -2453,13 +2454,14 @@ class Company_financial extends admin
 		$this->form_validation->set_rules('account_type_id', 'Account_type','required|xss_clean');
 		$this->form_validation->set_rules('start_date', 'Start Date','required|xss_clean');
 		
+
 		if ($this->form_validation->run())
 		{
 			//update order
 			if($this->company_financial_model->add_account())
 			{
 				$this->session->set_userdata('success_message', 'Account updated successfully');
-				redirect('accounting/general-journal-entries');
+				redirect('accounting/charts-of-accounts');
 			}
 			
 			else
@@ -2485,14 +2487,115 @@ class Company_financial extends admin
 			$this->session->set_userdata('search_petty_cash1', ' AND account.account_name LIKE \'%'.$account_name.'%\'');
 		}
 		
-		redirect('accounting/general-journal-entries');
+		redirect('accounting/charts-of-accounts');
 	}
 	
 	public function close_search_petty_cash()
 	{
 		$this->session->unset_userdata('search_petty_cash1');
 		
-		redirect('accounting/general-journal-entries');
+		redirect('accounting/charts-of-accounts');
 	}
+
+	public function delete_account($account_id)
+	{
+		$update['account_deleted'] = 1;
+		$this->db->where('account_id',$account_id);
+		if($this->db->update('account',$update))
+		{
+
+		}
+		redirect('accounting/charts-of-accounts');
+	}
+
+	public function salary()
+	{
+
+		$where = 'payroll_id > 0';
+
+		$search_status = $this->session->userdata('income_statement_search');
+		$search_payments_add = '';
+		$search_invoice_add = '';
+		if($search_status == 1)
+		{
+			$date_from = $this->session->userdata('date_from_income_statement');
+			$date_to = $this->session->userdata('date_to_income_statement');
+
+			if(!empty($date_from) AND !empty($date_to))
+			{
+				$search_invoice_add =  ' AND (payroll_created_for >= \''.$date_from.'\' AND payroll_created_for <= \''.$date_to.'\') ';
+			}
+			else if(!empty($date_from))
+			{
+				$search_invoice_add = ' AND payroll_created_for = \''.$date_from.'\'';
+			}
+			else if(!empty($date_to))
+			{
+				$search_invoice_add = ' AND payroll_created_for = \''.$date_to.'\'';
+			}
+		}
+		else
+		{
+			$search_invoice_add = '';
+
+		}
+
+		$where .= $search_invoice_add;
+		//retrieve all users
+
+		$table = 'v_payroll';
+		$segment = 3;
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'company-financials/salary';
+		$config['total_rows'] = $this->users_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 40;
+		$config['num_links'] = 5;
+
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+
+        $v_data["page"] = $page;
+        // $v_data['department_id'] = $department_id;
+        $v_data["links"] = $this->pagination->create_links();
+		$v_data['query'] = $this->company_financial_model->get_payroll_list($table, $where, $config["per_page"], $page,'v_payroll.payroll_created_for','ASC');
+		$data['title'] = $v_data['title'] = 'Payroll List';
+		$data['content'] = $this->load->view('financials/financials/payroll_list', $v_data, TRUE);
+
+		$this->load->view('admin/templates/general_page', $data);
+	}
+
+	public function export_salary()
+	{
+		$this->company_financial_model->export_salary();
+	}
+
+
+	
+
 }
 ?>

@@ -124,11 +124,33 @@ if($non_pharm_query->num_rows() > 0)
 $current_stock -= $non_pharm_purchases;
 // var_dump($non_pharm);die();
 
+$direct_costs_rs = $this->company_financial_model->get_operational_cost_value_by_classification('Direct Costs');
+// 
+$direct_costs_result = '';
+$total_direct_amount = '';
+if($direct_costs_rs->num_rows() > 0)
+{
+	foreach ($direct_costs_rs->result() as $key => $value) {
+		# code...
+		$total_amount = $value->total_amount;
+		$transactionName = $value->account_name;
+		$account_id = $value->accountId;
+		$account_id = $value->account_type_id;
+		$total_direct_amount += $total_amount;
+		$direct_costs_result .='<tr>
+							<td class="text-left">'.strtoupper($transactionName).'</td>
+							<td class="text-right"><a href="'.site_url().'accounting/expense-ledger/'.$account_id.'" >'.number_format($total_amount,2).'</a></td>
+							</tr>';
+	}
+	
+}
+
+
 
 $operation_rs = $this->company_financial_model->get_operational_cost_value('Expense');
 // 
 $operation_result = $non_pharm;
-$total_operational_amount = '';
+$total_operational_amount = 0;
 if($operation_rs->num_rows() > 0)
 {
 	foreach ($operation_rs->result() as $key => $value) {
@@ -136,7 +158,12 @@ if($operation_rs->num_rows() > 0)
 		$total_amount = $value->total_amount;
 		$transactionName = $value->accountName;
 		$account_id = $value->accountId;
-		$total_operational_amount += $total_amount;
+
+		if($total_amount > 0)
+		{
+			$total_operational_amount += $total_amount;
+		}
+		
 		$operation_result .='<tr>
 							<td class="text-left">'.strtoupper($transactionName).'</td>
 							<td class="text-right"><a href="'.site_url().'accounting/expense-ledger/'.$account_id.'" >'.number_format($total_amount,2).'</a></td>
@@ -145,7 +172,7 @@ if($operation_rs->num_rows() > 0)
 	
 }
 
-$salary = 0;// $this->company_financial_model->get_salary_expenses();
+$salary = $this->company_financial_model->get_salary_expenses();
 // $nssf = $this->company_financial_model->get_statutories(1);
 // $nhif = $this->company_financial_model->get_statutories(2);
 // $paye_amount = $this->company_financial_model->get_statutories(3);
@@ -206,7 +233,7 @@ else {
 		</table>
 
 
-			<h5 class="box-title" style="background-color:#3c8dbc;color:#fff;padding:5px;">COST OF GOODS SOLD</h5>
+		<h5 class="box-title" style="background-color:#3c8dbc;color:#fff;padding:5px;">DIRECT COSTS</h5>
     	<table class="table  table-striped table-condensed">
 			<thead>
 				<tr>
@@ -215,40 +242,12 @@ else {
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-							<td >OPENING STOCK</td>
-							<td class="text-right"><a href="<?php echo site_url().'view-closing-stock'?>" target="_blank"><?php echo number_format($closing_stock,2);?></a> </td>
-				</tr>
-				<tr>
-							<td >PURCHASES</td>
-							<td class="text-right"><a href="<?php echo site_url().'view-purchases'?>" target="_blank"><?php echo number_format($total_purchases,2);?></a> </td>
-				</tr>
-				<tr>
-							<td >OTHER ADDITIONS</td>
-							<td class="text-right" ><a href="<?php echo site_url().'view-other-additions'?>" target="_blank"><?php echo number_format($total_other_purchases,2);?></a> </td>
-				</tr>
-				<tr>
-							<td >RETURN OUTWARDS</td>
-							<td class="text-right" ><a href="<?php echo site_url().'view-return-outwards'?>" target="_blank">( <?php echo number_format($total_return_outwards,2);?> )</a> </td>
-				</tr>
-				<tr>
-							<td >OTHER DEDUCTIONS</td>
-							<td class="text-right" ><a href="<?php echo site_url().'view-other-deductions'?>" target="_blank">( <?php echo number_format($total_other_deductions,2);?> )</a> </td>
-				</tr>
-				<tr>
-							<td >TOTAL STOCK EXPENSES</td>
-							<td class="text-right" ><a href="<?php echo site_url().'view-expenses-stock'?>" target="_blank"><?php echo number_format($non_pharm_purchases,2);?></a> </td>
-				</tr>
+				<?php echo $direct_costs_result?>
+				
 
 				<tr>
-							<td >CURRENT STOCK</td>
-							<td class="text-right" ><a href="<?php echo site_url().'view-current-stock'?>" target="_blank"><?php echo number_format($current_stock,2);?></a> </td>
-				</tr>
-
-
-				<tr>
-							<td ><b>TOTAL GOODS SOLD<b></td>
-							<td class="text-right" style="border-top:#3c8dbc solid 1px;">(<?php echo number_format($total_cog,2);?>)</td>
+					<td ><b>TOTAL DIRECT COSTS<b></td>
+					<td class="text-right" style="border-top:#3c8dbc solid 1px;">(<?php echo number_format($total_cog,2);?>)</td>
 				</tr>
 				<tr>
         			<td class="text-left"><strong>GROSS PROFIT</strong> (Total Income - Total Goods Sold)</td>
@@ -269,7 +268,7 @@ else {
 				
 				<tr>
 					<td class="text-left">SALARIES</td>
-					<td class="text-right"> <?php echo number_format($salary,2);?> </td>
+					<td class="text-right"><a href="<?php echo site_url().'company-financials/salary'?>"> <?php echo number_format($salary,2);?> </a> </td>
 				</tr>
 				<?php echo $operation_result;?>
 				<tr>

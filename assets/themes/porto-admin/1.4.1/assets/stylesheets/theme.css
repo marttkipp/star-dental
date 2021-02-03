@@ -105,12 +105,12 @@ a:active {
 .sidebar-right {
 	background: #171717;
 	bottom: 0;
-	margin-right: -300px;
+	/*margin-right: -300px;*/
 	min-height: 100vh;
 	position: fixed;
 	right: 0;
 	top: 0;
-	width: 300px;
+	width: 85%;
 }
 
 /* Layout Base - Sidebar Right Opened ( Larger than mobile ) */

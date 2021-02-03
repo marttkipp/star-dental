@@ -138,7 +138,7 @@
 				                      $button = '<td><a href="'.site_url().'inventory/orders/goods_received_notes/'.$transactionId.'" class="btn btn-xs btn-success" target="_blank"> View Invoice </a></td>';
 
 				                    }
-				                    $amount_paid = $this->creditors_model->get_creditor_amount_paid($transactionId,$recepientId);
+				                    $amount_paid = $this->company_financial_model->get_creditor_amount_paid($transactionId,$recepientId);
 
 
 				                    if($dr_amount == $amount_paid)
@@ -218,6 +218,12 @@
 				  					$link = 'onclick="get_payment_details('.$transactionId.',4)"';
 				  					$color = 'success';
 				  					$type= 4;
+				  				}
+				  				if($transactionClassification == 'Supplies Invoices')
+				  				{
+				  					$link = 'onclick="get_supplier_details('.$transactionId.',6)"';
+				  					$color = 'success';
+				  					$type= 6;
 				  				}
 				  				if($transactionClassification == 'Creditors Credit Notes')
 				  				{
@@ -416,6 +422,60 @@
 		}
 		var config_url = $('#config_url').val();
 		var url = "<?php echo site_url();?>finance/creditors/get_credit_note_details/"+reference_id;
+		// alert(url);
+
+		  
+		if(XMLHttpRequestObject) 
+		{
+			
+			// var checked_data = $('#checked_data'+reference_id).val();
+			// $('.table-rows').css('display', 'none');
+			var checked_id = $('#table-row'+reference_id+type).css('display');
+			
+			if(checked_id == 'block')
+			{
+				// alert(checked_id);
+				$('#table-row'+reference_id+type).css('display', 'none');
+				$('#link-details'+reference_id+type).css('display', 'none');
+
+			}
+			else
+			{
+				$('#table-row'+reference_id+type).css('display', 'block');
+				$('#link-details'+reference_id+type).css('display', 'block');
+				var obj = document.getElementById("link-details"+reference_id+type);
+				XMLHttpRequestObject.open("GET", url);
+				    
+				XMLHttpRequestObject.onreadystatechange = function(){
+				  
+				  if (XMLHttpRequestObject.readyState == 4 && XMLHttpRequestObject.status == 200) {
+				    obj.innerHTML = XMLHttpRequestObject.responseText;
+				  }
+				}
+
+				XMLHttpRequestObject.send(null);
+			}
+			
+
+			
+		}
+    }
+
+    function get_supplier_details(reference_id,type)
+    {
+
+    	var XMLHttpRequestObject = false;
+    
+		if (window.XMLHttpRequest) {
+
+		XMLHttpRequestObject = new XMLHttpRequest();
+		} 
+
+		else if (window.ActiveXObject) {
+		XMLHttpRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		var config_url = $('#config_url').val();
+		var url = "<?php echo site_url();?>finance/creditors/get_suppliers_invoice_details/"+reference_id;
 		// alert(url);
 
 		  

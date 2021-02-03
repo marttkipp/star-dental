@@ -1,5 +1,5 @@
  <?php  
-$result = ''; $count = 0;
+$result = ''; $count = $page;
 
 $result .= 
 			'

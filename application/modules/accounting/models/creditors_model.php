@@ -249,12 +249,11 @@ class Creditors_model extends CI_Model
 			'account_to_id'=> $this->input->post('account_to_id'),
 			'account_from_id'=>$this->input->post('account_from_id'),
 			'invoice_amount'=>$this->input->post('creditor_account_amount'),
-			'invoice_number'=>$this->input->post('transaction_code'),
-			'created'=>$this->input->post('payment_date'),
 			'account_invoice_description'=>$this->input->post('creditor_account_description'),
             'account_to_type'=>3,//$this->input->post('transaction_type_id'),
             'invoice_date'=>$this->input->post('creditor_account_date'),
             'created_by'=>$this->session->userdata('personnel_id'),
+            'created'=>date('Y-m-d'),
             'transaction_type_id'=>$transaction_type_id
 			);
 		// var_dump($account); die();
@@ -601,8 +600,8 @@ class Creditors_model extends CI_Model
 			$array = array(
 				'creditor_account_delete'=>1
 			);
-			$this->db->where('creditor_account_id', $creditor_account_id);
-			if($this->db->update('creditor_account', $array))
+			$this->db->where('creditor_id', $creditor_account_id);
+			if($this->db->update('creditor', $array))
 			{
 				return TRUE;
 			}
@@ -2950,7 +2949,7 @@ class Creditors_model extends CI_Model
 
 		return $response;
 	}
-	public function get_provider_statement_old($provider_id)
+	public function get_provider_statement($provider_id)
 	{
 		$creditor_query = $this->creditors_model->get_opening_provider_balance($provider_id);
 		$bills = $this->get_all_provider_invoices($provider_id);
@@ -3200,326 +3199,6 @@ class Creditors_model extends CI_Model
 
 		return $response;
 	}
-
-	public function get_provider_statement($provider_id,$personnel_type_id,$personnel_percentage)
-	{
-		$creditor_query = $this->creditors_model->get_opening_provider_balance($provider_id);
-		$bills = $this->get_all_provider_invoices($provider_id);
-		$all_collections = $this->get_all_provider_work_done($provider_id);
-		// var_dump($all_collections); die();
-		$payments = $this->get_all_payments_provider($provider_id);
-
-		$brought_forward_balance = $this->get_provider_balance_brought_forward($provider_id);
-
-		
-
-
-		$x=0;
-
-		$bills_result = '';
-		$last_date = '';
-		$visit_last_date = '';
-		$current_year = date('Y');
-		$total_invoices = $bills->num_rows();
-		$invoices_count = 0;
-		$total_invoice_balance = 0;
-		$total_arrears = 0;
-		$total_payment_amount = 0;
-		$result = '';
-		$total_pardon_amount = 0;
-
-
-		$opening_balance = 0;
-
-		$opening_date = date('Y-m-d');
-		$debit_id = 2;
-		// var_dump($creditor_query->num_rows()); die();
-		if($creditor_query->num_rows() > 0)
-		{
-			$row = $creditor_query->row();
-			$opening_balance = $row->opening_balance;
-			$opening_date = $row->created;
-			$debit_id = $row->debit_id;
-			// var_dump($debit_id); die();
-			if($debit_id == 2)
-			{
-				// this is deni
-				$result .= 
-							'
-								<tr>
-									<td>'.date('d M Y',strtotime($created)).' </td>
-									<td colspan=5>Opening Balance</td>
-									<td>'.number_format($opening_balance, 2).'</td>
-									<td></td>
-									<td></td>
-								</tr> 
-							';
-				$total_invoice_balance = $opening_balance;
-
-			}
-			else
-			{
-				// this is a prepayment
-				$result .= 
-							'
-								<tr>
-									<td>'.date('d M Y',strtotime($created)).' </td>
-									<td colspan=6>Opening Balance</td>
-									<td>'.number_format($opening_balance, 2).'</td>
-									<td></td>
-								</tr> 
-							';
-				$total_payment_amount = $opening_balance;
-			}
-		}
-		
-
-		if($brought_forward_balance == FALSE)
-		{
-			$result .='';
-		}
-
-		else
-		{
-			$search_title = $this->session->userdata('creditor_search_title');
-			if($brought_forward_balance < 0)
-			{
-				$positive = -$brought_forward_balance;
-				$result .= 
-							'
-								<tr>
-									<td colspan=5> B/F</td>
-									<td>'.number_format($positive, 2).'</td>
-									<td></td>
-								</tr> 
-							';
-				$total_invoice_balance += $positive;
-
-			}
-			else
-			{
-				$result .= 
-							'
-								<tr>
-									<td colspan=6> B/F</td>
-									<td></td>
-									<td>'.number_format($brought_forward_balance, 2).'</td>
-								</tr> 
-							';
-
-
-				$total_invoice_balance += $brought_forward_balance;
-			}
-		}
-		$hospital_total = 0;
-		$doctors_total = 0;
-		$total_invoice = 0;
-		$total_charged = 0;
-		$total_gross_payable = 0;
-		$total_wht = 0;
-		$total_net_payable = 0;
-		$total_payments = 0;
-		$total_balance = 0;
-		$rate_total = 0;
-		$days_total = 0;
-		$hosp_payable = 0;
-		$gross_total = 0;
-		$gross_payable = 0;
-		$total_doctors = 0;
-		$total_hospital = 0;
-
-		if($all_collections->num_rows() > 0)
-		{
-			foreach ($all_collections->result() as $collections_key) {
-				# code...
-				$visit_date = $collections_key->visit_date;
-				$bill_explode = explode('-', $visit_date);
-				$billing_year = $bill_explode[0];
-				$billing_month = $bill_explode[1];
-				$start_date = $date_from = $billing_year.'-'.$billing_month.'-01';
-
-				$end_date = $date_to =  date("Y-m-t", strtotime($start_date));
-				$visit_charge_amount = $collections_key->visit_charge_amount;
-				$amount_charged = $collections_key->total_charged_amount;
-
-
-
-				//get all loan deductions before date
-
-				$cash_invoices = $this->reports_model->get_total_collected($provider_id, $date_from, $date_to,1);
-				$insurance_invoices = $this->reports_model->get_total_collected($provider_id, $date_from, $date_to,2);
-				
-				
-				// var_dump($cash_invoices);die();
-				$doc_total = $personnel_percentage * $doc_total;
-				
-				$gross_payable = $cash_invoices + $insurance_invoices;
-
-				$checked_values = $this->get_hospital_billed_item($provider_id,$billing_year,$billing_month);
-
-				$days = $checked_values['days'];
-				$rate = $checked_values['rate'];
-				$amount = $checked_values['amount'];
-				$lab_work = $amount;
-				$payments = $this->get_all_payments_provider_monthly($provider_id,$start_date,$end_date,$week);
-				$credit = $this->get_all_provider_credit_month($provider_id,$start_date,$end_date);
-				$total_payment_amount += $payments;
-
-				$net_payable = $gross_payable - $lab_work;
-
-
-				$hospital_total += $cash_invoices;
-				$doctors_total += $insurance_invoices;
-				$total_invoice += $cash_invoices + $insurance_invoices;
-				$total_charged += $invoice_amount_charged;
-				$total_gross_payable += $amount_charged;
-				$total_wht += $lab_work;
-				$total_net_payable += $net_payable;
-				$total_payments += $credit;
-				$total_balance += $amount_value - $credit;
-
-				$hosp_payable += $amount;
-				$rate_total += $rate;
-				$days_total += $days;
-				$doctors_rate = 0.4 * $net_payable;
-				$hospital_rate = 0.6 * $net_payable;
-
-
-				$total_doctors += $doctors_rate;
-				$total_hospital += $hospital_rate;
-				// if(($amount_value > 0))
-				// {
-				$total_balance += $doctors_rate  - $payments - $credit;
-					// var_dump($billing_year); die();
-					// if($billing_year >= $current_year)
-					// {
-						$result .= 
-						'
-							<tr>
-								<td>'.date('M Y',strtotime($visit_date)).' Invoice </td>
-								<td>'.number_format($cash_invoices, 2).'</td>
-								<td>'.number_format($insurance_invoices, 2).'</td>
-								<td>'.number_format($gross_payable, 2).'</td>
-								<td>('.number_format($lab_work, 2).')</td>
-								<td>'.number_format($net_payable, 2).'</td>
-								<td>'.number_format($hospital_rate,2).' </td>
-								<td>'.number_format($doctors_rate,2).' </td>
-								<td>'.number_format($credit + $payments,2).' </td>
-
-								<td>'.number_format($doctors_rate  - $payments - $credit,2).' </td>
-								<td><a href="'.site_url().'view-doctor-patients/'.$provider_id.'/'.$billing_month.'/'.$billing_year.'"  class="btn btn-xs btn-success" >view patients</a></td>
-
-								<td><button type="button" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#book-appointment'.$billing_year.''.$billing_month.''.$provider_id.''.$personnel_type_id.'"><i class="fa fa-plus"></i> Update </button>
-								<div class="modal fade " id="book-appointment'.$billing_year.''.$billing_month.''.$provider_id.''.$personnel_type_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-								    <div class="modal-dialog modal-lg" role="document">
-								        <div class="modal-content ">
-								            <div class="modal-header">
-								            	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								            	<h4 class="modal-title" id="myModalLabel">Lab Work for the Month '.$personnel_onames.' '.$personnel_fname.'</h4>
-								            </div>
-								            '.form_open('accounting/creditors/save_billing/'.$provider_id.'/'.$billing_month.'/'.$billing_year.'/'.$personnel_type_id, array("class" => "form-horizontal")).'
-
-								            <div class="modal-body">
-								            	<div class="row">
-								            		<input type="hidden" name="redirect_url" id="redirect_url" value="'.$this->uri->uri_string().'">
-								            		<div class="form-group" style="display:none">
-					                                    <label class="col-md-4 control-label">No of Days Worked *</label>
-					                                    
-					                                    <div class="col-md-7">
-					                                        <input type="text" class="form-control" name="days" placeholder="5" value="1"/>
-					                                    </div>
-					                                </div>
-					                                <div class="form-group">
-					                                    <label class="col-md-4 control-label">Lab Work</label>
-					                                    
-					                                    <div class="col-md-7">
-					                                        <input type="text" class="form-control" name="rate" placeholder="20000" value="'.$rate.'"/>
-					                                    </div>
-					                                </div>
-								            		
-														
-								              	</div>
-								            </div>
-								            <div class="modal-footer">
-								            	<button type="submit"  class="btn btn-sm btn-success" onclick="return confirm(\' Do you want to update the statemnt ? \')">Update Values</button>
-								                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
-								            </div>
-
-								               '.form_close().'
-								        </div>
-								    </div>
-								</div>
-
-							</td>
-
-							
-							</tr> 
-						';
-					// }
-					
-					$total_invoice_balance += $amount_value;
-
-				// }
-
-
-					
-				$visit_last_date = $end_month;
-			}
-		}
-
-		
-		
-						
-		//display loan
-		$result .= 
-		'
-			<tr>
-				<th colspan="1">Total</th>
-				<th>'.number_format($hospital_total, 2).'</th>
-				<th>'.number_format($doctors_total, 2).'</th>
-				<th>'.number_format($total_invoice, 2).'</th>
-				<th>('.number_format($total_wht, 2).')</th>
-				<th>'.number_format($total_net_payable, 2).'</th>
-				<th>'.number_format($total_hospital, 2).'</th>
-				<th>'.number_format($total_doctors, 2).'</th>
-				<th>'.number_format($total_payments, 2).'</th>
-				<th>'.number_format($total_balance, 2).'</th>
-				<td></td>
-			</tr> 
-		';
-		$result .= 
-		'
-			<tr>
-				<th colspan="7"></th>
-				<th colspan="3" style="text-align:center;">'.number_format($total_balance, 2).'</th>
-			</tr> 
-		';
-
-
-
-		$response['total_gross_payable'] = $total_invoice;
-		$response['total_net_payable'] = $total_net_payable;
-		$response['hosp_payable'] = $hospital_total;
-		$response['doctors_total'] = $doctors_total;
-		$response['total_wht'] = $total_wht;
-		$response['total_hospital'] = $total_hospital;
-		$response['total_doctors'] = $total_doctors;
-		$response['opening_balance'] = $opening_balance;
-		$response['opening_date'] = $opening_date;
-		$response['debit_id'] = $debit_id;
-		$response['result'] = $result;
-		$response['total_payments'] = $total_payments;
-		$response['total_balance'] = $total_balance;
-		// if($provider_id == 3)
-		// {
-		// 	var_dump($response['hosp_payable']); die();
-		// }
-		
-
-		return $response;
-	}
-
-
 
 	public function get_provider_statement_print($provider_id)
 	{
@@ -3832,73 +3511,74 @@ public function get_doctor()
 		
 		return $result;
 	}
-
-	public function get_hospital_billed_item($provider_id,$billing_year=null,$billing_month=null)
+	public function export_creditors()
 	{
-		if(!empty($billing_year) AND !empty($billing_month))
-		{
-			$checked_items = ' AND billing_year = "'.$billing_year.'" AND billing_month ="'.$billing_month.'"';
-		}
-		else
-		{
-			$checked_items = '';
-		}
+		$this->load->library('excel');
+		$this->db->where('creditor_id > 0 AND creditor.creditor_account_delete = 0');
+		$query = $this->db->get('creditor');
 
-		$this->db->where('provider_id = '.$provider_id.$checked_items);
-
-		$query = $this->db->get('providers_billing');
-		$amount = 0;
-		$days = 0;
-		$rate = 0;
+		$title = 'Creditors Export as at '.date('jS M Y',strtotime(date('Y-m-d')));
 		if($query->num_rows() > 0)
 		{
+			$count = 0;
+
+			$row_count = 0;
+			$report[$row_count][0] = '#';
+			$report[$row_count][1] = 'Creditor Name';
+			$report[$row_count][2] = 'Opening Balance';
+			$report[$row_count][3] = '30 Days';
+			$report[$row_count][4] = '60 Days';
+			$report[$row_count][5] = '90 Days';
+			$report[$row_count][6] = '> 90 Days';
+			$report[$row_count][7] = 'Total Payments';
+			$report[$row_count][8] = 'Total Invoice';
+			$report[$row_count][9] = 'Account Balance';
+
 			foreach ($query->result() as $key => $value) {
 				# code...
-				$days = $value->days;
-				$rate = $value->rate;
-				$amount = $days * $rate;
+				$creditor_id = $value->creditor_id;
+				$creditor_name = $value->creditor_name;
 
 
+				$creditor_result = $this->creditors_model->get_creditor_statement($creditor_id);
+
+				$invoice_total = $creditor_result['total_invoice_balance'];
+				$payments_total = $creditor_result['total_payment_amount'];
+
+
+				$date = date('Y-m-d');
+	            $this_month = $this->creditors_model->get_statement_value($creditor_id,$date,1);
+	            $three_months = $this->creditors_model->get_statement_value($creditor_id,$date,2);
+	            $six_months = $this->creditors_model->get_statement_value($creditor_id,$date,3);
+	            $nine_months = $this->creditors_model->get_statement_value($creditor_id,$date,4);
+
+	            $total_this_month +=$this_month;
+	            $total_three_months +=$three_months;
+	            $total_six_months +=$six_months;
+	            $total_nine_months +=$nine_months;
+	            $total_payments += $payments_total;
+	            $total_invoices += $invoice_total;
+
+	            $total_balance += $invoice_total-$payments_total;
+	            $row_count++;
+
+	            $count++;
+				//display the patient data
+				$report[$row_count][0] = $count;
+				$report[$row_count][1] = $creditor_name;
+				$report[$row_count][2] = $opening_balance;
+				$report[$row_count][3] = $this_month;
+				$report[$row_count][4] = $three_months;
+				$report[$row_count][5] = $six_months;
+				$report[$row_count][6] = $nine_months;
+				$report[$row_count][7] = $payments_total;
+				$report[$row_count][8] = $invoice_total;
+				$report[$row_count][9] = $total_balance;
 			}
-			
 		}
-
-		$checked['days'] = $days;
-		$checked['rate'] = $rate;
-		$checked['amount'] = $amount;
-
-		return $checked;
-		
+			//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
 	}
-
-	public function record_providers_billing($provider_id,$billing_month,$billing_year,$personnel_type_id)
-	{
-		$array['provider_id'] = $provider_id;
-		$array['billing_month'] = $billing_month;
-		$array['billing_month'] = $billing_month;
-		$array['billing_year'] = $billing_year;
-		$array['days'] = $this->input->post('days');
-		$array['rate'] = $this->input->post('rate');
-		$array['created_by'] = $this->session->userdata('personnel_id');
-		$array['created'] = date('Y-m-d');
-
-
-		$this->db->where('provider_id = '.$provider_id.' AND billing_year = "'.$billing_year.'" AND billing_month ="'.$billing_month.'"');
-
-		$query = $this->db->get('providers_billing');
-
-		if($query->num_rows() > 0)
-		{
-			$this->db->where('provider_id = '.$provider_id.' AND billing_year = "'.$billing_year.'" AND billing_month ="'.$billing_month.'"');
-			$this->db->update('providers_billing',$array);
-		}
-		else
-		{
-			$this->db->insert('providers_billing',$array);
-		}
-
-		return TRUE;
-	}
-
 }
 ?>

@@ -140,8 +140,8 @@ if($account_ledger_search == 1)
 												<td>'.$transactionDate.'</td>
 												<td>'.$transactionName.'</td>
 												<td>'.$transactionDescription.'</td>
-												<td>'.number_format($cr_amount,2).'</td>
 												<td>'.number_format($dr_amount,2).'</td>
+												<td>'.number_format($cr_amount,2).'</td>
 												<td>'.number_format($balance,2).'</td>
 											</tr>';
 
@@ -150,9 +150,9 @@ if($account_ledger_search == 1)
 
 									echo '
 											<tr>
-												<td colspan="3"><strong>Totals</strong></td>		
-												<td><strong>'.number_format($total_cr,2).'</strong></td>									
+												<td colspan="3"><strong>Totals</strong></td>												
 												<td><strong>'.number_format($total_dr,2).'</strong></td>
+												<td><strong>'.number_format($total_cr,2).'</strong></td>
 												<td><strong>'.number_format($balance,2).'</strong></td>
 											</tr>';
 								}

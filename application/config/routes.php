@@ -1009,8 +1009,27 @@ $route['accounting/add-account'] = 'accounting/petty_cash/add_account';
 $route['accounting/ledger-entry'] = 'accounting/petty_cash/ledger';
 $route['accounting/ledger-entry/(:any)/(:any)'] = 'accounting/petty_cash/ledger/$1/$2';
 $route['accounting/ledger-entry/(:any)'] = 'accounting/petty_cash/ledger/$1';
-$route['accounting/write-cheque'] = 'accounting/petty_cash/write_cheque';
-$route['accounting/write-cheque/(:num)'] = 'accounting/petty_cash/write_cheque/$1';
+$route['accounting/expense-ledger/(:num)'] = 'accounting/petty_cash/expense_ledger/$1';
+$route['accounting/print-expenses-ledger'] = 'accounting/petty_cash/print_expense_ledger';
+$route['accounting/journal-entry'] = 'accounting/petty_cash/write_cheque';
+$route['accounting/journal-entry/(:num)'] = 'accounting/petty_cash/write_cheque/$1';
+$route['delete-payment-entry/(:num)'] = 'accounting/petty_cash/delete_account_payment_entry/$1';
+$route['accounting/providers'] = 'accounting/creditors/providers';
+$route['accounting/providers/(:num)'] = 'accounting/creditors/providers/$1';
+$route['update-provider-balance/(:num)'] =  'accounting/creditors/update_opening_balance/$1';
+$route['accounting/provider-statement/(:num)'] = 'accounting/creditors/provider_statement/$1';
+$route['company-financials/profit-and-loss'] = 'accounting/company_financial/profit_and_loss';
+$route['print-profit-and-loss'] = 'accounting/company_financial/print_profit_and_loss';
+$route['print-balance-sheet'] = 'accounting/company_financial/print_balance_sheet';
+
+
+
+// accounting and company financials
+$route['accounting/ledger-entry'] = 'accounting/petty_cash/ledger';
+$route['accounting/ledger-entry/(:any)/(:any)'] = 'accounting/petty_cash/ledger/$1/$2';
+$route['accounting/ledger-entry/(:any)'] = 'accounting/petty_cash/ledger/$1';
+$route['accounting/direct-purchases'] = 'accounting/petty_cash/write_cheque';
+$route['accounting/direct-purchases/(:num)'] = 'accounting/petty_cash/write_cheque/$1';
 $route['accounting/providers'] = 'accounting/creditors/providers';
 $route['accounting/providers/(:num)'] = 'accounting/creditors/providers/$1';
 $route['update-provider-balance/(:num)'] =  'accounting/creditors/update_opening_balance/$1';
@@ -1606,6 +1625,7 @@ $route['accounting/add-account'] = 'financials/company_financial/add_account';
 
 
 
+
 $route['accounting/charts-of-accounts'] = 'financials/company_financial/account_balances';
 $route['accounting/charts-of-accounts/(:num)'] = 'financials/company_financial/account_balances/$1';
 $route['accounting/charts-of-accounts/activate-account/(:num)'] = 'financials/company_financial/activate_account/$1';
@@ -1621,7 +1641,42 @@ $route['delete-payment-direct-payments/(:num)'] = 'accounting/petty_cash/delete_
 
 $route['accounting/journal-entry'] = 'finance/transfer/journal_entry';
 $route['accounting/journal-entry/(:num)'] = 'finance/transfer/journal_entry/$1';
-$route['delete-journal-entry/(:num)'] = 'accounting/petty_cash/delete_journal_entry/$1';
+$route['delete-journal-entry/(:num)'] = 'finance/transfer/delete_journal_entry/$1';
+
+
+
+
+$route['company-financials/schedule-of-expenditure']  = 'financials/budget/schedule_of_expenditure';
+$route['company-financials/print-expenditure-schedule']  = 'financials/budget/print_expenditure_schedule';
+$route['company-financials/trial-balance']  = 'financials/budget/trial_balance';
+$route['company-financials/print-trial-balance']= 'financials/budget/print_trial_balance';
+$route['delete-payment-ledger-entry/(:num)'] = 'accounting/petty_cash/delete_payment_ledger_entry/$1';
+
+
+
+
+// budget 
+
+$route['accounting/budget'] = 'finance/budget/index';
+
+
+
+$route['company-financials/budget'] = 'financials/budget/index';
+$route['company-financials/budget-actual'] = 'financials/budget/budget_actual';
+$route['company-financials/budget-comparison'] = 'financials/budget/budget_analysis';
+
+
+
+$route['company-financials/services-bills/(:num)']  = 'financials/company_financial/services_bills/$1';
+$route['company-financials/services-bills/(:num)/(:num)']  = 'financials/company_financial/services_bills/$1/$2';
+
+$route['company-financials/salary']  = 'financials/company_financial/salary';
+$route['company-financials/salary/(:num)']  = 'financials/company_financial/salary/$1';
+$route['company-financials/export-salary']  = 'financials/company_financial/export_salary';
+
+
+
+
 
 
 $route['merge-patient-record/(:num)'] = 'reception/merge_patient/$1';

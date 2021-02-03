@@ -35,6 +35,22 @@
                 
                 </section>
             </div>
+
+             <aside id="sidebar-right" class="sidebar-right" style="display: none;">
+                <div class="nano has-scrollbar">
+                    <div class="nano-content" tabindex="0" style="right: -17px;">
+                        <!-- <a href="#" class="mobile-close d-md-none">
+                            Collapse <i class="fa fa-chevron-right"></i>
+                        </a> -->
+            
+                        <div class="sidebar-right-wrapper">
+                            <div id="current-sidebar-div"></div>
+                            <div id="sidebar-div"></div>                           
+            
+                        </div>
+                    </div>
+                <div class="nano-pane" style="opacity: 1; visibility: visible;"><div class="nano-slider" style="height: 189px; transform: translate(0px);"></div></div></div>
+            </aside>
             
         </section>
         

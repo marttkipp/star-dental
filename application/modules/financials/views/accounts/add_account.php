@@ -3,7 +3,7 @@
     <header class="panel-heading">
           <h4 class="pull-left"><i class="icon-reorder"></i><?php echo $title;?></h4>
           <div class="widget-icons pull-right">
-                <a href="<?php echo base_url();?>accounting/general-journal-entries" class="btn btn-primary pull-right btn-sm">Back to accounts</a>
+                <a href="<?php echo base_url();?>accounting/charts-of-accounts" class="btn btn-primary pull-right btn-sm">Back to accounts</a>
           </div>
           <div class="clearfix"></div>
     </header>
@@ -55,14 +55,30 @@
 		                </div>
 					</div>
 				</div>
-               
+                <div class="form-group">
+                        <label class="col-lg-4 control-label">Paying Account?</label>
+                        <div class="col-lg-6">
+                            <div class="radio">
+                                <label>
+                                    <input id="optionsRadios1" type="radio" checked value="0" name="paying_account">
+                                    No
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input id="optionsRadios2" type="radio" value="1" name="paying_account">
+                                    Yes
+                                </label>
+                            </div>
+                        </div>
+                    </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-lg-4 control-label">Parent Account</label>
                     <div class="col-lg-8">
                         <select id="parent_account" name="parent_account" class="form-control">
-                            <option value="">--- None ---</option>
+                            <option value="0">--- None ---</option>
                             <?php
                             if($parent_accounts->num_rows() > 0)
                             {   
@@ -90,7 +106,7 @@
                     <label class="col-lg-4 control-label">Account Type</label>
                     <div class="col-lg-8">
                         <select id="account_type_id" name="account_type_id" class="form-control">
-                            <option value="">--- None ---</option>
+                            <option value="0">--- None ---</option>
                             <?php
                             if($types->num_rows() > 0)
                             {	

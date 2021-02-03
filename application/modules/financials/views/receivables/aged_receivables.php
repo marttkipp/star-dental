@@ -5,6 +5,12 @@
 $income_rs = $this->company_financial_model->get_receivables_aging_report();
 $income_result = '';
 $total_income = 0;
+$total_coming = 0;
+$total_thirty = 0;
+$total_sixty = 0;
+$total_ninety = 0;
+$total_over_ninety = 0;
+$total_grand = 0;
 if($income_rs->num_rows() > 0)
 {
 	foreach ($income_rs->result() as $key => $value) {
@@ -17,6 +23,15 @@ if($income_rs->num_rows() > 0)
 		$over_ninety_days = $value->over_ninetydays;
 		$coming_due = $value->current;
 		$Total = $value->total_owed;
+
+
+		$total_coming += $coming_due;
+		$total_thirty += $thirty_days;
+		$total_sixty += $sixty_days;
+		$total_ninety += $ninety_days;
+		$total_over_ninety += $over_ninety_days;
+
+		$total_grand += $Total;
 		$income_result .='<tr>
 							<td class="text-left">'.$receivables.'</td>
 							<td class="text-right">'.number_format($coming_due,2).'</td>
@@ -27,6 +42,16 @@ if($income_rs->num_rows() > 0)
 							<td class="text-right">'.number_format($Total,2).'</td>
 							</tr>';
 	}
+
+	$income_result .='<tr>
+							<th class="text-left">Total</th>
+							<th class="text-right">'.number_format($total_coming,2).'</th>
+							<th class="text-right">'.number_format($total_thirty,2).'</th>
+							<th class="text-right">'.number_format($total_sixty,2).'</th>
+							<th class="text-right">'.number_format($total_ninety,2).'</th>
+							<th class="text-right">'.number_format($total_over_ninety,2).'</th>
+							<th class="text-right">'.number_format($total_grand,2).'</th>
+							</tr>';
 
 }
 ?>

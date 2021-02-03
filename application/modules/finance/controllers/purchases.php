@@ -385,7 +385,7 @@ class Purchases extends admin
 		else {
 
 			$add7days = date('Y-m-d', strtotime('-7 days'));
-			$where .= ' AND v_account_ledger_by_date.transactionDate BETWEEN \''.$add7days.'\' AND \''.date('Y-m-d').'\'';
+			// $where .= ' AND v_account_ledger_by_date.transactionDate BETWEEN \''.$add7days.'\' AND \''.date('Y-m-d').'\'';
 			$transaction_date = date('jS M Y',strtotime($add7days));
 
 			$todays_date = date('jS M Y',strtotime(date('Y-m-d')));

@@ -345,9 +345,10 @@
       $transaction_number = '';
       $finance_purchase_description = '';
       $finance_purchase_amount = 0 ;
-      if($transactionClassification == 'Purchase Payment')
+       $referenceId = $value->payingFor;
+      if($transactionClassification == 'Purchase Payment' AND $referenceId > 0 )
       {
-        $referenceId = $value->payingFor;
+       
 
         // get purchase details
         $detail = $this->purchases_model->get_purchases_details($referenceId);

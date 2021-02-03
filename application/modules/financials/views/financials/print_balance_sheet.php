@@ -1,24 +1,84 @@
 <?php
-$bank_balances_rs = $this->company_financial_model->get_account_value();
+$bank_balances_rs = $this->company_financial_model->get_account_value_by_type('Current Assets');
 $bank_balances_result = '';
 $total_income = 0;
+// var_dump($bank_balances_rs);die();
+
 if($bank_balances_rs->num_rows() > 0)
 {
 	foreach ($bank_balances_rs->result() as $key => $value) {
 		# code...
 		$total_amount = $value->total_amount;
 		$transactionName = $value->accountName;
+		$account_id = $value->account_id;
 		$total_income += $total_amount;
 		$bank_balances_result .='<tr>
-							<td class="text-left">'.$transactionName.'</td>
-							<td class="text-right">'.number_format($total_amount,2).'</td>
+							<td class="text-left">'.strtoupper($transactionName).'</td>
+							<td class="text-right">
+							<'.number_format($total_amount,2).'
+							</td>
 							</tr>';
 	}
 	$bank_balances_result .='<tr>
-							<td class="text-left"><b>TOTAL BANK BALANCE</b></td>
+							<td class="text-left"><b>TOTAL CURRENT ASSETS</b></td>
 							<td class="text-right"><b class="match">'.number_format($total_income,2).'</b></td>
 							</tr>';
 }
+
+
+
+$bank_balances_rs = $this->company_financial_model->get_account_value_by_type('Bank');
+$cash_in_bank = '';
+$total_income = 0;
+// var_dump($bank_balances_rs);die();
+
+if($bank_balances_rs->num_rows() > 0)
+{
+	foreach ($bank_balances_rs->result() as $key => $value) {
+		# code...
+		$total_amount = $value->total_amount;
+		$transactionName = $value->accountName;
+		$account_id = $value->account_id;
+		$total_income += $total_amount;
+		$cash_in_bank .='<tr>
+							<td class="text-left">'.strtoupper($transactionName).'</td>
+							<td class="text-right">
+								'.number_format($total_amount,2).'
+							</td>
+							</tr>';
+	}
+	$cash_in_bank .='<tr>
+							<td class="text-left"><b>TOTAL CASH IN AT HAND / IN BANK</b></td>
+							<td class="text-right"><b class="match">'.number_format($total_income,2).'</b></td>
+							</tr>';
+}
+
+
+
+$bank_balances_rs = $this->company_financial_model->get_account_value_by_type('Capital');
+$share_capital_list = '';
+$total_share_capital = 0;
+// var_dump($bank_balances_rs);die();
+
+if($bank_balances_rs->num_rows() > 0)
+{
+	foreach ($bank_balances_rs->result() as $key => $value) {
+		# code...
+		$total_amount = $value->total_amount;
+		$transactionName = $value->accountName;
+		$account_id = $value->account_id;
+		$total_share_capital += $total_amount;
+		$share_capital_list .='<tr>
+							<td class="text-left">'.strtoupper($transactionName).'</td>
+							<td class="text-right">
+								'.number_format($total_amount,2).'
+							</td>
+							</tr>';
+	}
+	
+}
+
+
 
 
 $fixed_asset_rs = $this->company_financial_model->get_asset_categories();
@@ -42,8 +102,9 @@ if($fixed_asset_rs->num_rows() > 0)
 								</tr>';
 	}
 
-}
 
+
+}
 $accounts_receivable = $this->company_financial_model->get_accounts_receivables();
 $accounts_payable = $this->company_financial_model->get_accounts_payable();
 $cash_on_hand = $this->company_financial_model->get_cash_on_hand();
@@ -54,6 +115,7 @@ $total_assets = $accounts_receivable+$total_income;
 
 $total_liability = $accounts_payable + $wht_payable +$wht_payable;
 $current_year_earnings = $total_assets + $total_fixed - $total_liability;
+
 
 $search = $this->session->userdata('balance_sheet_title_search');
 
@@ -68,7 +130,7 @@ else {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title><?php echo $contacts['company_name'];?> | P & L</title>
+        <title><?php echo $contacts['company_name'];?> | BALANCE SHEET</title>
         <!-- For mobile content -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- IE Support -->
@@ -134,7 +196,7 @@ else {
 				<div class="col-md-12">	
 				<div class="row">							
 					<h5> <strong>ASSETS</strong></h5>	
-					<h6> <strong>A) Bank Accounts</strong></h6>							
+					<h6> <strong> FIXED ASSETS</strong></h6>							
 				</div>	
 				<table class="table">
 					<thead>
@@ -143,127 +205,79 @@ else {
 					</thead>
 					
 					<tbody>
-						<?php echo $bank_balances_result;?>
+						<?php echo $fixed_asset_result;?>
+						<tr>
+							<th class="text-left ">TOTAL FIXED ASSETS</th>
+							<th class="text-right"><b class="match"><?php echo number_format($total_fixed,2);?></b></th>
+						</tr>
 					</tbody>
 				</table>					
 				</div>
+				
 				<div class="col-md-12">
 					<div class="row">						
-						<h6> <strong>B) Current Assets</strong></h6>							
+						<h6> <strong>CURRENT ASSETS</strong></h6>							
 					</div>	
 					<table class="table">
+						
+						
 						<thead>
-							<th style="width: 60%"> NAME </th>
-							<th style="width: 40%">AMOUNT</th>
+							<tr>
+								<th class="text-left" colspan="2" >OTHER CURRENT ASSETS</th>
+							</tr>
+							
 						</thead>
 						
 						<tbody>
-							<tr>
-								<td >CASH ON HAND</td>
-									<td class="text-right"><?php echo number_format($cash_on_hand,2);?></td>
-								</tr>
-								<tr>
-											<td class="text-left">ACCOUNTS RECEIVABLES</td>
-									<td class="text-right"><?php echo number_format($accounts_receivable,2);?></td>
-								</tr>
-								<tr>
-									<td class="text-left ">TOTAL CURRENT ASSETS</td>
+							<?php echo $bank_balances_result?>
+						</tbody>
+						<thead>
 
-									<td class="text-right"><b class="match"><?php echo number_format($total_assets,2);?></b></td>
-								</tr>
+							<tr>
+								<th class="text-left" colspan="2" >CASH IN AT BANK AND IN HAND</th>
+							</tr>
+							
+						</thead>
+
+						<tbody>
+							<?php echo $cash_in_bank?>
 						</tbody>
 					</table>
 				</div>
-
-				<div class="col-md-12">
-					<div class="row">						
-						<h6> <strong>C) Fixed Assets</strong></h6>	
-					</div>	
-					<table class="table">
-						<thead>
-							<th style="width: 60%"> NAME </th>
-							<th style="width: 40%">AMOUNT</th>
-						</thead>
-						
-						<tbody>
-							<?php echo $fixed_asset_result?>
-							<tr>
-								<td class="text-left ">TOTAL FIXED ASSETS</td>
-									<td class="text-right"><b class="match"><?php echo number_format($total_fixed,2);?></b></td>
-								</tr>
-								
-						</tbody>
-					</table>
-				</div> 
-				<!-- <div class="col-md-12">
-					<div class="row">						
-						<h6> <strong>D) Other Assets</strong></h6>							
-					</div>	
-					<table class="table">
-						<thead>
-							<th style="width: 60%"> NAME </th>
-							<th style="width: 40%">AMOUNT</th>
-						</thead>
-						
-						<tbody>
-						</tbody>
-					</table>
-				</div> -->
-				<!-- <div class="col-md-12">
-					<div class="row">						
-						<h6> <strong>E) Fixed Assets</strong></h6>							
-					</div>	
-					<table class="table">
-						<thead>
-							<th style="width: 60%"> NAME </th>
-							<th style="width: 40%">AMOUNT</th>
-						</thead>
-						
-						<tbody>
-						</tbody>
-					</table>
-				</div> -->
 				<div class="col-md-12">
 						<table class="table">
 						<tbody>
 							<tr>
-								<td style="width: 60%"><strong>NET ASSETS</strong></td>
+								<td style="width: 60%"><strong>TOTAL CURRENT ASSETS</strong></td>
 								<td style="width: 40%" class="text-right"><strong style="border-top: 2px solid #000">Ksh. <?php echo number_format($total_assets + $total_fixed,2)?></strong></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 				<div class="col-md-12">	
-				<div class="row">							
-					<h5> <strong>CURRENT LIABILITIES</strong></h5>	
-					<h6> <strong>Accounts Payables</strong></h6>							
-				</div>	
-				<table class="table">
-					<thead>
-						<th style="width: 60%"> ACCOUNT NAME </th>
-						<th style="width: 40%">AMOUNT</th>
-					</thead>
-					
-					<tbody>
-						<tr>
-								<td class="text-left">ACCOUNTS PAYABLE</td>
-							<td class="text-right"><?php echo number_format($accounts_payable,2)?></td>
-						</tr>
-						<tr>
-									<td class="text-left">VAT PAYABLE</td>
-							<td class="text-right"><?php echo number_format($vat_payable,2);?></td>
-						</tr>
-						<tr>
-									<td class="text-left">WHT PAYABLE</td>
-							<td class="text-right"><?php echo number_format($wht_payable,2);?></td>
-						</tr>
-						<tr>
-									<td class="text-left">TOTAL CURRENT LIABILITIES</td>
-							<td class="text-right"><b class="match"><?php echo number_format($total_liability,2);?></b></td>
-						</tr>
+					<div class="row">							
+						<h5> <strong>CURRENT LIABILITIES</strong></h5>	
+						<h6> <strong>ACCOUNTS PAYABLES</strong></h6>							
+					</div>	
+					<table class="table">
+						<thead>
+							<th style="width: 60%"> ACCOUNT NAME </th>
+							<th style="width: 40%">AMOUNT</th>
+						</thead>
 						
-					</tbody>
-				</table>					
+						<tbody>
+							<tr>
+								<td class="text-left">ACCOUNTS PAYABLE</td>
+								<td class="text-right"><?php echo number_format($accounts_payable,2)?></td>
+							</tr>
+							
+							<tr>
+								<td class="text-left">TOTAL CURRENT LIABILITIES</td>
+								<td class="text-right"><b class="match"><?php echo number_format($total_liability,2);?></b></td>
+							</tr>
+							
+						</tbody>
+					</table>					
 				</div>
 				<div class="col-md-12">
 						<table class="table">
@@ -278,7 +292,7 @@ else {
 
 				<div class="col-md-12">
 					<div class="row">						
-						<h5> <strong>EQUITY</strong></h5>							
+						<h5> <strong>CAPITAL AND RESERVES</strong></h5>							
 					</div>	
 					<table class="table">
 						<thead>
@@ -288,23 +302,15 @@ else {
 						
 						<tbody>
 							<tr>
-			        			<td class="text-left">OWNER INVESTMENTS / DRAWINGS</td>
-										<td class="text-right">0.00</td>
+			        			<td class="text-left">SHARE CAPITAL ACCOUNT </td>
+								<td class="text-right"><?php echo number_format($total_share_capital,2)?></td>
 							</tr>
 							<tr>
-			        			<td class="text-left">PREVIOUS YEAR(s) EARNINGS</td>
-								<td class="text-right">0.00</td>
-							</tr>
-							<tr>
-										<td class="text-left">CURRENT YEAR(s) EARNINGS</td>
-								<td class="text-right">0.00</td>
-							</tr>
-							<tr>
-										<td class="text-left">TOTAL EQUITY</td>
+								<td class="text-left">PROFIT OF THE YEAR</td>
 								<td class="text-right"><?php echo number_format($current_year_earnings,2)?></td>
 							</tr>
 							<tr>
-			        			<td class="text-left">TOTAL LIABILITY AND EARNINGS</td>
+			        			<td class="text-left">SHARE HOLDER FUNDS</td>
 										<td class="text-right"><?php echo number_format($total_liability,2)?></td>
 							</tr>
 						</tbody>

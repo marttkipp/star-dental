@@ -6,53 +6,38 @@ $operation_rs = $this->company_financial_model->get_accounts_ledger($account_id)
 
 $operation_result = '';
 $total_operational_amount = 0;
+$balance = 0;
+// $balance = $this->company_financial_model->get_account_opening_balance($account_id);
 
-$balance = $this->company_financial_model->get_account_opening_balance($account_id);
+// $operation_result .='<tr>
 
-$operation_result .='<tr>
-
-                      <td class="text-right" colspan="3">Opening Balance</td>
-                      <td class="text-right">'.$balance.'</td>
-                      <td class="text-right">0.00</td>
-                      <td class="text-right">'.number_format($total_operational_amount,2).'</td>
-                      </tr>';
-	$total_operational_amount = $balance;
+//                       <td class="text-right" colspan="3">Opening Balance</td>
+//                       <td class="text-right">'.$balance.'</td>
+//                       <td class="text-right">0.00</td>
+//                       <td class="text-right">'.number_format($total_operational_amount,2).'</td>
+//                       </tr>';
+$total_operational_amount = $balance;
 if($operation_rs->num_rows() > 0)
 {
 	foreach ($operation_rs->result() as $key => $value) {
 		# code...
 		$dr_amount = $value->dr_amount;
-    $cr_amount = $value->cr_amount;
+		$cr_amount = $value->cr_amount;
 		$transactionName = $value->accountName;
 		$account_id = $value->accountId;
-    $transactionDescription = $value->transactionDescription;
-<<<<<<< HEAD
-=======
-    $transactionCategory = $value->transactionCategory;
-    $transactionName = $value->transactionName;
->>>>>>> f38c31802b19fcacb78172da7aea17ed3759c8fb
-    $transactionDate = $value->transactionDate;
-    $transactionCode = $value->transactionCode;
+		$transactionDescription = $value->transactionDescription;
+
+		$transactionCategory = $value->transactionCategory;
+		$transactionName = $value->transactionName;
+		$transactionDate = $value->transactionDate;
+		$transactionCode = $value->transactionCode;
 		$total_operational_amount += $dr_amount;
-    $total_operational_amount -= $cr_amount;
-<<<<<<< HEAD
-		$operation_result .='<tr>
-                          <td class="text-left">'.strtoupper($transactionDate).'</td>
-            							<td class="text-left">'.strtoupper($transactionDescription).'</td>
-=======
-    if($transactionCategory == "Expense Payment")
-    {
-    	$description = $transactionName;
-    }
-    else
-    {
-    	$description = $transactionDescription;
-    }
+		$total_operational_amount -= $cr_amount;
 
 		$operation_result .='<tr>
                           <td class="text-left">'.strtoupper($transactionDate).'</td>
-            							<td class="text-left">'.strtoupper($description).'</td>
->>>>>>> f38c31802b19fcacb78172da7aea17ed3759c8fb
+            							<td class="text-left">'.strtoupper($transactionDescription).'</td>
+
                           <td class="text-left">'.strtoupper($transactionCode).'</td>
             							<td class="text-right">'.number_format($dr_amount,2).'</td>
                           <td class="text-right">'.number_format($cr_amount,2).'</td>

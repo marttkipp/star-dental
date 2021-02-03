@@ -85,12 +85,7 @@ class Debtors extends accounts
 
 		$where = 'visit_type_id = '.$debtor_id;
 		$table = 'visit_type';
-		$this->db->where($where);
-		$query = $this->db->get($table);
-
-		$res = $query->row();
-
-		$visit_type_name = $res->visit_type_name;
+		
 		
 		// echo $where;die();
 		// $v_data['balance_brought_forward'] = $this->creditors_model->calculate_balance_brought_forward($date_from,$creditor_id);
@@ -110,7 +105,7 @@ class Debtors extends accounts
 		// $v_data['opening_balance'] = $opening_balance;
 		// $v_data['debit_id'] = $debit_id;
 		// $v_data['query'] = $this->creditors_model->get_creditor_account($where, $table);
-		$v_data['title'] = $visit_type_name.' Statement ';
+		$v_data['title'] = 'Debtor ';
 		$v_data['debtor_id'] = $debtor_id;
 		$data['title'] = 'Statement';
 		$data['content'] = $this->load->view('debtors/statement', $v_data, TRUE);

@@ -13,9 +13,9 @@ if($all_vendors->num_rows() > 0)
 		$creditor_name = $value->creditor_name;
 		$creditor_expense = $this->company_financial_model->get_creditor_expenses($creditor_id);
 		$creditors .= '	<tr>
-													<td class="text-left">'.$creditor_name.'</td>
-											<td class="text-right">'.number_format($creditor_expense,2).'</td>
-										</tr>';
+							<td class="text-left">'.$creditor_name.'</td>
+							<td class="text-right">'.number_format($creditor_expense,2).'</td>
+						</tr>';
 		$total_expenses += $creditor_expense;
 	}
 

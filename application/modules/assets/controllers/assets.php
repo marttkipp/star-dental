@@ -105,6 +105,22 @@ class Assets extends MX_Controller
     		$this->form_validation->set_rules('asset_category_id', 'Asset Category', 'xss_clean');
     		$this->form_validation->set_rules('asset_number', ' Number', 'xss_clean');
 
+            $depreciation_type = $this->input->post('depriciation_type');
+
+
+            if($depreciation_type == 1)
+            {
+                $this->form_validation->set_rules('usefull_life', 'Usefull Life', 'required|xss_clean');
+                $this->form_validation->set_rules('salvage_value', 'Salvage', 'required|xss_clean');
+            }
+            else if($depreciation_type == 2)
+            {
+                $this->form_validation->set_rules('installment', 'Usefull Life', 'xss_clean');
+                $this->form_validation->set_rules('rate', 'rate', 'required|number|xss_clean');
+                $this->form_validation->set_rules('salvage', 'Salvage', 'required|numeric|xss_clean');
+            }
+
+
 
     		
     		//if form has been submitted
@@ -150,6 +166,23 @@ class Assets extends MX_Controller
     		$this->form_validation->set_rules('asset_inservice_period', 'Inservice period', 'xss_clean');
     		$this->form_validation->set_rules('asset_disposal_period', 'Disposal period', 'xss_clean');
             $this->form_validation->set_rules('asset_number', 'Number', 'xss_clean');
+
+
+            $depreciation_type = $this->input->post('depriciation_type');
+
+
+            if($depreciation_type == 1)
+            {
+                $this->form_validation->set_rules('usefull_life', 'Usefull Life', 'required|xss_clean');
+                $this->form_validation->set_rules('salvage_value', 'Salvage', 'required|xss_clean');
+            }
+            else if($depreciation_type == 2)
+            {
+                $this->form_validation->set_rules('installment', 'Usefull Life', 'xss_clean');
+                $this->form_validation->set_rules('rate', 'rate', 'required|number|xss_clean');
+                $this->form_validation->set_rules('salvage', 'Salvage', 'required|numeric|xss_clean');
+            }
+
     		
     		//if form has been submitted
     		if ($this->form_validation->run())
@@ -262,10 +295,37 @@ class Assets extends MX_Controller
     	}
 
 
+        public function calculate_amortization($loans_plan_id, $no_of_repayments,$proposed_amount,$actual_application_date,$salvage_value,$rate=0)
+        {
+
+               
+            $v_data['loan_amount'] = $proposed_amount;
+            $v_data['no_of_repayments'] = $no_of_repayments;
+            $v_data['first_date'] = $actual_application_date;
+            $v_data['interest_id'] = $loans_plan_id; // type of depreciation
+            $v_data['interest_rate'] = $rate; // the rate of calculation
+            $v_data['salvage_value'] = $salvage_value;
+            $v_data['save'] = 1;
+
+                    
+
+              
+
+            echo $this->load->view('get_amortization_table', $v_data, true);
+
+            //$v_data['individual_loan_id'] = 1;
+            //$v_data['individual_id'] = 95;
+            
+        }
+
+
 
 
 
 }
+
+
+
 
 
 ?>
