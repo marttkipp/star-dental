@@ -17,15 +17,15 @@ class Company_financial_model extends CI_Model
 
 			if(!empty($date_from) AND !empty($date_to))
 			{
-				$search_invoice_add =  '  (transaction_date >= \''.$date_from.'\' AND transaction_date <= \''.$date_to.'\') ';
+				$search_invoice_add =  ' AND (transaction_date >= \''.$date_from.'\' AND transaction_date <= \''.$date_to.'\') ';
 			}
 			else if(!empty($date_from))
 			{
-				$search_invoice_add = '  transaction_date = \''.$date_from.'\'';
+				$search_invoice_add = ' AND transaction_date = \''.$date_from.'\'';
 			}
 			else if(!empty($date_to))
 			{
-				$search_invoice_add = '  transaction_date = \''.$date_to.'\'';
+				$search_invoice_add = ' AND  transaction_date = \''.$date_to.'\'';
 			}
 		}
 		else
@@ -150,7 +150,7 @@ class Company_financial_model extends CI_Model
 									LEFT JOIN visit_type ON visit.visit_type = visit_type.visit_type_id
 									WHERE payments.cancel = 0 AND payments.payment_type = 2 
 
-									) AS data WHERE department_id > 0 AND ".$search_invoice_add." GROUP BY data.department_id";
+									) AS data WHERE department_id > 0  ".$search_invoice_add." GROUP BY data.department_id";
 		
 		$query = $this->db->query($select_statement);
 
