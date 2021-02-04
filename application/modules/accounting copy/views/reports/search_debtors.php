@@ -10,7 +10,7 @@
             echo form_open("search-debtors-report", array("class" => "form-horizontal"));
             ?>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label class="col-lg-4 control-label">Visit Type: </label>
                         
@@ -24,25 +24,6 @@
                                             $type_id= $row->visit_type_id;
                                                 ?><option value="<?php echo $type_id; ?>" ><?php echo $type_name ?></option>
                                         <?php	
-                                        endforeach;
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-lg-4 control-label">Doctor: </label>
-                        
-                        <div class="col-lg-8">
-                            <select class="form-control" name="personnel_id">
-                                <option value="">---Select Doctor---</option>
-                                <?php
-                                    if(count($doctors) > 0){
-                                        foreach($doctors as $row):
-                                            $fname = $row->personnel_fname;
-                                            $onames = $row->personnel_onames;
-                                            $personnel_id = $row->personnel_id;
-                                            echo "<option value=".$personnel_id.">".$onames." ".$fname."</option>";
                                         endforeach;
                                     }
                                 ?>
@@ -67,11 +48,16 @@
                         </div>
                     </div>
                     
+                   
+                    
+                </div>
+                
+                <div class="col-md-4">
                     <div class="form-group">
                         <label class="col-lg-4 control-label">Visit Date To: </label>
                         
                         <div class="col-lg-8">
-                        	<div class="input-group">
+                            <div class="input-group">
                                 <span class="input-group-addon">
                                     <i class="fa fa-calendar"></i>
                                 </span>
@@ -79,27 +65,8 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>
-                
-                <div class="col-md-4">
-                    <!-- <div class="form-group">
-                        <label class="col-lg-4 control-label">Patient Name: </label>
-                        
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="patient_name" placeholder="Patient Name">
-                        </div>
-                    </div>  -->
-                    <div class="form-group">
-                        <label class="col-lg-4 control-label">Patient number: </label>
-                        
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="patient_number" placeholder="Patient number">
-                        </div>
-                    </div>
-                    
-                    
-                    
+                 <div class="col-md-1">
                     <div class="form-group">
                         <div class="col-lg-8 col-lg-offset-4">
                         	<div class="center-align">

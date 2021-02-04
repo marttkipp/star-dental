@@ -164,3 +164,4 @@ FROM
 	LEFT JOIN account ON payment_method.account_id = account.account_id
 	JOIN visit_type ON visit.visit_type = visit_type.visit_type_id
 	WHERE payments.cancel = 0 AND payments.payment_type = 3;
+CREATE OR REPLACE VIEW v_transactions_by_date  AS select * from v_transactions ORDER BY transaction_date ASC;
