@@ -56,7 +56,7 @@ class Transfer extends admin
 		//open the add new order
 		$v_data['accounts'] = $this->purchases_model->get_child_accounts("Bank");
 
-		$where = 'finance_transfer_status = 1 AND finance_transfer_deleted < 2';
+		$where = 'finance_transfer_status = 1 AND finance_transfer_deleted = 0';
 
 
 	    $search_transfers = $this->session->userdata('search_transfers');
@@ -189,39 +189,37 @@ class Transfer extends admin
   	}
   	public function delete_transfer_payment($finance_transfer_id)
   	{
-  		$personnel_id = $this->session->userdata('personnel_id');
-		$this->db->where('finance_transfer_id = '.$finance_transfer_id);
-		$query = $this->db->get('finance_transfer');
-		$item = $query->row();
+  // 		$personnel_id = $this->session->userdata('personnel_id');
+		// $this->db->where('finance_transfer_id = '.$finance_transfer_id);
+		// $query = $this->db->get('finance_transfer');
+		// $item = $query->row();
 
-		$deleted_by = $item->deleted_by;
-		$finance_transfer_deleted = $item->finance_transfer_deleted;
-		// var_dump($item);die();
-		if($deleted_by == $personnel_id AND $finance_transfer_deleted > 0)
-		{
-			if($finance_transfer_deleted == 0)
-			{
-				$deleted_status = 0;
-			}
-			else
-			{
-				$deleted_status = $finance_transfer_deleted-1;
-			}			
+		// $deleted_by = $item->deleted_by;
+		// $finance_transfer_deleted = $item->finance_transfer_deleted;
+		// // var_dump($item);die();
+		// if($deleted_by == $personnel_id AND $finance_transfer_deleted > 0)
+		// {
+		// 	if($finance_transfer_deleted == 0)
+		// 	{
+		// 		$deleted_status = 0;
+		// 	}
+		// 	else
+		// 	{
+		// 		$deleted_status = $finance_transfer_deleted-1;
+		// 	}			
 
-			if($deleted_status == 1)
-			{
-				$status = ' reverted deletion';
-			}
-			else
-			{
-				$status = ' confirmed revertion';
-			}
+		// 	if($deleted_status == 1)
+		// 	{
+		// 		$status = ' reverted deletion';
+		// 	}
+		// 	else
+		// 	{
+		// 		$status = ' confirmed revertion';
+		// 	}
 
 
-			$update_array['deleted_by'] = NULL;
-			$update_array['date_deleted'] = NULL;
-			$update_array['finance_transfer_deleted'] = $deleted_status;
-			$update_array['deleted_remarks'] = NULL;
+			$update_array['deleted_by'] = $this->session->userdata('personnel_id');
+			$update_array['finance_transfer_deleted'] = 1;
 			$this->db->where('finance_transfer_id = '.$finance_transfer_id);
 			if($this->db->update('finance_transfer',$update_array))
 			{
@@ -231,37 +229,37 @@ class Transfer extends admin
 			{
 				$this->session->set_userdata('error_message', 'Sorry could not perform the action. Please try again');
 			}
-		}
-		else
-		{
+		// }
+		// else
+		// {
 
-			$deleted_status = $finance_transfer_deleted +1;
+		// 	$deleted_status = $finance_transfer_deleted +1;
 
-			if($deleted_status == 1)
-			{
-				$status = ' request to delete';
-			}
-			else
-			{
-				$status = ' confirmed delete';
-			}
+		// 	if($deleted_status == 1)
+		// 	{
+		// 		$status = ' request to delete';
+		// 	}
+		// 	else
+		// 	{
+		// 		$status = ' confirmed delete';
+		// 	}
 
 
-			$update_array['deleted_by'] = $personnel_id;
-			$update_array['date_deleted'] = date('Y-m-d');
-			$update_array['finance_transfer_deleted'] = $deleted_status;
-			$update_array['deleted_remarks'] = $deleted_status;
-			$this->db->where('finance_transfer_id = '.$finance_transfer_id);
-			if($this->db->update('finance_transfer',$update_array))
-			{
-				$this->session->set_userdata('success_message', 'You have successfully '.$status);
-			}
-			else
-			{
-				$this->session->set_userdata('error_message', 'Sorry could not perform the action. Please try again');
-			}
+		// 	$update_array['deleted_by'] = $personnel_id;
+		// 	$update_array['date_deleted'] = date('Y-m-d');
+		// 	$update_array['finance_transfer_deleted'] = $deleted_status;
+		// 	$update_array['deleted_remarks'] = $deleted_status;
+		// 	$this->db->where('finance_transfer_id = '.$finance_transfer_id);
+		// 	if($this->db->update('finance_transfer',$update_array))
+		// 	{
+		// 		$this->session->set_userdata('success_message', 'You have successfully '.$status);
+		// 	}
+		// 	else
+		// 	{
+		// 		$this->session->set_userdata('error_message', 'Sorry could not perform the action. Please try again');
+		// 	}
 
-		}
+		// }
 		redirect('accounting/accounts-transfer');
   	}
 

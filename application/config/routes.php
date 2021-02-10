@@ -1680,6 +1680,7 @@ $route['company-financials/export-salary']  = 'financials/company_financial/expo
 
 
 $route['merge-patient-record/(:num)'] = 'reception/merge_patient/$1';
+$route['delete-transfered-payment/(:num)'] = 'finance/transfer/delete_transfer_payment/$1';
 
 
 
