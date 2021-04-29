@@ -1,7 +1,7 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once "./application/modules/hr/controllers/hr.php";
-
+error_reporting(0);
 class Personnel extends hr 
 {
 	var $document_upload_path;

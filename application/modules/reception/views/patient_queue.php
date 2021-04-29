@@ -91,6 +91,7 @@ if($doctors->num_rows() >  0){
 						  <th>Insurance/Cash</th>
 						  <th>Scheme</th>
 						  <th>Doctor</th>
+						  <th>Department</th>
 						  <th colspan="6">Actions</th>
 						</tr>
 					  </thead>
@@ -633,6 +634,7 @@ if($doctors->num_rows() >  0){
 									<td>'.$visit_type_name.' </td>
 									<td>'.$insurance_description.'</td>
 									<td>'.$doctor.'</td>
+									<td>'.$sent_to.'</td>
 									'.$buttons.'
 								</tr> ';
 				

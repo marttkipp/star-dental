@@ -15,6 +15,31 @@ foreach ($visit_rs as $key) {
 	$patient_id=$key->patient_id;
 }
 
+$sent_to = $this->reception_model->going_to($visit_id);
+$is_radiographer = $this->reception_model->check_if_admin($personnel_id,7);
+
+if($sent_to == "Radiology" AND $is_radiographer)
+{
+
+	$checked = TRUE;
+	$radio_class = 'active';
+	$docto_class = '';
+
+}
+else if($sent_to != "Radiology" AND $is_radiographer)
+{
+
+	
+	$checked = TRUE;
+	$radio_class = 'active';
+	$docto_class = '';
+}
+else
+{
+	$checked = FALSE;
+	$radio_class = '';
+	$docto_class = 'active';
+}
 ?>
  <section class="panel">
 	<header class="panel-heading">
@@ -58,19 +83,35 @@ foreach ($visit_rs as $key) {
           <input type="hidden" name="visit_id" id="visit_id" value="<?php echo $visit_id;?>">
 		<div class="tabbable" style="margin-bottom: 18px;">
 			<ul class="nav nav-tabs nav-justified">
-				<li class="active" ><a href="#patient-history" data-toggle="tab">Patient card history</a></li>
-				<li><a href="#prescription" data-toggle="tab">Prescription</a></li>
-				<li><a href="#history-patients" data-toggle="tab">Sick Leave</a></li>
-				<li><a href="#diary" data-toggle="tab">Patient's Appointments</a></li>
-				<li><a href="#uploads" data-toggle="tab">Uploads</a></li>				
-				<li><a href="#quotation-form" data-toggle="tab">Quotation</a></li>
-				<li><a href="#billing-form" data-toggle="tab">Visit Billing</a></li>
-				<li><a href="#patient_details" data-toggle="tab">Patient Details</a></li>
-				<li><a href="#visit_trail" data-toggle="tab">Visit Trail</a></li>
+
+				<?php
+				if($checked)
+				{
+					?>
+					<li  class="<?php echo $radio_class?>"><a href="#uploads" data-toggle="tab">Uploads</a></li>			
+					<li><a href="#billing-form" data-toggle="tab">Visit Billing</a></li>
+					<?php
+				}
+				else
+				{
+					?>
+					<li class="<?php echo $docto_class?>" ><a href="#patient-history" data-toggle="tab">Patient card history</a></li>
+					<li><a href="#prescription" data-toggle="tab">Prescription</a></li>
+					<li><a href="#history-patients" data-toggle="tab">Sick Leave</a></li>
+					<li><a href="#diary" data-toggle="tab">Patient's Appointments</a></li>
+					<li><a href="#uploads" data-toggle="tab">Uploads</a></li>			
+					<li><a href="#billing-form" data-toggle="tab">Visit Billing</a></li>
+					<li><a href="#quotation-form" data-toggle="tab">Quotation</a></li>
+					<li><a href="#patient_details" data-toggle="tab">Patient Details</a></li>
+					<li><a href="#visit_trail" data-toggle="tab">Visit Trail</a></li>
+					<?php
+				}
+				?>
+				
 			</ul>
 			<div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
 				
-				<div class="tab-pane active" id="patient-history">
+				<div class="tab-pane <?php echo $docto_class?>" id="patient-history">
 					<?php echo $this->load->view("patient_history", '', TRUE);?>
 				</div>
 				<div class="tab-pane " id="dentine">
@@ -84,7 +125,7 @@ foreach ($visit_rs as $key) {
 				<div class="tab-pane " id="history-patients">
 					<?php echo $this->load->view("sick_leave", '', TRUE); //echo $this->load->view("nurse/patients/lifestyle", '', TRUE);?>
 				</div>
-				<div class="tab-pane " id="uploads">
+				<div class="tab-pane <?php echo $radio_class?>" id="uploads">
 					<?php echo $this->load->view("uploads", '', TRUE);?>
 				</div>
 				<div class="tab-pane " id="diary">
@@ -117,11 +158,38 @@ foreach ($visit_rs as $key) {
 			<div class="center-align"> 
 			 
 				<div class="col-md-12">
-				  <div class="center-align">
-					<?php echo form_open("dental/send_to_accounts/".$visit_id, array("class" => "form-horizontal"));?>
-					  <input type="submit" class="btn btn-large btn-danger center-align" value="Send To Accounts"/>
-					<?php echo form_close();?>
-				  </div>
+					<?php 
+
+						if($checked)
+						{
+							?>
+							<div class="center-align">
+								<?php echo form_open("dental/send_to_doctor/".$visit_id, array("class" => "form-horizontal"));?>
+								  <input type="submit" class="btn btn-large btn-danger center-align" onclick="return confirm('Are you sure you want to send to doctor ?')" value="Send To Doctor"/>
+								<?php echo form_close();?>
+
+								
+							  </div>
+							<?php
+
+
+						}
+						else
+						{
+							?>
+							<div class="center-align">
+								<?php echo form_open("dental/send_to_accounts/".$visit_id, array("class" => "form-horizontal"));?>
+								  <input type="submit" class="btn btn-large btn-danger center-align" onclick="return confirm('Are you sure you want to send to Accounts ?')" value="Send To Accounts"/>
+								<?php echo form_close();?>
+
+								<?php echo form_open("dental/send_to_radiograph/".$visit_id, array("class" => "form-horizontal"));?>
+								  <input type="submit" class="btn btn-large btn-warning center-align" onclick="return confirm('Are you sure you want to send to Radiographer ?')" value="Send To Radiographer"/>
+								<?php echo form_close();?>
+							  </div>
+							<?php
+						}
+					?>
+				  
 				</div>
 			</div>
 

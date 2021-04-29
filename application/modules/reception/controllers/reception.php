@@ -901,9 +901,7 @@ public function save_visit2($patient_id)
 	public function save_inpatient_visit($patient_id)
 	{
 		$this->form_validation->set_rules('visit_date', 'Admission Date', 'required');
-		$this->form_validation->set_rules('personnel_id', 'Doctor', 'required|is_natural_no_zero');
 		$this->form_validation->set_rules('visit_type_id', 'Visit type', 'required|is_natural_no_zero');
-		$this->form_validation->set_rules('service_charge_name', 'Charge Charge', 'required|is_natural_no_zero');
 		$doctor_id = $this->input->post('personnel_id');
 		$room_id = 1;//$this->input->post("room_id"); 
 		$visit_type_id = $this->input->post("visit_type_id"); 
@@ -913,6 +911,24 @@ public function save_visit2($patient_id)
 			// $this->form_validation->set_rules('insurance_limit'.$patient_id, 'Insurance limit', 'required');
 			$this->form_validation->set_rules('insurance_number', 'Insurance number', 'required');
 			$this->form_validation->set_rules('insurance_description', 'Insurance Scheme', 'required');
+		}
+		
+
+		if(isset($_POST['department_id'])){
+			if(($_POST['department_id'] == 4))
+			{
+				//if nurse visit (7) or theatre (14) service must be selected
+				$this->form_validation->set_rules('personnel_id', 'Doctor', 'is_natural_no_zero');
+				$this->form_validation->set_rules('service_charge_name', 'Consultation Type', 'xss_clean');
+				$service_charge_id = $this->input->post("service_charge_name");
+				$doctor_id = $this->input->post('personnel_id');
+			}
+			
+			else 
+			{
+				$service_charge_id = 0;
+				$doctor_id = 0;
+			}
 		}
 		
 		if ($this->form_validation->run() == FALSE)
@@ -956,8 +972,19 @@ public function save_visit2($patient_id)
 				
 				$visit_id = $this->reception_model->create_inpatient_visit($visit_date, $patient_id, $doctor_id, $insurance_limit, $insurance_number, $visit_type_id, $close_card, $room_id,$insurance_description);
 				$this->reception_model->update_patient_detail($visit_id);
-				$service_charge_id = $this->input->post("service_charge_name");
-				$this->reception_model->save_visit_consultation_charge($visit_id, $service_charge_id);
+			
+				if($_POST['department_id'] == 4)
+				{
+					if(!empty($service_charge_id))
+					{
+						$this->reception_model->save_visit_consultation_charge($visit_id, $service_charge_id);	
+					}
+				}
+
+				$department_id = $this->input->post('department_id');
+				$this->reception_model->set_visit_department($visit_id, $department_id, $visit_type_id);
+					
+
 
 
 				

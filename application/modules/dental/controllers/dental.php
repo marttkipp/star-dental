@@ -571,6 +571,28 @@ class Dental extends auth
 		
 
 	}
+	public function send_to_radiograph($visit_id)
+	{
+		if($this->reception_model->set_visit_department($visit_id, 7))
+		{
+			redirect("patient-card/".$visit_id);
+		}
+		else
+		{
+			FALSE;
+		}
+	}
+	public function send_to_doctor($visit_id)
+	{
+		if($this->reception_model->set_visit_department($visit_id, 4))
+		{
+			redirect("patient-card/".$visit_id);
+		}
+		else
+		{
+			FALSE;
+		}
+	}
 	public function send_to_pharmacy($visit_id)
 	{
 		if($this->reception_model->set_visit_department($visit_id, 5))
