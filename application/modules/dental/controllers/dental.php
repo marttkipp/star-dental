@@ -261,6 +261,7 @@ class Dental extends auth
 		$v_data['personnel_check'] = $personnel_check;
 
 		// var_dump($personnel_check); die();
+		$v_data['document_upload_location'] = $this->document_upload_location;
 		
 		$data['content'] = $this->load->view('patient_card', $v_data, true);
 		
