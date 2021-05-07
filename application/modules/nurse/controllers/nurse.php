@@ -4,6 +4,8 @@ require_once "./application/modules/auth/controllers/auth.php";
 
 class Nurse extends auth
 {	
+	var $document_upload_path;
+	var $document_upload_location;
 	function __construct()
 	{
 		parent:: __construct();
@@ -18,6 +20,9 @@ class Nurse extends auth
 		$this->load->model('admin/admin_model');
 		$this->load->model('administration/personnel_model');
 		$this->load->model('administration/sync_model');
+
+		$this->document_upload_path = realpath(APPPATH . '../assets/document_uploads');
+		$this->document_upload_location = base_url().'assets/document_uploads/';
 	}
 	
 	public function index()
@@ -2011,6 +2016,7 @@ class Nurse extends auth
 		$v_data['patient_other_documents'] = $this->dental_model->get_document_uploads($patient_id);
 		$v_data['query'] = $query;
 		$v_data['patient_id'] = $patient_id;
+		$v_data['document_upload_location'] = $this->document_upload_location;
 		$v_data['page'] = $page;
 		$v_data['number_items'] = $query->num_rows();
 		$data['content'] = $this->load->view('patient_treatment/treatment_statement', $v_data, true);
