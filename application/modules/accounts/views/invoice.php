@@ -174,6 +174,18 @@ if($all_notes->num_rows() > 0)
 			.row .col-md-12 .title-item{float:left;width: 130px; font-weight:bold; text-align:right; padding-right: 20px;}
 			.title-img{float:left; padding-left:30px;}
 			img.logo{ margin:0 auto;}
+			.col-print-1 {width:8%;  float:left;}
+			.col-print-2 {width:16%; float:left;}
+			.col-print-3 {width:25%; float:left;}
+			.col-print-4 {width:33%; float:left;}
+			.col-print-5 {width:42%; float:left;}
+			.col-print-6 {width:50%; float:left;}
+			.col-print-7 {width:58%; float:left;}
+			.col-print-8 {width:66%; float:left;}
+			.col-print-9 {width:75%; float:left;}
+			.col-print-10{width:83%; float:left;}
+			.col-print-11{width:92%; float:left;}
+			.col-print-12{width:100%; float:left;}
 		</style>
     </head>
     <body class="receipt_spacing">
@@ -547,6 +559,7 @@ if($all_notes->num_rows() > 0)
 
 
         </div>
+        
 
     	<div class="row" style="font-style:italic; font-size:11px;">
         	<div class="col-md-10 pull-left">
@@ -578,6 +591,15 @@ if($all_notes->num_rows() > 0)
                 <?php } ?>
           	</div>
         </div>
+        <div class="col-md-12" style="position: absolute; bottom: 0px; ">
+      		<div class="col-md-12" style="margin-bottom: 0px !important;font-size: 13px !important;">
+      			<!-- <p>Bill Payable to : <strong>STAR DENTAL CLINICS LIMITED  -->
+      			</strong></p>
+      			<p><strong>MODES OF PAYMENT;</strong> <br>Cheques payable to STAR DENTAL CLINICS LIMITED ,<br> M-PESA (Buy Goods till No. Account No. 630642)</p>
+      			
+      			
+      		</div>
+      	</div>
 
         <?php
 
@@ -985,6 +1007,15 @@ if($all_notes->num_rows() > 0)
                 <?php } ?>
           	</div>
         </div>
+        <div class="col-md-12" style="position: absolute; bottom: 0px; ">
+      		<div class="col-md-12" style="margin-bottom: 0px !important;font-size: 13px !important;">
+      			<!-- <p>Bill Payable to : <strong>STAR DENTAL CLINICS LIMITED  -->
+      			</strong></p>
+      			<p><strong>MODES OF PAYMENT;</strong> <br>Cheques payable to STAR DENTAL CLINICS LIMITED ,<br> M-PESA (Buy Goods till No. Account No. 630642)</p>
+      			
+      			
+      		</div>
+      	</div>
 
         <p style="page-break-before: always;">&nbsp;</p>
 
@@ -1329,9 +1360,19 @@ if($all_notes->num_rows() > 0)
 
 	          	</div>
 	        </div>
+	        <div class="col-md-12" style="position: absolute; bottom: 0px; ">
+	      		<div class="col-md-12" style="margin-bottom: 0px !important;font-size: 13px !important;">
+	      			<!-- <p>Bill Payable to : <strong>STAR DENTAL CLINICS LIMITED  -->
+	      			</strong></p>
+	      			<p><strong>MODES OF PAYMENT;</strong> <br>Cheques payable to STAR DENTAL CLINICS LIMITED ,<br> M-PESA (Buy Goods till No. Account No. 630642)</p>
+	      			
+	      			
+	      		</div>
+	      	</div>
 	    <?php
 		}
 	    ?>
+
     </body>
 
 </html>

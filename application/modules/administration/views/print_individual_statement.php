@@ -245,10 +245,10 @@ else
 			.row .col-md-12 table {
 				border:solid #000 !important;
 				border-width:1px 0 0 1px !important;
-				font-size:15px;
+				font-size:12px;
 			}
 			.row .col-md-12 th, .row .col-md-12 td {
-				border:solid #000 !important;
+				border:solid GREY !important;
 				border-width:0 1px 1px 0 !important;
 			}
 			.table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td
@@ -259,20 +259,32 @@ else
 			.row .col-md-12 .title-item{float:left;width: 130px; font-weight:bold; text-align:right; padding-right: 20px;}
 			.title-img{float:left; padding-left:30px;}
 			img.logo{max-height:70px; margin:0 auto;}
+			.col-print-1 {width:8%;  float:left;}
+			.col-print-2 {width:16%; float:left;}
+			.col-print-3 {width:25%; float:left;}
+			.col-print-4 {width:33%; float:left;}
+			.col-print-5 {width:42%; float:left;}
+			.col-print-6 {width:50%; float:left;}
+			.col-print-7 {width:58%; float:left;}
+			.col-print-8 {width:66%; float:left;}
+			.col-print-9 {width:75%; float:left;}
+			.col-print-10{width:83%; float:left;}
+			.col-print-11{width:92%; float:left;}
+			.col-print-12{width:100%; float:left;}
 		</style>
     </head>
     <body class="receipt_spacing">
-    	<div class="row">
-        	<div class="col-xs-12">
-            	<img src="<?php echo base_url().'assets/logo/'.$contacts['logo'];?>" alt="<?php echo $contacts['company_name'];?>" class="img-responsive logo"/>
+    	<div class="col-md-12 receipt_bottom_border">
+        	<div class="col-print-6">
+            	<img src="<?php echo base_url().'assets/logo/'.$contacts['logo'];?>" alt="<?php echo $contacts['company_name'];?>" class="img-responsive logo pull-left"/>
             </div>
-        </div>
-    	<div class="row">
-        	<div class="col-md-12 center-align receipt_bottom_border">
-            	  <strong>
-                    <?php echo $contacts['company_name'];?><br/>
-                    P.O. Box <?php echo $contacts['address'];?> <?php echo $contacts['post_code'];?>, <?php echo $contacts['city'];?><br/>
-                    E-Mail:<?php echo $contacts['email'];?>.<br> Tel : <?php echo $contacts['phone'];?><br/>
+        	<div class="col-print-6">
+            	  <strong class="pull-right;">
+                    <strong style="text-decoration: underline;"><?php echo $contacts['company_name'];?></strong> <br/>
+                    <?php echo $contacts['location'];?>, <?php echo $contacts['building'];?>, <?php echo $contacts['floor'];?><br/>
+                    Address :<strong> P.O. Box <?php echo $contacts['address'];?> <?php echo $contacts['post_code'];?>, <?php echo $contacts['city'];?></strong> <br/>
+                    Office Line: <strong> <?php echo $contacts['phone'];?></strong> <br/>
+                    E-mail: <strong><?php echo $contacts['email'];?>.</strong><br/>
                 </strong>
             </div>
         </div>
@@ -331,6 +343,15 @@ else
           	</div>
         	
         </div>
+        <div class="col-md-12" style="position: absolute; bottom: 0px; ">
+      		<div class="col-md-12" style="margin-bottom: 0px !important;font-size: 13px !important;">
+      			<!-- <p>Bill Payable to : <strong>STAR DENTAL CLINICS LIMITED  -->
+      			</strong></p>
+      			<p><strong>MODES OF PAYMENT;</strong> <br>Cheques payable to STAR DENTAL CLINICS LIMITED ,<br> M-PESA (Buy Goods till No. Account No. 630642)</p>
+      			
+      			
+      		</div>
+      	</div>
     </body>
     
 </html>
