@@ -397,7 +397,7 @@ class Reception_model extends CI_Model
 
 		if($is_numeric)
 		{
-			$patient_number = 'N'.$patient_number;
+			$patient_number = $patient_number;
 		}
 		$branch_code = $patient_number[0];
 
