@@ -45,3 +45,5 @@ application/config/database.php
 #application/modules/reception/models/strathmore_population.php
 
 .htaccess
+assets/document_uploads/*
+
