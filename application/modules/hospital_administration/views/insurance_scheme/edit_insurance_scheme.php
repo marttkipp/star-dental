@@ -10,7 +10,7 @@
                 <div class="panel-body">
                 	<div class="row" style="margin-bottom:20px;">
                         <div class="col-lg-12">
-                            <a href="<?php echo site_url();?>hospital-administration/insurance-scheme" class="btn btn-info pull-right">Back to insurance schemes</a>
+                            <a href="<?php echo site_url();?>administration/insurance-scheme" class="btn btn-info pull-right">Back to insurance schemes</a>
                         </div>
                     </div>
                 <!-- Adding Errors -->

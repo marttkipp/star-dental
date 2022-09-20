@@ -41,7 +41,17 @@ class Dashboard_model extends CI_Model
 			$row = $query->result();
 
 			//var_dump($row); die();
-			$number= $row[0]->number;
+
+		
+			if(isset($row[0]))
+			{
+				$number= $row[0]->number;
+			}
+			else
+			{
+				$number = 0;
+			}
+			
 
 			if(empty($number)) 
 			{

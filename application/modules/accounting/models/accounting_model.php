@@ -23,7 +23,7 @@ class accounting_model extends CI_Model
 	* 	@param int $page
 	*
 	*/
-	public function get_all_visits($table, $where, $per_page, $page, $order = NULL)
+	public function get_all_visits_reports($table, $where, $per_page, $page, $order = NULL)
 	{
 		//retrieve all users
 		$this->db->from($table);
@@ -37,6 +37,37 @@ class accounting_model extends CI_Model
 		
 		return $query;
 	}
+
+	public function get_all_visits($table, $where, $per_page, $page, $order = NULL)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('patients.*,v_patient_balances.*');
+		$this->db->where($where);
+		$this->db->order_by('patients.last_visit','DESC');
+		// $this->db->group_by('patients.patient_id');
+		// $this->db->join('v_patient_balances','v_patient_balances.patient_id = visit.visit_id','LEFT');
+		// $this->db->join('personnel','visit.personnel_id = personnel.personnel_id','left');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+	public function get_all_visits_old($table, $where, $per_page, $page, $order = NULL)
+	{
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.*, visit_type.visit_type_name,personnel.personnel_fname,personnel.personnel_onames,visit.rejected_amount AS amount_rejected');
+		$this->db->where($where);
+		$this->db->order_by('visit.invoice_number','DESC');
+		$this->db->group_by('visit.visit_id');
+
+		$this->db->join('personnel','visit.personnel_id = personnel.personnel_id','left');
+		$query = $this->db->get('', $per_page, $page);
+		
+		return $query;
+	}
+
+
 
 	public function get_visit_amounts($visit_id)
 	{
@@ -450,7 +481,7 @@ class accounting_model extends CI_Model
 	}
 	public function get_visit_payment_totals()
 	{
-		$visit_payments = $this->session->userdata('visit_payments');
+		// $visit_payments = $this->session->userdata('visit_payments');
 		$visit_invoices = $this->session->userdata('visit_invoices');
 		
 		$visit_type_id = $this->session->userdata('visit_type_id');
@@ -461,10 +492,6 @@ class accounting_model extends CI_Model
 		if(!empty($visit_invoices))
 		{
 			$add .= $visit_invoices;
-		}
-		if(!empty($visit_payments))
-		{
-			$add .= $visit_payments;
 		}
 		if(!empty($visit_type_id))
 		{
@@ -488,7 +515,7 @@ class accounting_model extends CI_Model
 		// {
 		// 	$add .= '';
 		// }
-		$this->db->where('cancel = 0 AND visit.visit_id = payments.visit_id AND visit.visit_date = payments.payment_created AND visit.visit_delete = 0 AND payments.payment_type = 1 '.$add);
+		$this->db->where('cancel = 0 AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0 AND payments.payment_type = 1 '.$add);
 		$this->db->select('SUM(amount_paid) AS total_payments');
 		$query = $this->db->get('payments,visit'.$table_add);
 		$total_payments = 0;
@@ -503,17 +530,17 @@ class accounting_model extends CI_Model
 	}
 
 
-	public function get_all_visit_payments_totals($visit_type,$type=null)
+	public function get_all_visit_payments_totals($visit_type)
 	{
-		$visit_payments = $this->session->userdata('visit_payments');
+		// $visit_payments = $this->session->userdata('visit_payments');
 		$visit_invoices = $this->session->userdata('visit_invoices');
 		$visit_type_id = $this->session->userdata('visit_type_id');
 		$patient_number = $this->session->userdata('patient_number');
 		$add ='';
 		$table_add = '';
-		if(!empty($visit_payments))
+		if(!empty($visit_invoices))
 		{
-			$add .= $visit_payments;
+			$add .= $visit_invoices;
 		}
 		if(!empty($visit_type_id))
 		{
@@ -524,13 +551,8 @@ class accounting_model extends CI_Model
 			$add .= $patient_number.' AND patients.patient_id = visit.patient_id';
 			$table_add .= ',patients';
 		}
-		$add_invoices = '';
-		if(!empty($visit_invoices))
-		{
-			$add_invoices .= $visit_invoices;
-		}
 		
-		// $visit_type = $this->session->userdata('visit_type');
+		$visit_type = $this->session->userdata('visit_type');
 		if($visit_type == 1 AND !empty($visit_type))
 		{
 			$add .= 'AND payments.payment_method_id < 9';
@@ -544,16 +566,7 @@ class accounting_model extends CI_Model
 			$add .= '';
 		}
 
-		// if($type == 1)
-		// {
-			$add .= ' AND visit.visit_date <> payments.payment_created ';
-			// if($visit_type == 2)
-			// {
-			// 	var_dump($add); die();
-			// }
-		// }
-
-		$this->db->where('cancel = 0 AND payments.visit_id = visit.visit_id AND visit.visit_delete = 0  AND payments.payment_type = 1 '.$add);
+		$this->db->where('cancel = 0 AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0 AND payments.payment_type = 1 '.$add);
 		$this->db->select('SUM(amount_paid) AS total_payments');
 		$query = $this->db->get('payments,visit'.$table_add);
 		$total_payments = 0;
@@ -566,8 +579,6 @@ class accounting_model extends CI_Model
 		}
 		return $total_payments;
 	}
-
-
 
 
 
@@ -642,42 +653,6 @@ class accounting_model extends CI_Model
 	}
 
 
-	public function get_visit_debits_totals()
-	{
-		$visit_invoices = $this->session->userdata('visit_invoices');
-		$visit_type_id = $this->session->userdata('visit_type_id');
-		$patient_number = $this->session->userdata('patient_number');
-		$add ='';
-		$table_add = '';
-		if(!empty($visit_invoices))
-		{
-			$add .= $visit_invoices;
-		}
-		if(!empty($visit_type_id))
-		{
-			$add .= $visit_type_id;
-		}
-		if(!empty($patient_number))
-		{
-			$add .= $patient_number.' AND patients.patient_id = visit.patient_id';
-			$table_add .= ',patients';
-		}
-		
-		$this->db->where('cancel = 0 AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0 AND payments.payment_type = 3 '.$add);
-		$this->db->select('SUM(amount_paid) AS total_payments');
-		$query = $this->db->get('payments,visit'.$table_add);
-		$total_payments = 0;
-		if($query->num_rows() > 0)
-		{
-			foreach ($query->result() as $key => $value) {
-				# code...
-				$total_payments = $value->total_payments;
-			}
-		}
-		return $total_payments;
-	}
-
-
 	public function get_all_visit_waiver($visit_type)
 	{
 		$visit_invoices = $this->session->userdata('visit_invoices');
@@ -717,14 +692,14 @@ class accounting_model extends CI_Model
 
 	public function get_amount_collected($payment_method_id)
 	{
-		$visit_payments = $this->session->userdata('visit_payments');
+		$visit_invoices = $this->session->userdata('visit_invoices');
 		$visit_type_id = $this->session->userdata('visit_type_id');
 		$patient_number = $this->session->userdata('patient_number');
 		$add ='';
 		$table_add = '';
-		if(!empty($visit_payments))
+		if(!empty($visit_invoices))
 		{
-			$add .= $visit_payments;
+			$add .= $visit_invoices;
 		}
 		if(!empty($visit_type_id))
 		{

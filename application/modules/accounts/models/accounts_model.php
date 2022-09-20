@@ -1835,5 +1835,52 @@ class Accounts_model extends CI_Model
 		}
 		return $number;
 	}
+	function get_rejection_info($visit_id)
+	{
+		$table = "visit";
+		$where = "visit_id = '$visit_id'";
+		$items = "*";
+		$order = "visit_id";
+
+		$result = $this->database->select_entries_where($table, $where, $items, $order);
+		
+		return $result;
+	}
+
+	
+	public function get_next_appointment($table, $where)
+	{
+		$this->db->where($where);
+		$this->db->order_by('appointments.appointment_date','ASC');
+		$this->db->limit(1);
+		$query = $this->db->get($table);
+
+		$appointment_date = NULL;
+		if($query->num_rows() > 0)
+		{
+			foreach($query->result() AS $key => $value)
+			{
+				$appointment_date = $value->appointment_date;
+			}
+
+
+		}
+
+		return $appointment_date;
+	}
+
+
+	public function update_reminder_note($visit_id, $patient_id,$visit_invoice_id)
+	{
+		$data['reminder_note'] = $this->input->post('reminder_note');
+		$data['reminder_date'] = $this->input->post('reminder_date');
+		$data['reminder_status'] = 1;
+
+		$this->db->where('visit_invoice_id',$visit_invoice_id);
+		$this->db->update('visit_invoice',$data);
+
+		return TRUE;
+
+	}
 }
 ?>

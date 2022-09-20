@@ -33,7 +33,7 @@ class Creditors extends accounts
 		{
 			$creditor_name = '';
 		}
-		$where = 'creditor.creditor_id > 0 AND creditor.creditor_account_delete = 0';
+		$where = 'creditor.creditor_id > 0';
 		$search = $this->session->userdata('search_hospital_creditors');
 		
 		$where .= $search;
@@ -554,7 +554,7 @@ public function search_hospital_creditors()
 		//delete creditor
 		
 		$this->creditors_model->delete_creditor($creditor_account_id);
-		$this->session->set_userdata('success_message', 'Account has been deleted');
+		$this->session->set_userdata('success_message', 'Debit or Credit has been deleted');
 		redirect('accounting/creditors');
     }	
 
@@ -1033,9 +1033,5 @@ public function search_hospital_creditors()
     	}
     }
 	
-	public function export_creditors()
-	{
-		$this->creditors_model->export_creditors();
-	}
 }
 ?>

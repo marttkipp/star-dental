@@ -52,13 +52,13 @@
 				if($ward_status == 0)
 				{
 					$status = '<span class="label label-default">Deactivated</span>';
-					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'hospital-administration/activate-ward/'.$ward_id.'" onclick="return confirm(\'Do you want to activate '.$ward_name.'?\');" title="Activate '.$ward_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
+					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'administration/activate-ward/'.$ward_id.'" onclick="return confirm(\'Do you want to activate '.$ward_name.'?\');" title="Activate '.$ward_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
 				}
 				//create activated status display
 				else if($ward_status == 1)
 				{
 					$status = '<span class="label label-success">Active</span>';
-					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'hospital-administration/deactivate-ward/'.$ward_id.'" onclick="return confirm(\'Do you want to deactivate '.$ward_name.'?\');" title="Deactivate '.$ward_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
+					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'administration/deactivate-ward/'.$ward_id.'" onclick="return confirm(\'Do you want to deactivate '.$ward_name.'?\');" title="Deactivate '.$ward_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
 				}
 				
 				//creators & editors
@@ -93,10 +93,10 @@
 						<td>'.$last_modified.'</td>
 						<td>'.$modified_by.'</td>
 						<td>'.$status.'</td>
-						<td><a href="'.site_url().'hospital-administration/rooms/'.$ward_id.'" class="btn btn-sm btn-warning" title="View rooms for '.$ward_name.'"><i class="fa fa-home"></i> Rooms</a></td>
-						<td><a href="'.site_url().'hospital-administration/edit-ward/'.$ward_id.'" class="btn btn-sm btn-info" title="Edit '.$ward_name.'"><i class="fa fa-pencil"></i> Edit</a></td>
+						<td><a href="'.site_url().'administration/rooms/'.$ward_id.'" class="btn btn-sm btn-warning" title="View rooms for '.$ward_name.'"><i class="fa fa-home"></i> Rooms</a></td>
+						<td><a href="'.site_url().'administration/edit-ward/'.$ward_id.'" class="btn btn-sm btn-info" title="Edit '.$ward_name.'"><i class="fa fa-pencil"></i> Edit</a></td>
 						<td>'.$button.'</td>
-						<td><a href="'.site_url().'hospital-administration/delete-ward/'.$ward_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete '.$ward_name.'?\');" title="Delete '.$ward_name.'"><i class="fa fa-trash"></i> Delete</a></td>
+						<td><a href="'.site_url().'administration/delete-ward/'.$ward_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete '.$ward_name.'?\');" title="Delete '.$ward_name.'"><i class="fa fa-trash"></i> Delete</a></td>
 					</tr> 
 				';
 			}
@@ -125,7 +125,7 @@
 							<div class="panel-body">
                             	<div class="row" style="margin-bottom:20px;">
                                     <div class="col-lg-12">
-                                    	<a href="<?php echo site_url();?>hospital-administration/add-ward" class="btn btn-success btn-sm pull-right">Add Ward</a>
+                                    	<a href="<?php echo site_url();?>administration/add-ward" class="btn btn-success btn-sm pull-right">Add Ward</a>
                                     </div>
                                 </div>
                                 <?php

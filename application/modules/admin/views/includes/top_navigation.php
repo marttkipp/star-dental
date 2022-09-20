@@ -49,10 +49,13 @@
 					// }
 					// else
 					// {
-						$total_appointments = $this->admin_model->get_total_unsent_appointments();
-
 						?>
-						<a  href="<?php echo site_url().'send-appointment-reminders';?>" class="btn btn-warning" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> Send Appointment Notifications (<?php echo $total_appointments?> Unsent Reminders)</a>
+						<a  href="<?php echo site_url().'send-fourty-eight-appointment';?>" class="btn btn-danger" target="_blank" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> 48 Hour Reminders</a>
+
+						
+						<a  href="<?php echo site_url().'send-appointment-reminders';?>" class="btn btn-warning" target="_blank" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> 24 Hour Reminders</a>
+
+
 						<?php
 					// }
 					?>
@@ -79,21 +82,7 @@
 							<div class="profile-info" data-lock-name="<?php echo $this->session->userdata('first_name');?>" data-lock-email="<?php echo $this->session->userdata('email');?>">
 								<span class="name">
 									<?php 
-									//salutation
-									if(date('a') == 'am')
-									{
-										echo 'Good morning, ';
-									}
 									
-									else if((date('H') >= 12) && (date('H') < 17))
-									{
-										echo 'Good afternoon, ';
-									}
-									
-									else
-									{
-										echo 'Good evening, ';
-									}
 									echo $this->session->userdata('first_name');
 
 

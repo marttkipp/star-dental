@@ -236,6 +236,30 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">How did you know about us? </label>
+                    <div class="col-lg-6">
+                        <div id="places-list-view"></div>
+                         
+                        
+                    </div>
+                    <div class="col-md-2">
+                        <a class="btn btn-warning btn-sm" onclick="add_a_place()"><i class="fa fa-plus"></i> Add a place</a>
+                    </div>
+                </div>
+
+                    <div class="form-group">
+                        <div class="radio">
+                            <label class="col-lg-4 control-label">
+                                Specifiy
+                                
+                            </label>
+                              <div class="col-md-8">
+                                    <input type="text" class="form-control" name="about_us_view" placeholder="Specify the person /location or how you knew about us">
+                                </div>
+                        </div>
+                    </div>
                 
             </div>
         </div>
@@ -247,3 +271,193 @@
     </div>
 </section>
 <?php echo form_close();?>
+
+
+<script type="text/javascript">
+    $(function() {
+        get_all_places_list();
+   
+    });
+
+    function add_a_place()
+    {
+        document.getElementById("sidebar-right").style.display = "block"; 
+      // document.getElementById("existing-sidebar-div").style.display = "none"; 
+
+      var config_url = $('#config_url').val();
+    $.ajax({
+            type:'POST',
+            url: config_url+"reception/add_a_place",
+            cache:false,
+            contentType: false,
+            processData: false,
+            dataType: "text",
+            success:function(data){
+                 // var data = jQuery.parseJSON(data);
+                // alert();
+                // var status_event = data.status;
+
+                // alert(data.results);
+
+
+                 document.getElementById("current-sidebar-div").style.display = "block"; 
+                $('#current-sidebar-div').html(data);
+
+                get_all_places();
+
+                $('.datepicker').datepicker({
+                        format: 'yyyy-mm-dd'
+                    });
+
+                // $('.datepicker').datepicker();
+                $('.timepicker').timepicker();
+
+                
+            }
+        });
+    }
+
+    function get_all_places()
+    {
+        var config_url = $('#config_url').val();
+        $.ajax({
+            type:'POST',
+            url: config_url+"reception/get_all_places",
+            cache:false,
+            contentType: false,
+            processData: false,
+            dataType: "text",
+            success:function(data){
+           
+                $('#places-list').html(data);
+
+            }
+        });
+    }
+
+
+$(document).on("submit","form#add-place",function(e)
+{
+
+
+    e.preventDefault();
+    
+
+    var res = confirm('Are you sure you want to add a place. ?');
+
+
+    if(res)
+    {
+        var form_data = new FormData(this);
+
+        // alert(form_data);
+        
+        var config_url = $('#config_url').val();    
+
+         var url = config_url+"reception/add_place";
+         
+           $.ajax({
+           type:'POST',
+           url: url,
+           data:form_data,
+           dataType: 'text',
+           processData: false,
+           contentType: false,
+           success:function(data){
+            var data = jQuery.parseJSON(data);
+            
+            if(data.message == "success")
+            {
+               get_all_places();
+              get_all_places_list();
+            }
+            else
+            {
+                alert('Please ensure you have added included all the items');
+            }
+           
+           },
+           error: function(xhr, status, error) {
+           alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+           
+           }
+           });
+    }
+     
+    
+   
+    
+});
+
+
+function close_side_bar()
+{
+    // $('html').removeClass('sidebar-right-opened');
+    document.getElementById("sidebar-right").style.display = "none"; 
+    document.getElementById("current-sidebar-div").style.display = "none"; 
+    // document.getElementById("existing-sidebar-div").style.display = "none"; 
+    tinymce.remove();
+}
+
+
+function get_all_places_list()
+{
+    var config_url = $('#config_url').val();
+    $.ajax({
+        type:'POST',
+        url: config_url+"reception/get_all_places_list",
+        cache:false,
+        contentType: false,
+        processData: false,
+        dataType: "text",
+        success:function(data){
+       
+            $('#places-list-view').html(data);
+
+        }
+    });
+}
+
+function delete_place(place_id)
+{
+
+    var res = confirm('Are you sure you want to delete this place. ?');
+
+
+    if(res)
+    {
+        var config_url = $('#config_url').val();    
+
+         var url = config_url+"reception/delete_place/"+place_id;
+         
+           $.ajax({
+           type:'POST',
+           url: url,
+           data:{place_id: place_id},
+           dataType: 'text',
+           processData: false,
+           contentType: false,
+           success:function(data){
+            var data = jQuery.parseJSON(data);
+            
+            if(data.message == "success")
+            {
+               get_all_places();
+               get_all_places_list();
+            }
+            else
+            {
+                alert('Please ensure you have added included all the items');
+            }
+           
+           },
+           error: function(xhr, status, error) {
+           alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+           
+           }
+           });
+    }
+
+}
+
+</script>

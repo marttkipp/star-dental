@@ -547,7 +547,7 @@ class Services_model extends CI_Model
 				
 	
 				// get all the visit type
-				$this->db->where('visit_type_status', 1);
+				$this->db->where('visit_type_id', 1);
 				$visit_type_query = $this->db->get('visit_type');
 	
 				if($visit_type_query->num_rows() > 0)
@@ -595,7 +595,7 @@ class Services_model extends CI_Model
 									);
 						}
 						
-						
+						// var_dump($service_charge_insert);die();
 						if($this->service_charge_exists($product_name, $visit_type_id))
 						{
 							$this->db->where(array('service_charge_name' => $product_name, 'visit_type_id' => $visit_type_id));
@@ -652,7 +652,7 @@ class Services_model extends CI_Model
 					$product_unitprice_insurance = $res->product_unitprice_insurance;
 		
 					// get all the visit type
-					$this->db->where('visit_type_status', 1);
+					$this->db->where('visit_type_id', 1);
 					$visit_type_query = $this->db->get('visit_type');
 		
 					if($visit_type_query->num_rows() > 0)

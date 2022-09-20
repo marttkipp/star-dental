@@ -90,7 +90,7 @@ class Sections extends admin
 		//form validation rules
 		$this->form_validation->set_rules('section_name', 'Section Name', 'trim|required|xss_clean');
 		$this->form_validation->set_rules('section_status', 'Status', 'required|xss_clean');
-		$this->form_validation->set_rules('section_parent', 'Parent', 'required|xss_clean');
+		$this->form_validation->set_rules('section_id', 'Parent', 'required|xss_clean');
 		$this->form_validation->set_rules('section_icon', 'Status', 'trim|xss_clean');
 		$this->form_validation->set_rules('section_position', 'Position', 'trim|numeric|xss_clean');
 		
@@ -129,7 +129,7 @@ class Sections extends admin
 		//form validation rules
 		$this->form_validation->set_rules('section_name', 'Section Name', 'trim|required|xss_clean');
 		$this->form_validation->set_rules('section_status', 'Status', 'required|xss_clean');
-		$this->form_validation->set_rules('section_parent', 'Parent', 'required|xss_clean');
+		$this->form_validation->set_rules('section_id', 'Parent', 'required|xss_clean');
 		$this->form_validation->set_rules('section_icon', 'Status', 'trim|xss_clean');
 		$this->form_validation->set_rules('section_position', 'Position', 'trim|numeric|xss_clean');
 		
@@ -216,6 +216,22 @@ class Sections extends admin
 		$this->sections_model->deactivate_section($section_id);
 		$this->session->set_userdata('success_message', 'Section disabled successfully');
 		redirect('administration/sections');
+	}
+
+	public function update_all_sequences()
+	{
+		$this->sections_model->update_sections_sequence();
+
+		redirect('administration/sections');
+	}
+
+	public function update_sections_position($section_id)
+	{
+		$section_position = $this->input->post('section_position');
+
+		$array['section_position'] = $section_position;
+		$this->db->where('section_id',$section_id);
+		$this->db->update('section',$array);
 	}
 }
 ?>

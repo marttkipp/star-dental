@@ -5233,5 +5233,505 @@ public function save_visit2($patient_id)
 
 	}
 
+	public function send_doctors_appointments()
+	{
+
+
+
+		    $date_tomorrow = $tomorrows_date = date("Y-m-d",strtotime("tomorrow"));
+		      // $date_tomorrow = date("Y-m-d");
+
+		    $dt= $date_tomorrow;
+		    $dt1 = strtotime($dt);
+		    $dt2 = date("l", $dt1);
+		    $dt3 = strtolower($dt2);
+		  
+	        $date_tomorrow = $dt;
+	        $day =  'tomorrow';
+		 
+	        $doctor = $this->reception_model->get_doctor();
+
+
+	        if(count($doctor) > 0){
+				foreach($doctor as $row):
+					$fname = $row->personnel_fname;
+					$onames = $row->personnel_onames;
+					$personnel_id = $row->personnel_id;
+					$personnel_phone = $row->personnel_phone;
+					// $authorize_invoice_changes = $row->authorize_invoice_changes;
+					$branch_id = $row->branch_id;
+					
+					$this->db->select('*');
+					$this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND schedule_id = 0 AND personnel_id = '.$personnel_id);
+					$query = $this->db->get('visit,patients');
+					// var_dump($query);die();
+					$total_items = $query->num_rows();
+					if($query->num_rows() > 0)
+					{
+						$email_message = '';
+						$consultant_id = 0;
+						$patient_list = '';
+						foreach ($query->result() as $key => $value)
+						{
+							# code...
+							$patient_phone = $value->patient_phone1;
+							$patient_id = $value->patient_id;
+							$visit_id = $value->visit_id;
+							$time_start = $value->time_start;
+							// $visit_id = $value->visit_id;
+							// $patient_othernames = $value->patient_othernames;
+							$patient_surname = $value->patient_surname;
+							// $patient_first_name = $value->patient_first_name;
+							// $personnel_id = $value->resource_id;
+							$patient_email = $value->patient_email;
+							// $appointment_status = $value->appointment_status;
+							// $time_start = $value->appointment_start_time;
+							// $appointment_id = $value->appointment_idd;
+							// $branch_name = $value->branch_name;
+							// $branch_phone = $value->branch_phone;
+							$visit_date = date('jS M Y',strtotime($date_tomorrow));
+							// $time_start = date('H:i A',strtotime($time_start));
+							$patient_explode = explode(" ", $patient_surname);
+
+							if(is_array($patient_explode))
+							{
+								$patient_surname = ucfirst(strtolower($patient_explode[0]));
+							}
+
+							$time_start = date("g:iA", strtotime($time_start));
+
+
+							$patient_list .= $patient_surname." AT ".$time_start."\n";
+
+						}
+						
+						$message_template = "Dear ".$fname.",\n".date('jS M Y',strtotime($tomorrows_date))." appointments.\n".$patient_list."\nPlanet Dental.";
+
+						$message_template = str_replace('  ', '', $message_template);
+
+						// var_dump($message_template);die();
+						// $personnel_phone = '704808007';
+						if(!empty($personnel_phone))
+						{
+							$response = $this->messaging_model->sms($personnel_phone,$message_template);
+
+							// var_dump($response);die();
+						}
+						
+					}
+
+					
+
+
+				endforeach;
+			}
+
+
+
+			
+
+	}
+
+
+	
+
+
+	public function add_a_place()
+	{
+		// var_dump($patient_name);die();
+		$data['places'] = $this->reception_model->get_places();
+		$page = $this->load->view('sidebar/place_sidebar',$data);
+
+		echo $page;
+	}
+
+	public function get_all_places()
+	{
+		$data['places'] = $this->reception_model->get_places();
+		$page = $this->load->view('sidebar/places_list',$data);
+		// var_dump($page);die();
+		echo $page;
+	}
+	public function add_place()
+	{
+		$array['place_name'] = $this->input->post('place_name');
+		$array['branch_id'] = $this->session->userdata('branch_id');
+
+		if($this->db->insert('place',$array))
+		{
+			$response['message'] = 'success';
+			$response['result'] = 'You successfully added a place';
+		}
+		else
+		{
+			$response['message'] = 'fail';
+			$response['result'] = 'Sorry please try again';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function get_all_places_list()
+	{
+
+		$data['places'] = $this->reception_model->get_places();
+		$page = $this->load->view('sidebar/places_list_view',$data);
+		// var_dump($page);die();
+		echo $page;
+
+	}
+
+	public function get_searched_patients($patient_phone)
+	{
+		if(!empty($patient_phone))
+		{
+			$sql = 'SELECT * FROM patients WHERE patient_phone1 LIKE \'%'.$patient_phone.'%\' LIMIT 10';
+			$query = $this->db->query($sql);
+			$v_data['query'] = $query;
+			$response =  $this->load->view('show_patients_searched',$v_data);
+		}
+		else
+		{
+			$response = 'Could not find any patient with that phone number';
+		}
+		// echo json_encode($response);
+	}
+
+	public function delete_place($place_id)
+	{
+		// $array['place_name'] = $this->input->post('place_name');
+		$array['place_delete'] = 1;
+		$this->db->where('place_id',$place_id);
+		if($this->db->update('place',$array))
+		{
+			$response['message'] = 'success';
+			$response['result'] = 'You successfully added a place';
+		}
+		else
+		{
+			$response['message'] = 'fail';
+			$response['result'] = 'Sorry please try again';
+		}
+
+		echo json_encode($response);
+	}
+	public function get_sidebar_details($patient_id,$visit_id=NULL)
+	{
+
+
+		$data['title'] = $this->site_model->display_page_title();
+		$v_data['title'] = $data['title'];
+		
+
+		$lab_test_where = 'patients.patient_id = '.$patient_id;
+		$lab_test_table = 'patients';
+		$lab_test_where .= ' AND patient_delete = 0';
+
+		$this->db->where($lab_test_where);
+		$this->db->limit(1);
+		// $this->db->join('v_patient_account_balances','patients.patient_id = v_patient_account_balances.patient_id','LEFT');
+		$query = $this->db->get($lab_test_table);
+
+		
+		$v_data['query'] = $query;
+		$v_data['patient_id'] = $patient_id;
+		$v_data['visit_id'] = $visit_id;
+
+		
+		$result = $this->load->view('reception/sidebar/sidebar_detail', $v_data,true);
+		$response['message'] = 'success';
+		$response['result'] = $result;
+
+		echo json_encode($response);
+	}
+
+	public function update_visit_appointments()
+	{
+		$this->db->where('visit.visit_id > 0 AND visit.appointment_id = 1 AND visit.visit_date >= "2020-07-01" AND patients.patient_id = visit.patient_id AND visit.visit_delete = 0 AND visit.visit_id NOT IN (SELECT visit_id FROM appointments WHERE appointments.visit_id = visit.visit_id)');
+		$query = $this->db->get('visit,patients');
+
+		// var_dump($query);die();
+
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				// code...
+				$visit_id = $value->visit_id;
+				$time_start = $value->time_start;
+				$time_end = $value->time_end;
+				$patient_surname = $value->patient_surname;
+				$patient_number = $value->patient_number;
+				$patient_phone1 = $value->patient_phone1;
+				$time_end = $value->time_end;
+				$close_card = $value->close_card;
+				$personnel_id = $value->personnel_id;
+				$procedure_done = $value->procedure_done;
+				$visit_date = $appointment_date = $value->visit_date;	
+
+
+				$event_name = $patient_surname.' - '.$patient_number.' '.$patient_phone1;
+
+
+				// 
+
+				$visit_start_time = $visit_date.' '.$time_start;
+				$visit_end_time = $visit_date.' '.$time_end;
+
+
+
+				$visit_time_start = date('Y-m-d H:i:00',strtotime($visit_start_time));
+				$visit_time_end = date('Y-m-d H:i:00',strtotime($visit_end_time));
+
+
+				$time_start = date('H:i:00',strtotime($time_start));
+				$time_end = date('H:i:00',strtotime($time_end));
+
+
+
+				$to_time = strtotime($visit_time_end);
+				$from_time = strtotime($visit_time_start);
+				$minutes_to_add = round(abs($to_time - $from_time) / 60,2);
+
+				$start_date = str_replace(' ','T',$visit_time_start);
+				$end_date = str_replace(' ','T',$visit_time_end);
+				// var_dump($minutes_to_add);die();
+
+				$appointment_array  = array(
+										'appointment_date' => $visit_date, 
+										'appointment_status' => 1, 
+										'appointment_start_time' => $time_start,
+										'appointment_end_time' => $time_end, 
+										'appointment_date_time_start' => $start_date.'+03:00',
+										'appointment_date_time_end' => $end_date.'+03:00',
+										'created_by' => $this->session->userdata('personnel_id'),
+										'created' => date('Y-m-d'),
+										'resource_id' => $personnel_id
+									);
+
+				$time = strtotime($visit_time_start);
+				$endTime = date("H:i", strtotime('+'.$minutes_to_add.' minutes', $time));
+
+				$appointment_array['appointment_date_time_end'] = $appointment_date.'T'.$endTime;
+
+				// $procedure_done =  $this->input->post('procedure_done');
+
+
+				if($close_card == 1)
+				{
+
+					$appointment_array['appointment_status'] = 4;
+
+				}
+				else if($close_card == 2)
+				{
+					$appointment_array['appointment_status'] = 1;
+				}
+				else
+				{
+					$appointment_array['appointment_status'] = 1;
+				}
+
+
+
+				$appointment_array['event_description'] = $procedure_done;
+				$appointment_array['event_name'] = $event_name;		
+				$appointment_array['visit_id'] = $visit_id;
+				$appointment_array['sync_status'] = 0;
+				$appointment_array['appointment_type'] = 1;
+				$appointment_array['duration'] = $minutes_to_add;
+
+				// var_dump($appointment_array);die();
+			
+				$this->db->insert('appointments',$appointment_array);
+
+			}
+		}
+	}
+	public function search_all_queue($page_name=NULL)
+	{
+		$visit_type_id = $this->input->post('visit_type_id');
+		$patient_national_id = $this->input->post('patient_national_id');
+		$patient_number = $this->input->post('patient_number');
+		$phone_number = $this->input->post('phone_number');
+		$date_time = $this->input->post('date_time');
+		$visit_date_from = $this->input->post('date_from');
+		$visit_date_to = $this->input->post('date_to');
+		
+
+		$search_title = '';
+		if(!empty($patient_number))
+		{
+			$search_title .= ' Number :  '.$patient_number;
+			$patient_number = ' AND patients.patient_number LIKE \'%'.$patient_number.'%\'';
+		}
+		
+		if(!empty($patient_national_id))
+		{
+			$search_title .= ' Id :  '.$patient_national_id;
+			$patient_national_id = ' AND patients.patient_national_id = \''.$patient_national_id.'\' ';
+		}
+
+
+		if(!empty($phone_number))
+		{
+			$search_title .= ' Phone :  '.$phone_number;
+			$phone_number = ' AND patients.patient_phone1 = \''.$phone_number.'\' ';
+
+		}
+		
+		if(!empty($visit_type_id))
+		{
+			$visit_type_id = ' AND visit.visit_type = '.$visit_type_id.' ';
+		}
+		
+		if(!empty($strath_no))
+		{
+			$strath_no = ' AND patients.strath_no LIKE '.$strath_no.' ';
+		}
+		
+		//search surname
+		if(!empty($_POST['surname']))
+		{
+			$search_title .= ' Name <strong>'.$_POST['surname'].'</strong>';
+			$surnames = explode(" ",$_POST['surname']);
+			$total = count($surnames);
+			
+			$count = 1;
+			$surname = ' AND (';
+			for($r = 0; $r < $total; $r++)
+			{
+				if($count == $total)
+				{
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')';
+				}
+				
+				else
+				{
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
+				}
+				$count++;
+			}
+			$surname .= ') ';
+		}
+		
+		else
+		{
+			$surname = '';
+		}
+
+
+		if(!empty($visit_date_from) && !empty($visit_date_to))
+		{
+			$visit_date_checked = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$providers_date_from = $visit_date_from;
+			$providers_date_to = $visit_date_to;
+			$search_title .= ': '.date('jS M Y', strtotime($visit_date_from)).' to '.date('jS M Y', strtotime($visit_date_to)).' ';
+		}
+		
+		else if(!empty($visit_date_from) && empty($visit_date_to))
+		{
+			$visit_date_checked = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$providers_date_from = $visit_date_from;
+			$search_title .= ': '.date('jS M Y', strtotime($visit_date_from)).' ';
+		}
+		
+		else if(!empty($visit_date_to) && empty($visit_date_from))
+		{
+			$visit_date_checked = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$providers_date_to = $visit_date_to;
+			$search_title .= ': '.date('jS M Y', strtotime($visit_date_to)).' ';
+		}
+		
+		else
+		{
+			$visit_date_checked = '';
+			$providers_date_from = '';
+			$providers_date_to = '';
+		}
+		// var_dump($visit_date_checked);die();
+		
+		//search other_names
+		if(!empty($_POST['othernames']))
+		{
+			$other_names = explode(" ",$_POST['othernames']);
+			$total = count($other_names);
+			
+			$count = 1;
+			$other_name = ' AND (';
+			for($r = 0; $r < $total; $r++)
+			{
+				if($count == $total)
+				{
+					$other_name .= ' patients.patient_surname LIKE \'%'.$other_names[$r].'%\'';
+				}
+				
+				else
+				{
+					$other_name .= ' patients.patient_surname LIKE \'%'.$other_names[$r].'%\' AND ';
+				}
+				$count++;
+			}
+			$other_name .= ') ';
+		}
+		
+		else
+		{
+			$other_name = '';
+		}
+		$list_view = '';
+
+		// var_dump($date_time);die();
+		if(!empty($date_time))
+		{
+
+			if($date_time == 1)
+			{
+				$list_view = ' AND visit.visit_date = \''.date('Y-m-d').'\' ';
+				$search_title .= ' Today ';
+			}
+			else if($date_time == 2)
+			{
+				$visit_date = date('Y-m-d');
+				$visit_date = date("Y-m-d", strtotime("-1 day", strtotime($visit_date)));
+				$list_view = ' AND visit.visit_date = \''.$visit_date.'\'';
+				$search_title .= ' Yesterday ';
+
+			}
+			else if($date_time == 3)
+			{		
+				$visit_date = date('Y-m-d');
+				$firstday = date('Y-m-d', strtotime("this week")); 
+				$list_view = ' AND visit.visit_date BETWEEN \''.$firstday.'\' AND \''.$visit_date.'\'  ';
+				$search_title .= ' This Week ';
+			}
+			else if($date_time == 4)
+			{
+				
+
+				$visit_date = date('Y-m-01');
+				$last_day = date('Y-m-t'); 
+				$list_view = ' AND visit.visit_date BETWEEN \''.$visit_date.'\' AND \''.$last_day.'\'  ';
+				$search_title .= ' This Month ';
+			}
+			
+		}
+		
+		$search = $patient_number.$surname.$patient_national_id.$phone_number.$list_view.$visit_date_checked;
+
+		// var_dump($search);die();
+		$this->session->set_userdata('all_search_title', $search_title);
+		$this->session->set_userdata('general_queue_search', $search);
+		
+		redirect('queue');
+	}
+	
+	public function close_all_queue_search($page_name=null)
+	{
+		$this->session->unset_userdata('general_queue_search');
+		$this->session->unset_userdata('all_search_title');
+		// $this->general_queue($page_name);
+		redirect('queue');
+	}
+
 }
 ?>

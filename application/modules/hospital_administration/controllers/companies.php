@@ -107,7 +107,7 @@ class Companies extends Hospital_administration
 			if($this->companies_model->add_company())
 			{
 				$this->session->set_userdata('success_message', 'Insurance company added successfully');
-				redirect('hospital-administration/insurance-companies');
+				redirect('administration/insurance-companies');
 			}
 			
 			else
@@ -147,7 +147,7 @@ class Companies extends Hospital_administration
 			if($this->companies_model->update_company($company_id))
 			{
 				$this->session->set_userdata('success_message', 'Company updated successfully');
-				redirect('hospital-administration/insurance-companies');
+				redirect('administration/insurance-companies');
 			}
 			
 			else
@@ -188,7 +188,7 @@ class Companies extends Hospital_administration
 	{
 		$this->companies_model->delete_company($company_id);
 		$this->session->set_userdata('success_message', 'Company has been deleted');
-		redirect('hospital-administration/insurance-companies');
+		redirect('administration/insurance-companies');
 	}
     
 	/*
@@ -201,7 +201,7 @@ class Companies extends Hospital_administration
 	{
 		$this->companies_model->activate_company($company_id);
 		$this->session->set_userdata('success_message', 'Company activated successfully');
-		redirect('hospital-administration/insurance-companies');
+		redirect('administration/insurance-companies');
 	}
     
 	/*
@@ -214,7 +214,7 @@ class Companies extends Hospital_administration
 	{
 		$this->companies_model->deactivate_company($company_id);
 		$this->session->set_userdata('success_message', 'Company disabled successfully');
-		redirect('hospital-administration/insurance-companies');
+		redirect('administration/insurance-companies');
 	}
 }
 ?>

@@ -11,6 +11,7 @@ foreach ($visit_rs as $key) {
 	$time_start=$key->time_start;
 	$visit_date=$key->visit_date;
 	$personnel_id=$key->personnel_id;
+	$doctor_id=$key->personnel_id;
 	$room_id=$key->room_id;
 	$patient_id=$key->patient_id;
 }
@@ -41,14 +42,41 @@ else
 	$docto_class = 'active';
 }
 ?>
- <section class="panel">
-	<header class="panel-heading">
-		<h2 class="panel-title"><?php echo $patient;?></h2>
-		<div class="pull-right">
-			 <a href="<?php echo site_url().'queue'?>" style="margin-top:-50px" class="btn btn-large btn-info fa fa-arrow-left" > Back to Queue </a>
+
+<div class="col-print-2" style="padding:5px;">
+	<div id="sidebar-detail"></div>
+	<?php
+
+    if($doctor_id > 0)
+    {
+    	?>
+    	
+           <div class="col-md-12">
+              <h4> - NEXT APPOINTMENT <br>  </h4>
+              <br>
+              <div class="center-align">
+                   <a class="btn btn-sm btn-warning "   onclick='appointment_sidebar(<?php echo $patient_id;?>,<?php echo $visit_id;?>,10,<?php echo $doctor_id;?>)' > <i class="fa fa-plus"></i> Book Appointment </a>               
+              </div>
+              <br>
+              <div id="next-appointment-view"></div>
+              
+
+           </div>
+     
+    	<?php
+    }
+    ?>
+      
+</div>
+<div class="col-print-10">
+		<div class="col-md-12">
+			  <div class="pull-right">
+						<a href="<?php echo site_url()."queue"?>"  class="btn btn-sm btn-warning">Back to queue</a>
+
+				 </div>
+						
 		</div>
-	</header>
-	<div class="panel-body">
+  
     
 		<div class="center-align">
 			<?php
@@ -76,7 +104,6 @@ else
 		</div>
 		
 		<?php echo $this->load->view("nurse/allergies_brief", '', TRUE);?>
-			
 		<div class="clearfix"></div>
 		<input type="hidden" name="patient_id" id="patient_id" value="<?php echo $patient_id;?>">
 		 <input type="hidden" name="current_date" id="current_date" value="<?php echo $visit_date;?>">
@@ -98,7 +125,6 @@ else
 					<li class="<?php echo $docto_class?>" ><a href="#patient-history" data-toggle="tab">Patient card history</a></li>
 					<li><a href="#prescription" data-toggle="tab">Prescription</a></li>
 					<li><a href="#history-patients" data-toggle="tab">Sick Leave</a></li>
-					<li><a href="#diary" data-toggle="tab">Patient's Appointments</a></li>
 					<li><a href="#uploads" data-toggle="tab">Uploads</a></li>			
 					<li><a href="#billing-form" data-toggle="tab">Visit Billing</a></li>
 					<li><a href="#quotation-form" data-toggle="tab">Quotation</a></li>
@@ -111,41 +137,41 @@ else
 			</ul>
 			<div class="tab-content" style="padding-bottom: 9px; border-bottom: 1px solid #ddd;">
 				
-				<div class="tab-pane <?php echo $docto_class?>" id="patient-history">
+				<div class="tab-pane <?php echo $docto_class?>" id="patient-history" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<?php echo $this->load->view("patient_history", '', TRUE);?>
 				</div>
-				<div class="tab-pane " id="dentine">
+				<div class="tab-pane " id="dentine" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<div id="page_item"></div>
 				</div>
-				<div class="tab-pane " id="prescription">
+				<div class="tab-pane " id="prescription" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 
 					<?php echo $this->load->view("prescription_view", '', TRUE); ?>
 					<div id="visit-prescription"></div>
 				</div>
-				<div class="tab-pane " id="history-patients">
+				<div class="tab-pane " id="history-patients" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<?php echo $this->load->view("sick_leave", '', TRUE); //echo $this->load->view("nurse/patients/lifestyle", '', TRUE);?>
 				</div>
-				<div class="tab-pane <?php echo $radio_class?>" id="uploads">
+				<div class="tab-pane <?php echo $radio_class?>" id="uploads" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<?php echo $this->load->view("uploads", '', TRUE);?>
 				</div>
-				<div class="tab-pane " id="diary">
+				<div class="tab-pane " id="diary" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<?php echo $this->load->view("patient_appointments", '', TRUE);?>
 				</div>
-				<div class="tab-pane" id="patient_details">
+				<div class="tab-pane" id="patient_details" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 
 					<?php 
 					$v_data['patient_details'] = $patient_details;
 					echo $this->load->view("patient_details", '', TRUE);?>
 				</div>
-				<div class="tab-pane" id="billing-form">
+				<div class="tab-pane" id="billing-form" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 
 					<?php echo $this->load->view("billing", '', TRUE);?>
 				</div>
-				<div class="tab-pane" id="quotation-form">
+				<div class="tab-pane" id="quotation-form" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 
 					<?php echo $this->load->view("quotation", '', TRUE);?>
 				</div>
-				<div class="tab-pane" id="visit_trail">
+				<div class="tab-pane" id="visit_trail" style="height: 73vh !important;overflow-y: scroll;overflow-x: none;">
 					<?php echo $this->load->view("visit_trail", '', TRUE);?>
 				</div>
 
@@ -178,13 +204,12 @@ else
 						{
 							?>
 							<div class="center-align">
-								<?php echo form_open("dental/send_to_accounts/".$visit_id, array("class" => "form-horizontal"));?>
-								  <input type="submit" class="btn btn-large btn-danger center-align" onclick="return confirm('Are you sure you want to send to Accounts ?')" value="Send To Accounts"/>
-								<?php echo form_close();?>
 
-								<?php echo form_open("dental/send_to_radiograph/".$visit_id, array("class" => "form-horizontal"));?>
-								  <input type="submit" class="btn btn-large btn-warning center-align" onclick="return confirm('Are you sure you want to send to Radiographer ?')" value="Send To Radiographer"/>
-								<?php echo form_close();?>
+
+								<a href="<?php echo site_url()."dental/send_to_accounts/".$visit_id?>" onclick="return confirm('Are you sure you want to send to Accounts ?')" class="btn btn-sm btn-danger">Send To Accounts</a>
+
+								<a href="<?php echo site_url()."dental/send_to_radiograph/".$visit_id?>" onclick="return confirm('Are you sure you want to send to Accounts ?')" class="btn btn-sm btn-warning">Send To Radiographer</a>
+
 							  </div>
 							<?php
 						}
@@ -192,12 +217,10 @@ else
 				  
 				</div>
 			</div>
-
 		</div>
-		
 	</div>
-        
-  </section>
+
+
   
   <script type="text/javascript">
   	
@@ -217,9 +240,46 @@ else
 		get_surgeries(<?php echo $visit_id;?>);
 		get_page_item(1,<?php echo $patient_id;?>);
 
+		get_sidebar_details(<?php echo $patient_id;?>,<?php echo $visit_id;?>);
+
 
 
 	});
+
+	function get_sidebar_details(patient_id,visit_id)
+	{
+
+		var config_url = $('#config_url').val();
+	 	var url = config_url+"reception/get_sidebar_details/"+patient_id+"/"+visit_id;
+	 	// alert(url);
+		$.ajax({
+			type:'POST',
+			url: url,
+			data:{query: null},
+			dataType: 'text',
+			processData: false,
+			contentType: false,
+			success:function(data){
+			var data = jQuery.parseJSON(data);
+			  // alert(data.content);
+			if(data.message == "success")
+			{
+				$("#sidebar-detail").html(data.result);
+			}
+			else
+			{
+				alert('Please ensure you have added included all the items');
+			}
+
+		},
+		error: function(xhr, status, error) {
+		alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+
+		}
+		});
+
+	}
+
 
 	function get_medication(visit_id){
     

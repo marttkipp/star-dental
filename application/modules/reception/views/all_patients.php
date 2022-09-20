@@ -75,8 +75,7 @@
 						  <th>Contact details</th>
 						  <th>Last Visit</th>
 						  <th>Doctor</th>
-						  <th>Cash Balance</th>
-						  <th>Insurance Balance</th>
+						  <th>Balance</th>
 						  <th colspan="3">Actions</th>
 						</tr>
 					  </thead>
@@ -196,8 +195,8 @@
 					$doctor = '-';
 				}
 
-				$cash_balance = $this->accounts_model->get_cash_balance($patient_id);
-				$insurance_balance = $this->accounts_model->get_insurance_balance($patient_id);
+				// $cash_balance = $this->accounts_model->get_cash_balance($patient_id);
+				// $insurance_balance = $this->accounts_model->get_insurance_balance($patient_id);
 				$count++;
 				
 				
@@ -211,160 +210,10 @@
 							<td>'.$patient_phone1.'</td>							
 							<td>'.$last_visit.'</td>
 							<td>'.$doctor.'</td>
-							<td>'.number_format($cash_balance,2).'</td>
-							<td>'.number_format($insurance_balance,2).'</td>
+							<td>'.number_format($account_balance,2).'</td>
 							<td><a href="'.site_url().'reception/set_visit/'.$patient_id.'" class="btn btn-sm btn-info">Queue </a></td>
 							<td><a href="'.site_url().'reception/edit_patient/'.$patient_id.'" class="btn btn-sm btn-warning">Edit </a></td>
-							<td><button type="button" class="btn btn-sm btn-success pull-right" data-toggle="modal" data-target="#book-appointment'.$patient_id.'"><i class="fa fa-plus"></i> Appointment </button>
-								<div class="modal fade " id="book-appointment'.$patient_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-								    <div class="modal-dialog modal-lg" role="document">
-								        <div class="modal-content ">
-								            <div class="modal-header">
-								            	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								            	<h4 class="modal-title" id="myModalLabel">Schedule Appointment for '.$patient_surname.'</h4>
-								            </div>
-								            '.form_open("reception/save_appointment_accounts/".$patient_id, array("class" => "form-horizontal")).'
-
-								            <div class="modal-body">
-								            	<div class="row">
-								            		<input type="hidden" name="redirect_url" id="redirect_url'.$patient_id.'" value="'.$this->uri->uri_string().'">
-								            		<input type="hidden" name="patient_id" id="patient_id'.$patient_id.'" value="'.$patient_id.'">
-								            		<input type="hidden" name="current_date" id="current_date'.$patient_id.'" value="'.date('Y-m-d').'">
-								            		<div class="col-md-12">
-								            			<div class="col-md-6">
-								            				<div class="form-group">
-															<label class="col-lg-4 control-label">Visit date: </label>
-															
-															<div class="col-lg-8">
-						                                        <div class="input-group">
-						                                            <span class="input-group-addon">
-						                                                <i class="fa fa-calendar"></i>
-						                                            </span>
-						                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="visit_date" id="scheduledate'.$patient_id.'" placeholder="Visit Date" value="'.date('Y-m-d').'" required>
-						                                        </div>
-															</div>
-														</div>
-														
-														<div class="form-group">
-														  <label class="col-lg-4 control-label">Room: </label>	
-															<div class="col-lg-8">
-																	<select name="room_id" id="room_id'.$patient_id.'" class="form-control" >
-																		<option value="">----Select Room----</option>';
-																		 if($rooms->num_rows() >  0){
-																			foreach($rooms->result() as $row):
-																				$room_name = $row->room_name;
-																				$room_id = $row->room_id;
-																				
-																				if($room_id == set_value('room_id'))
-																				{
-																					$result .="<option value='".$room_id."' selected='selected'>".$room_name."</option>";
-																				}
-																				
-																				else
-																				{
-																					$result .="<option value='".$room_id."'>".$room_name."</option>";
-																				}
-																			endforeach;
-																		}
-																	$result .='</select>
-															</div>
-														</div>
-														
-
-														 <div class="form-group">
-										                        <label class="col-lg-4 control-label">Procedure to be done</label>
-										                        <div class="col-lg-8">
-										                        	<textarea class="form-control" name="procedure_done" id="procedure_done'.$patient_id.'"></textarea>
-										                           
-										                       </div>
-							                             </div>  
-														
-						                                	
-								            			</div>
-								            			<div class="col-md-6">
-								            				<div class="form-group">
-																<label class="col-lg-4 control-label">Doctor: </label>
-																<div class="col-lg-8">
-																	 <select name="doctor_id" id="doctor_id'.$patient_id.'" class="form-control">
-																		<option value="">----Select a Doctor----</option>';
-																		 if($doctors->num_rows() >  0){
-																			foreach($doctors->result() as $row):
-																				$fname = $row->personnel_fname;
-																				$onames = $row->personnel_onames;
-																				$personnel_id = $row->personnel_id;
-																				
-																				if($personnel_id == set_value('personnel_id'))
-																				{
-																					$result .="<option value='".$personnel_id."' selected='selected'>".$onames." ".$fname."</option>";
-																				}
-																				
-																				else
-																				{
-																					$result .="<option value='".$personnel_id."'>".$onames." ".$fname."</option>";
-																				}
-																			endforeach;
-																		}
-																	$result .='
-																	</select>
-																</div>
-															</div>
-								            				<div id="appointment_details" >
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">Schedule: </label>
-							                                        
-							                                        <div class="col-lg-8">
-							                                            <a onclick="check_date('.$patient_id.')" style="cursor:pointer;">[Show Doctors Schedule]</a><br>
-							                                            <div id="show_doctor'.$patient_id.'" style="display:none;"> 
-							                                                
-							                                            </div>
-							                                            <div  id="doctors_schedule'.$patient_id.'" style="margin-left: -94px;font-size: 10px;"> </div>
-							                                        </div>
-							                                    </div>
-							                                    
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">Start time : </label>
-							                                    
-							                                        <div class="col-lg-8">
-							                                            <div class="input-group">
-							                                                <span class="input-group-addon">
-							                                                    <i class="fa fa-clock-o"></i>
-							                                                </span>
-							                                                <input type="text" class="form-control" data-plugin-timepicker="" name="timepicker_start" id="timepicker_start'.$patient_id.'">
-							                                            </div>
-							                                        </div>
-							                                    </div>
-							                                        
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">End time : </label>
-							                                        
-							                                        <div class="col-lg-8">		
-							                                            <div class="input-group">
-							                                                <span class="input-group-addon">
-							                                                    <i class="fa fa-clock-o"></i>
-							                                                </span>
-							                                                <input type="text" class="form-control" data-plugin-timepicker="" name="timepicker_end" id="timepicker_end'.$patient_id.'">
-							                                            </div>
-							                                        </div>
-							                                    </div>
-							                                </div>
-								            			</div>
-								            		</div>
-								            	</div>
-								            	
-														
-								              	
-								            </div>
-								            <div class="modal-footer">
-								            	<a  class="btn btn-sm btn-success" onclick="submit_reception_appointment('.$patient_id.')">Schedule Appointment</a>
-								                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
-								            </div>
-
-								               '.form_close().'
-								        </div>
-								    </div>
-								</div>
-
-							</td>
+							
 							<td><a href="'.site_url().'administration/individual_statement/'.$patient_id.'/1" class="btn btn-primary btn-sm " style="margin-top:0px"><i class="fa fa-print"></i> Statement </a></td>
 							
 						</tr> 

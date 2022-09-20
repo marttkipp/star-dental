@@ -1,5 +1,5 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+date_default_timezone_set('Africa/Nairobi');
 class Admin extends MX_Controller 
 {
 	function __construct()
@@ -38,10 +38,21 @@ class Admin extends MX_Controller
 		// {
 		// 	$page = 0;
 		// }
+		$branch_session = $this->session->userdata('branch_id');
+		$personnel_id = $this->session->userdata('personnel_id');
+
+		$branch_add = '';
+		$visit_branch_add = '';
+		if($branch_session > 0)
+		{
+			$branch_add = ' AND branch_id = '.$branch_session;
+			$visit_branch_add = ' AND visit.branch_id = '.$branch_session;
+		}
+		
 		$page = 0;
 		
-		$table= 'visit,patients';
-		$where='visit.close_card = 2 AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND visit.visit_date = "'.date('Y-m-d').'"';
+		$table= 'visit,patients,appointments';
+		$where='visit.close_card = 2 AND visit.visit_id = appointments.visit_id AND appointments.appointment_rescheduled = 0 AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0  AND appointments.appointment_delete = 0  AND visit.visit_date = "'.date('Y-m-d').'"'.$visit_branch_add;
 		$config["per_page"] = $v_data['per_page'] = $per_page = 30;
 		if($page==0)
 		{
@@ -62,7 +73,7 @@ class Admin extends MX_Controller
 
 
 		$table= 'visit,patients';
-		$where='(visit.close_card = 0 OR visit.close_card = 1 OR visit.close_card = 4 OR visit.close_card = 3 OR visit.close_card = 5) AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0  AND visit.visit_date = "'.date('Y-m-d').'"';
+		$where='(visit.close_card = 0 OR visit.close_card = 1 OR visit.close_card = 4 OR visit.close_card = 3 OR visit.close_card = 5) AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0   AND visit.visit_date = "'.date('Y-m-d').'"'.$visit_branch_add;
 		$config["per_page"] = $v_data['per_page'] = $per_page = 30;
 		if($page==0)
 		{
@@ -77,7 +88,7 @@ class Admin extends MX_Controller
 		$v_data['page'] = $page;
 		$page = $counted;
 		$v_data['total_rows'] = $this->reception_model->count_items($table, $where);
-		$query = $this->admin_model->get_all_visits_parent($table, $where, $config["per_page"], $page);
+		$query = $this->admin_model->get_all_visits_today($table, $where, $config["per_page"], $page);
 
 		$v_data['todays_visit'] = $query;
 
@@ -104,8 +115,8 @@ class Admin extends MX_Controller
         }
 
 
-		$table= 'visit,patients';
-		$where='visit.close_card = 2 AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0  AND visit.visit_date = "'.$date_tomorrow.'"';
+		$table= 'visit,patients,appointments';
+		$where='visit.close_card = 2 AND visit.visit_id = appointments.visit_id AND appointments.appointment_rescheduled = 0 AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND appointments.appointment_delete = 0  AND visit.visit_date = "'.$date_tomorrow.'"'.$visit_branch_add;
 		$config["per_page"] = $v_data['per_page'] = $per_page = 30;
 		if($page==0)
 		{
@@ -319,6 +330,30 @@ class Admin extends MX_Controller
 
 		redirect('online-diary');
 	}
+	public function search_dashboard()
+	{
+		$year = $this->input->post('year');
+		$month = $this->input->post('month');
+
+		$this->session->set_userdata('year',$year);
+		$this->session->set_userdata('month',$month);
+
+		redirect('appointments-reports/monthly-statistics');
+
+	}
+	public function get_all_patients($place_id,$year,$month)
+	{
+		$data['place_id'] = $place_id;
+		$data['year'] = $year;
+		$data['month'] = $month;
+
+		// var_dump($data);die();
+		$page = $this->load->view('patients_list',$data);
+
+		echo $page;
+	}
+
+	
 
 
 }

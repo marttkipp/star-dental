@@ -21,7 +21,7 @@ class Wards extends Hospital_administration
 		//pagination
 		$segment = 5;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/wards/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/wards/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -95,7 +95,7 @@ class Wards extends Hospital_administration
 			if($this->wards_model->add_ward())
 			{
 				$this->session->set_userdata('success_message', 'Ward added successfully');
-				redirect('hospital-administration/wards');
+				redirect('administration/wards');
 			}
 			
 			else
@@ -129,7 +129,7 @@ class Wards extends Hospital_administration
 			if($this->wards_model->update_ward($ward_id))
 			{
 				$this->session->set_userdata('success_message', 'Ward updated successfully');
-				redirect('hospital-administration/wards');
+				redirect('administration/wards');
 			}
 			
 			else
@@ -163,7 +163,7 @@ class Wards extends Hospital_administration
 		$this->wards_model->delete_ward($ward_id);
 		$this->session->set_userdata('success_message', 'Ward has been deleted');
 		
-		redirect('hospital-administration/wards');
+		redirect('administration/wards');
 	}
     
 	/*
@@ -177,7 +177,7 @@ class Wards extends Hospital_administration
 		$this->wards_model->activate_ward($ward_id);
 		$this->session->set_userdata('success_message', 'Ward activated successfully');
 		
-		redirect('hospital-administration/wards');
+		redirect('administration/wards');
 	}
     
 	/*
@@ -191,7 +191,7 @@ class Wards extends Hospital_administration
 		$this->wards_model->deactivate_ward($ward_id);
 		$this->session->set_userdata('success_message', 'Ward disabled successfully');
 		
-		redirect('hospital-administration/wards');
+		redirect('administration/wards');
 	}
 }
 ?>

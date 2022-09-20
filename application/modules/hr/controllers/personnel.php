@@ -1,7 +1,7 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once "./application/modules/hr/controllers/hr.php";
-error_reporting(0);
+
 class Personnel extends hr 
 {
 	var $document_upload_path;
@@ -260,7 +260,7 @@ class Personnel extends hr
 	public function update_personnel_roles($personnel_id)
 	{
 		$this->form_validation->set_rules('section_id', 'Post code', 'xss_clean');
-		
+		// var_dump($_POST);die();
 		//if form conatins invalid data
 		if ($this->form_validation->run())
 		{
@@ -562,26 +562,26 @@ class Personnel extends hr
 	
 	public function get_section_children($section_id)
 	{
-		$sub_sections = $this->sections_model->get_sub_sections($section_id);
+		// $sub_sections = $this->sections_model->get_sub_sections($section_id);
 		
 		$children = '';
 		
-		if($sub_sections->num_rows() > 0)
-		{
-			$children = '<option value="0" >--Select a sub section--</option>';
-			foreach($sub_sections->result() as $res)
-			{
-				$section_id = $res->section_id;
-				$section_name = $res->section_name;
+		// if($sub_sections->num_rows() > 0)
+		// {
+		// 	$children = '<option value="0" >--Select a sub section--</option>';
+		// 	foreach($sub_sections->result() as $res)
+		// 	{
+		// 		$section_id = $res->section_id;
+		// 		$section_name = $res->section_name;
 				
-				$children .= '<option value="'.$section_id.'" >'.$section_name.'</option>';
-			}
-		}
+		// 		$children .= '<option value="'.$section_id.'" >'.$section_name.'</option>';
+		// 	}
+		// }
 		
-		else
-		{
-			$children = '<option value="" >--No sub sections--</option>';
-		}
+		// else
+		// {
+		// 	$children = '<option value="" >--No sub sections--</option>';
+		// }
 		
 		echo $children;
 	}
@@ -1151,12 +1151,12 @@ class Personnel extends hr
 			{
 				if($count == $total)
 				{
-					$surname .= ' personnel.personnel_fname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\'';
+					$surname .= ' personnel.personnel_fname LIKE \'%'.addslashes($surnames[$r]).'%\'';
 				}
 				
 				else
 				{
-					$surname .= ' personnel.personnel_fname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' AND ';
+					$surname .= ' personnel.personnel_fname LIKE \'%'.addslashes($surnames[$r]).'%\' AND ';
 				}
 				$count++;
 			}
@@ -1181,12 +1181,12 @@ class Personnel extends hr
 			{
 				if($count == $total)
 				{
-					$other_name .= ' personnel.personnel_onames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\'';
+					$other_name .= ' personnel.personnel_onames LIKE \'%'.addslashes($other_names[$r]).'%\'';
 				}
 				
 				else
 				{
-					$other_name .= ' personnel.personnel_onames LIKE \'%'.mysql_real_escape_string($other_names[$r]).'%\' AND ';
+					$other_name .= ' personnel.personnel_onames LIKE \'%'.addslashes($other_names[$r]).'%\' AND ';
 				}
 				$count++;
 			}

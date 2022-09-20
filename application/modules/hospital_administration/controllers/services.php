@@ -47,7 +47,7 @@ class Services extends Hospital_administration
 		$table = 'service';
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/services/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/services/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -128,7 +128,7 @@ class Services extends Hospital_administration
 		$table = 'service,service_charge,visit_type';
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/service-charges/'.$service_id.'/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/service-charges/'.$service_id.'/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -210,7 +210,7 @@ class Services extends Hospital_administration
 			{
 				$this->session->set_userdata("success_message", "Successfully created a service ");
 			}
-			redirect('hospital-administration/services');
+			redirect('administration/services');
 		}
 		
         $v_data["departments"] = $this->departments_model->all_departments();
@@ -236,7 +236,7 @@ class Services extends Hospital_administration
 			$this->db->update('service', $visit_data);
 			
 			$this->session->set_userdata("success_message", "Service updated successfully");
-			redirect('hospital-administration/services');
+			redirect('administration/services');
 		}
 		
         $v_data["departments"] = $this->departments_model->all_departments();
@@ -268,7 +268,7 @@ class Services extends Hospital_administration
 			{
 				$this->session->set_userdata("success_message","Successfully created a service charge");
 			}
-			redirect('hospital-administration/service-charges/'.$service_id);
+			redirect('administration/service-charges/'.$service_id);
 		}
 		
 		$service_name = $this->services_model->get_service_names($service_id);
@@ -325,7 +325,7 @@ class Services extends Hospital_administration
 			
 			$this->session->set_userdata("success_message","Successfully updated service charge");
 				
-			redirect('hospital-administration/service-charges/'.$service_id);
+			redirect('administration/service-charges/'.$service_id);
 		}
 		
 		$service_name = $this->services_model->get_service_names($service_id);
@@ -373,14 +373,14 @@ class Services extends Hospital_administration
 		$search = $service_name.$department_id;
 		$this->session->set_userdata('service_search', $search);
 		
-		redirect('hospital-administration/services');
+		redirect('administration/services');
 	}
 	
 	public function close_service_search()
 	{
 		$this->session->unset_userdata('service_search');
 		
-		redirect('hospital-administration/services');
+		redirect('administration/services');
 	}
 	
 	public function service_charge_search($service_id)
@@ -409,14 +409,14 @@ class Services extends Hospital_administration
 		$search = $service_charge_name.$visit_type_id;
 		$this->session->set_userdata('service_charge_search', $search);
 		
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	public function close_service_charge_search($service_id)
 	{
 		$this->session->unset_userdata('service_charge_search');
 		
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	public function delete_service($service_id)
@@ -431,7 +431,7 @@ class Services extends Hospital_administration
 			$this->session->set_userdata('service_error_message', 'The service could not be deleted');
 		}
 		
-			redirect('hospital-administration/services');
+			redirect('administration/services');
 	}
 	
 	public function delete_service_charge($service_id, $service_charge_id)
@@ -446,7 +446,7 @@ class Services extends Hospital_administration
 
 			$this->session->set_userdata('error_message', 'The charge could not be deleted');
 		}
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
     
 	/*
@@ -459,7 +459,7 @@ class Services extends Hospital_administration
 	{
 		$this->services_model->activate_service($service_id);
 		$this->session->set_userdata('success_message', 'Service activated successfully');
-		redirect('hospital-administration/services');
+		redirect('administration/services');
 	}
     
 	/*
@@ -472,7 +472,7 @@ class Services extends Hospital_administration
 	{
 		$this->services_model->deactivate_service($service_id);
 		$this->session->set_userdata('success_message', 'Service disabled successfully');
-		redirect('hospital-administration/services');
+		redirect('administration/services');
 	}
     
 	/*
@@ -485,7 +485,7 @@ class Services extends Hospital_administration
 	{
 		$this->services_model->activate_service_charge($service_charge_id);
 		$this->session->set_userdata('success_message', 'Charge activated successfully');
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
     
 	/*
@@ -498,7 +498,7 @@ class Services extends Hospital_administration
 	{
 		$this->services_model->deactivate_service_charge($service_charge_id);
 		$this->session->set_userdata('success_message', 'Charge disabled successfully');
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	public function import_lab_charges($service_id)
@@ -511,7 +511,7 @@ class Services extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	public function import_bed_charges($service_id)
@@ -524,7 +524,7 @@ class Services extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	public function import_pharmacy_charges($service_id)
@@ -537,7 +537,7 @@ class Services extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$service_id);
+		redirect('administration/service-charges/'.$service_id);
 	}
 	
 	function import_charges_template()
@@ -600,84 +600,6 @@ class Services extends Hospital_administration
 		$data['title'] = 'Import Charges';
 		$data['content'] = $this->load->view('services/import_charges', $v_data, true);
 		$this->load->view('admin/templates/general_page', $data);
-	}
-
-	public function export_charges($service_id)
-	{
-
-		$this->load->library('excel');
-		
-		
-		$where = 'service_id = '.$service_id;
-		$table = 'service';
-		$this->db->where($where);
-		$this->db->select('*');
-		$service_query = $this->db->get($table);
-		$service_name = '';
-		if($service_query->num_rows() > 0)
-		{
-			foreach ($service_query->result() as $key => $value) {
-				# code...
-				$service_name = $value->service_name;
-			}
-		}
-
-
-
-		$where = 'service_id = '.$service_id.' and service_charge_delete = 0';
-		$table = 'service_charge';
-		
-		
-		$this->db->where($where);
-		$this->db->select('*');
-
-		
-		// $this->db->order_by('visit.visit_date','DESC');
-		// $this->db->group_by('visit.visit_id');
-		$visits_query = $this->db->get($table);
-		
-		$title = $service_name.' Charge List';
-		$col_count = 0;
-		
-		if($visits_query->num_rows() > 0)
-		{
-			$count = 0;
-			/*
-				-----------------------------------------------------------------------------------------
-				Document Header
-				-----------------------------------------------------------------------------------------
-			*/
-			$row_count = 0;
-			$report[$row_count][$col_count] = '#';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Service Charge Name';
-			$col_count++;
-			$report[$row_count][$col_count] = 'Service Charge Amount';
-			
-			foreach($visits_query->result() as $row)
-			{
-				$row_count++;
-				$service_charge_id = $row->service_charge_id;
-				$service_charge_amount = $row->service_charge_amount;
-				$service_charge_name = $row->service_charge_name;
-				
-				$count++;
-				
-				//display services charged to patient
-				$report[$row_count][$col_count] = $count;
-				$col_count++;
-				$report[$row_count][$col_count] = $service_charge_name;
-				$col_count++;
-				$report[$row_count][$col_count] = $service_charge_amount;
-
-				
-			}
-		}
-		
-		//create the excel document
-		$this->excel->addArray ( $report );
-		$this->excel->generateXML ($title);
-
 	}
 
 

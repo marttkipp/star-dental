@@ -5,7 +5,6 @@
 <section class="panel">
     <header class="panel-heading">
         <h2 class="panel-title"><?php echo $title;?> </h2>
-          <a href="<?php echo site_url();?>accounting/creditors/export_creditors" target="_blank" class="btn btn-sm btn-success pull-right" style="margin-top: -25px;margin-left: 5px;"><i class="fa fa-download"></i> Export Aging Report</a>
         <a href="<?php echo site_url();?>accounting/creditors/add_creditor" class="btn btn-sm btn-primary pull-right" style="margin-top: -25px;"><i class="fa fa-plus"></i> Add creditors</a>
                 	
     </header>
@@ -67,7 +66,7 @@
 						  <th>Total payments</th>
 						  <th>Total invoice</th>
 						  <th>Account Balance</th>
-						  <th colspan="4">Actions</th>
+						  <th colspan="3">Actions</th>
 						</tr>
 					  </thead>
 					  <tbody>
@@ -151,7 +150,6 @@
 							<td><a href="'.site_url().'creditor-statement/'.$creditor_id.'" class="btn btn-sm btn-info" >Account</a></td>
 							<td><a href="'.base_url().'accounting/creditors/print_creditor_account/'.$creditor_id.'" class="btn btn-sm btn-warning"  target="_blank"><i class="fa fa-print"></i> Print</a></td>
 							<td><a href="'.site_url().'accounting/creditors/edit_creditor/'.$creditor_id.'" class="btn btn-sm btn-success">Edit</a></td>
-							<td><a href="'.site_url().'accounting/delete-creditor/'.$creditor_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you want to remove this account ?\')"><i class="fa fa-trash"></i></a></td>
 							</tr>
 							';
 				

@@ -13,7 +13,7 @@
         </div>
         
 		<div class="pull-right">
-		 <a href="<?php echo site_url()?>hospital-administration/add-service" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Add service </a>
+		 <a href="<?php echo site_url()?>administration/add-service" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Add service </a>
 
 		</div>
 	</div>
@@ -62,10 +62,10 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
-						  <th><a href="'.site_url().'hospital-administration/services/service.department_id/'.$order_method.'/'.$page.'">Department</a></th>
-						  <th><a href="'.site_url().'hospital-administration/services/service.service_name/'.$order_method.'/'.$page.'">Service name</a></th>
-						  <th><a href="'.site_url().'hospital-administration/services/service.last_modified/'.$order_method.'/'.$page.'">Last modified</a></th>
-						  <th><a href="'.site_url().'hospital-administration/services/service.modified_by/'.$order_method.'/'.$page.'">Modified by</a></th>
+						  <th><a href="'.site_url().'administration/services/service.department_id/'.$order_method.'/'.$page.'">Department</a></th>
+						  <th><a href="'.site_url().'administration/services/service.service_name/'.$order_method.'/'.$page.'">Service name</a></th>
+						  <th><a href="'.site_url().'administration/services/service.last_modified/'.$order_method.'/'.$page.'">Last modified</a></th>
+						  <th><a href="'.site_url().'administration/services/service.modified_by/'.$order_method.'/'.$page.'">Modified by</a></th>
 						  <th>Status</th>
 						  <th colspan="4">Actions</th>
 						</tr>
@@ -101,13 +101,13 @@
 				if($service_status == 0)
 				{
 					$status = '<span class="label label-important">Deactivated</span>';
-					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'hospital-administration/activate-service/'.$service_id.'" onclick="return confirm(\'Do you want to activate '.$service_name.'?\');" title="Activate '.$service_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
+					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'administration/activate-service/'.$service_id.'" onclick="return confirm(\'Do you want to activate '.$service_name.'?\');" title="Activate '.$service_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
 				}
 				//create activated status display
 				else if($service_status == 1)
 				{
 					$status = '<span class="label label-success">Active</span>';
-					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'hospital-administration/deactivate-service/'.$service_id.'" onclick="return confirm(\'Do you want to deactivate '.$service_name.'?\');" title="Deactivate '.$service_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
+					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'administration/deactivate-service/'.$service_id.'" onclick="return confirm(\'Do you want to deactivate '.$service_name.'?\');" title="Deactivate '.$service_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
 				}
 				
 				//creators & editors
@@ -143,12 +143,11 @@
 							<td>'.$last_modified.'</td>
 							<td>'.$modified_by.'</td>
 							<td>'.$status.'</td>
-							<td><a href="'.site_url().'hospital-administration/service-charges/'.$service_id.'" class="btn btn-sm btn-warning"><i class="fa fa-money"></i> Charges</a></td>
-							<td><a href="'.site_url().'hospital-administration/export-charges/'.$service_id.'" class="btn btn-sm btn-primary"><i class="fa fa-minus"></i> Export</a></td>
-							<td><a href="'.site_url().'hospital-administration/import-charges/'.$service_id.'" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Import</a></td>
+							<td><a href="'.site_url().'administration/service-charges/'.$service_id.'" class="btn btn-sm btn-warning"><i class="fa fa-money"></i> Charges</a></td>
+							<td><a href="'.site_url().'administration/import-charges/'.$service_id.'" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Import</a></td>
 							<td>'.$button.'</td>
-							<td><a href="'.site_url().'hospital-administration/edit-service/'.$service_id.'" class="btn btn-sm btn-info"> <i class="fa fa-pencil"></i> Edit</a></td>
-							<td><a href="'.site_url().'hospital-administration/delete-service/'.$service_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete this service?\')"><i class="fa fa-trash"></i> Delete</a></td>
+							<td><a href="'.site_url().'administration/edit-service/'.$service_id.'" class="btn btn-sm btn-info"> <i class="fa fa-pencil"></i> Edit</a></td>
+							<td><a href="'.site_url().'administration/delete-service/'.$service_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete this service?\')"><i class="fa fa-trash"></i> Delete</a></td>
 						</tr> 
 					';
 			}

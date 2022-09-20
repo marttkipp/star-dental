@@ -274,6 +274,9 @@ class Reception_model extends CI_Model
 							'patient_town'=>$this->input->post('patient_town'),
 							'patient_kin_phonenumber1'=>$this->input->post('next_of_kin_contact'),
 							'insurance_company_id'=>$this->input->post('insurance_company_id'),
+							'about_us'=>$this->input->post('about_us'),
+							'about_us_view'=>$this->input->post('about_us_view'),
+							'category_id'=>2
 						);
 			$is_appointment = $this->input->post('appointment_status');
 			if($is_appointment == 0)
@@ -366,9 +369,16 @@ class Reception_model extends CI_Model
 		// }
 		// else
 		// {
+
+			$patient_other_names = ucwords(strtolower($this->input->post('patient_othernames')));
+
+			if(empty($patient_other_names))
+			{
+				$patient_othernames = '';
+			}
 			$data = array(
 								'patient_surname'=>ucwords(strtolower($this->input->post('patient_surname'))),
-								'patient_othernames'=>ucwords(strtolower($this->input->post('patient_othernames'))),
+								'patient_othernames'=> $patient_othernames,
 								'title_id'=>$this->input->post('title_id'),
 								'patient_date_of_birth'=>$this->input->post('patient_dob'),
 								'gender_id'=>$this->input->post('gender_id'),
@@ -393,42 +403,31 @@ class Reception_model extends CI_Model
 		// }
 
 		$patient_number = $this->input->post('patient_number');
-		$is_numeric =	is_numeric($patient_number[0]);
-
-		if($is_numeric)
+		if(empty($patient_number))
 		{
-			$patient_number = $patient_number;
+			$prefix = $this->create_patient_number();
+
+			if($prefix < 10)
+			{
+				$patient_number = '00'.$prefix.'/'.date('y');
+			}
+			else if($prefix < 100 AND $prefix >= 10)
+			{
+				$patient_number = '0'.$prefix.'/'.date('y');
+			}
+			else
+			{
+				$patient_number = $prefix.'/'.date('y');
+			}
+
+
+			$data['patient_number'] = $patient_number;
+			$data['prefix'] = $prefix;
+			$data['branch_code'] = 'N';
+			$data['suffix'] = date('Y');
 		}
-		$branch_code = $patient_number[0];
-
-		$patient_number = str_replace($branch_code, '', $patient_number);
-		$explode = explode('/', $patient_number);
-
-		// var_dump($patient_number);die();
-
-
-
-		$prefix = $prefix_old = (int)$explode[0];
-		$suffix = $suffix_old  = $explode[1];
-
-
-		$data['prefix'] = $prefix = $prefix;
-		$data['suffix'] = $suffix = '20'.$suffix;
-		if($prefix < 10)
-		{
-			$patient_number = '00'.$prefix.'/'.$suffix_old;
-		}
-		else if($prefix < 100 AND $prefix >= 10)
-		{
-			$patient_number = '0'.$prefix.'/'.$suffix_old;
-		}
-		else
-		{
-			$patient_number = $prefix.'/'.$suffix_old;
-		}
-		$data['patient_number'] = $branch_code.$patient_number;//$this->create_patient_number();
-		$data['current_patient_number'] = $branch_code.$patient_number;
-		$data['branch_code'] = $branch_code;
+	
+		$data['category_id'] = 2;
 	
 
 		// var_dump($data); die();
@@ -692,17 +691,17 @@ class Reception_model extends CI_Model
 	{
 		if($visit_id == NULL)
 		{
-			$table = "patients";
-			$where = "patient_id = ".$patient_id;
+			$table = "patients,v_patient_balances";
+			$where = "patients.patient_id = v_patient_balances.patient_id AND v_patient_balances.patient_id = ".$patient_id;
 			$items = "*";
 			$order = "patient_surname";
 		}
 		
 		else
 		{
-			$table = "patients, visit";
-			$where = "patients.patient_id = visit.patient_id AND visit.visit_id = ".$visit_id;
-			$items = "patients.*, visit.ward_id, visit.patient_insurance_number, visit.patient_insurance_number, visit.inpatient, visit.close_card, visit.insurance_limit, visit.insurance_description,visit.visit_type AS visit_type_id";
+			$table = "patients, visit,v_patient_balances";
+			$where = "patients.patient_id = v_patient_balances.patient_id AND patients.patient_id = visit.patient_id AND visit.visit_id = ".$visit_id;
+			$items = "patients.*, visit.ward_id, visit.patient_insurance_number, visit.patient_insurance_number, visit.inpatient, visit.close_card, visit.insurance_limit, visit.insurance_description,visit.visit_type AS visit_type_id,v_patient_balances.balance";
 			$order = "patient_surname";
 		}
 		
@@ -713,6 +712,7 @@ class Reception_model extends CI_Model
 		$patient_insurance_number = '';
 		$inpatient = $insurance_description = '';
 		$insurance_limit = 0;
+		$balance = 0;
 		foreach ($result as $row)
 		{
 			$patient_id = $row->patient_id;
@@ -727,10 +727,12 @@ class Reception_model extends CI_Model
 			$patient_othernames = $row->patient_othernames;
 			$patient_surname = $row->patient_surname;
 			$patient_date_of_birth = $row->patient_date_of_birth;
+			$patient_age = $row->patient_age;
 			$gender_id = $row->gender_id;
 			$patient_phone_number = $row->patient_phone1;
 			$patient_phone_number = $row->patient_phone1;
 			$visit_type_id = $row->visit_type_id;
+			$balance = $row->balance;
 			
 			$faculty ='';
 			$dependant_id = '';
@@ -772,9 +774,14 @@ class Reception_model extends CI_Model
 				}
 			}
 		}
+
+		if(empty($balance))
+		{
+			$balance = 0;
+		}
 		// calculate patient balance
-		$this->load->model('administration/administration_model');
-		$account_balance = $this->administration_model->patient_account_balance($patient_id);
+		// $this->load->model('administration/administration_model');
+		$account_balance = $balance;//$this->administration_model->patient_account_balance($patient_id);
 		// end of patient balance
 		$patient['insurance_limit'] = $insurance_limit;
 		$patient['visit_type_preffix'] = $visit_type_preffix;
@@ -795,6 +802,7 @@ class Reception_model extends CI_Model
 		$patient['faculty'] = $faculty;
 		$patient['staff_dependant_no'] = $dependant_id;
 		$patient['close_card'] = $close_card;
+		$patient['patient_age'] = $patient_age;
 		$patient['ward_id'] = $ward_id;
 		$patient['patient_phone_number'] = $patient_phone_number;
 		$patient['insurance_description'] = $insurance_description;
@@ -2130,7 +2138,7 @@ class Reception_model extends CI_Model
 	*	Create visit department
 	*
 	*/
-	public function set_visit_department($visit_id, $department_id, $visit_type_id)
+	public function set_visit_department($visit_id, $department_id, $visit_type_id=NULL)
 	{
 		if($this->remove_visit_department($visit_id))
 		{
@@ -4249,6 +4257,62 @@ class Reception_model extends CI_Model
 		}
 			
 		return $service_charge_name;
+	}
+
+
+	public function get_places()
+	{	
+		$branch_id = $this->session->userdata('branch_id');
+		$where_add ='';
+		if(!empty($branch_id))
+		{
+			$where_add = ' AND (branch_id = 0 OR branch_id = '.$branch_id.')';
+		}
+		$this->db->where('place_delete = 0'.$where_add);
+		$this->db->order_by('place_name');
+		$query = $this->db->get('place');
+		
+		return $query;
+	}
+
+	public function check_personnel_department_id($personnel_id,$department_id)
+	{
+		$this->db->where('department_id = '.$department_id.' AND personnel_id ='.$personnel_id);
+		$query=$this->db->get('personnel_job');
+		if($query->num_rows() > 0)
+		{
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
+	public function update_visit_picked($visit_id,$department_id,$visit_department_id)
+	{
+		$array['picked'] = 1;
+		$array['picked_date'] = date('Y-m-d H:i:s');
+		$array['picked_by'] = $this->session->userdata('personnel_id');
+
+		$this->db->where('visit_id ='.$visit_id.' AND picked = 0 AND visit_department_id ='.$visit_department_id);
+		$this->db->update('visit_department',$array);
+
+
+		return TRUE;
+	}
+
+	public function update_visit_left($visit_id,$visit_department_id)
+	{
+		$array['left_status'] = 1;
+		$array['left_date'] = date('Y-m-d H:i:s');
+		$array['marked_by'] = $this->session->userdata('personnel_id');
+
+		$this->db->where('visit_department_id = '.$visit_department_id.' AND visit_id ='.$visit_id.' AND left_status = "0"');
+		$this->db->update('visit_department',$array);
+
+
+		return TRUE;
 	}
 	
 }

@@ -165,5 +165,179 @@ class Debtors extends accounts
 		
 		redirect('accounting/debtors-statement');
 	}
+
+
+	public function create_billing_views()
+	{
+
+		for ($i=1; $i <= 6; $i++) { 
+			# code...
+			$invoice = '';
+			$start_date = '2018-03-01';
+			$first_date = date('Y-m').'-01';
+			if($i == 1)
+			{
+				// 30 days
+				$last_date = date('Y-m-t', strtotime($first_date));
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$first_date.'" AND visit.visit_date <= "'.$last_date.'" ';
+
+				$invoice_view_name ='v_visit_type_charges_current';
+				$bill_view_name = 'v_visit_type_bills_current';
+				$payment_view_name = 'v_visit_type_payment_current';
+				$waiver_view_name = 'v_visit_type_waiver_current';
+				$rejects_view_name = 'v_visit_type_rejects_current';
+			
+			}
+			else if($i == 2)
+			{
+				// 30 days
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-1 month' , strtotime ( $sixty_months ) ) );
+				// var_dump($sixty_months); die();
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				// $last_date = date('Y-m-d', strtotime('-2 months'));
+				// var_dump($last_date); die();
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_thirty';
+				$bill_view_name = 'v_visit_type_bills_thirty';
+				$payment_view_name = 'v_visit_type_payment_thirty';
+				$waiver_view_name = 'v_visit_type_waiver_thirty';
+				$rejects_view_name = 'v_visit_type_rejects_thirty';
+
+			}
+			else if($i == 3)
+			{
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-2 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'"AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_sixty';
+				$bill_view_name = 'v_visit_type_bills_sixty';
+				$payment_view_name = 'v_visit_type_payment_sixty';
+				$waiver_view_name = 'v_visit_type_waiver_sixty';
+				$rejects_view_name = 'v_visit_type_rejects_sixty';
+			}
+
+			else if($i == 4)
+			{
+				// over 90 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-3 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'"AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_ninety';
+				$bill_view_name = 'v_visit_type_bills_ninety';
+				$payment_view_name = 'v_visit_type_payment_ninety';
+				$waiver_view_name = 'v_visit_type_waiver_ninety';
+				$rejects_view_name = 'v_visit_type_rejects_ninety';
+			}
+			else if($i == 5)
+			{
+				// over 120 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-4 month' , strtotime ( $sixty_months ) ) );
+				// var_dump($sixty_months); die();
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+
+				$invoice_view_name ='v_visit_type_charges_one_twenty';
+				$bill_view_name = 'v_visit_type_bills_one_twenty';
+				$payment_view_name = 'v_visit_type_payment_one_twenty';
+				$waiver_view_name = 'v_visit_type_waiver_one_twenty';
+				$rejects_view_name = 'v_visit_type_rejects_one_twenty';
+			}
+			else if($i == 6)
+			{
+				// over 120 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-5 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_over';
+				$bill_view_name = 'v_visit_type_bills_over';
+				$payment_view_name = 'v_visit_type_payment_over';
+				$waiver_view_name = 'v_visit_type_waiver_over';
+				$rejects_view_name = 'v_visit_type_rejects_over';
+			}
+
+			$invoice_query = 'CREATE VIEW '.$invoice_view_name.' AS SELECT SUM(visit_charge_amount*visit_charge_units) AS total_invoice,visit.visit_type 
+							FROM (`visit_charge`, `visit`) 
+							WHERE `visit_charge`.`visit_charge_delete` = 0 
+							AND (visit.parent_visit IS NULL OR visit.parent_visit = 0) 
+							AND visit.visit_id = visit_charge.visit_id 
+							AND visit.visit_delete = 0 
+							AND visit_charge.charged = 1 
+							'.$invoice.'
+							GROUP BY visit.visit_type
+							';
+
+			$this->db->query($invoice_query);
+
+
+
+
+			$bills_query = 'CREATE VIEW '.$bill_view_name.' AS SELECT SUM(visit_bill_amount) AS total_invoice,visit.visit_type FROM (`visit_bill`, `visit`) 
+							WHERE `visit`.`visit_id` = visit_bill.visit_parent 
+							AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) 
+							AND visit.visit_delete = 0  
+							'.$invoice.'
+							GROUP BY visit.visit_type
+							';
+
+			$this->db->query($bills_query);
+
+
+			$payment_query = 'CREATE VIEW '.$payment_view_name.' AS SELECT SUM(amount_paid) AS total_payments,visit.visit_type 
+							FROM (`payments`, `visit`) 
+							WHERE `cancel` = 0 
+							AND visit.visit_id = payments.visit_id 
+							AND visit.visit_delete = 0 
+							AND payments.payment_type = 1   
+							'.$invoice.'
+							GROUP BY visit.visit_type
+							';
+
+			$this->db->query($payment_query);
+
+			$waiver_query = 'CREATE VIEW '.$waiver_view_name.' AS SELECT SUM(amount_paid) AS total_payments,visit.visit_type 
+							FROM (`payments`, `visit`) 
+							WHERE `cancel` = 0 
+							AND visit.visit_id = payments.visit_id 
+							AND visit.visit_delete = 0 
+							AND payments.payment_type = 2   
+							'.$invoice.'
+							GROUP BY visit.visit_type
+							';
+
+			$this->db->query($waiver_query);
+
+
+			$rejects_query = 'CREATE VIEW '.$rejects_view_name.' AS SELECT SUM(rejected_amount) AS total_invoice,visit.visit_type 
+							FROM (`visit`) 
+							WHERE (visit.parent_visit = 0 OR visit.parent_visit IS NULL) 
+							AND visit.visit_delete = 0     
+							'.$invoice.'
+							GROUP BY visit.visit_type';
+			$this->db->query($rejects_query);
+
+
+			
+		}
+	}
 }
 ?>

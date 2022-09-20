@@ -16,21 +16,10 @@
                             $total_transfers = $this->accounting_model->get_visit_invoice_children_totals();
                             $total_payments_revenue = $this->accounting_model->get_visit_payment_totals();
                             $total_waiver_revenue = $this->accounting_model->get_visit_waiver_totals();
-                            $total_debits_revenue = $this->accounting_model->get_visit_debits_totals();
-                      
                             $all_payments_period = $this->accounting_model->all_payments_period();
                             $receivable = $all_payments_period - $total_payments_revenue;
                             $total_rejected_amounts = $this->accounting_model->get_rejected_amounts();
                             // $total_invoices_revenue -= $total_rejected_amounts;
-
-
-                            // get payments done today and visits not for today
-                            // var_dump($total_payments_revenue); die();
-                            $cash_debt_repayments = $this->accounting_model->get_all_visit_payments_totals(1,1);
-                            $insurance_debt_repayments = $this->accounting_model->get_all_visit_payments_totals(2,1);
-
-
-
 
                             if($receivable < 0)
                             {
@@ -49,28 +38,53 @@
                                     <th>TOTAL INVOICES</th>
                                     <td><?php echo number_format($total_invoices_revenue, 2);?></td>
                                 </tr>
-                                
-                               <tr>
-                                    <th>TOTAL DEBITS</th>
-                                    <td><?php echo number_format($total_debits_revenue, 2);?></td>
-                                </tr>
                                 <tr>
                                     <th>TOTAL COLLECTION</th>
-                                    <td>(<?php echo number_format($total_payments_revenue, 2);?>)</td>
+                                    <td><?php echo number_format($total_payments_revenue, 2);?></td>
                                 </tr>
+                               
                                  <tr>
                                     <th>TOTAL WAIVERS</th>
-                                    <td>(<?php echo number_format($total_waiver_revenue, 2);?>)</td>
+                                    <td><?php echo number_format($total_waiver_revenue, 2);?></td>
                                 </tr>
 
                                 <tr>
                                     <th>DEBT BALANCE</th>
-                                    <td><?php echo number_format(($total_invoices_revenue +$total_debits_revenue - $total_payments_revenue - $total_waiver_revenue), 2);?></td>
+                                    <td><?php echo number_format(($total_invoices_revenue - $total_payments_revenue - $total_waiver_revenue), 2);?></td>
                                 </tr>
                             </tbody>
                         </table>
                    
-                    
+                       <!--  <h5>CUSTOMER TYPE BREAKDOWN</h5>
+                        <table class="table table-striped table-hover table-condensed">
+                            <tbody>
+                                <tr>
+                                    <th>CASH INVOICES</th>
+                                    <td><?php echo number_format($total_cash_invoice, 2);?></td>
+                                </tr>
+                                <tr>
+                                    <th>CASH PAYMENTS</th>
+                                    <td><?php echo number_format($total_cash_payments, 2);?></td>
+                                </tr>
+                                 <tr>
+                                    <th>CASH BALANCE</th>
+                                    <td><?php echo number_format($total_cash_balance, 2);?></td>
+                                </tr>
+
+                                <tr>
+                                    <th>INSURANCE INVOICES</th>
+                                    <td><?php echo number_format($total_insurance_invoice, 2);?></td>
+                                </tr>
+                                <tr>
+                                    <th>INSURANCE PAYMENTS</th>
+                                    <td><?php echo number_format($total_insurance_payments, 2);?></td>
+                                </tr>
+                                <tr>
+                                    <th>INSURANCE BALANCE</th>
+                                    <td><?php echo number_format($total_insurance_balance, 2);?></td>
+                                </tr>
+                            </tbody>
+                        </table> -->
 
                          <h5>VISIT  BREAKDOWN</h5>
                         <table class="table table-striped table-hover table-condensed">
@@ -139,7 +153,7 @@
                         <div class="row">
                             <div class="col-md-4 center-align">
                                 <h4>INVOICED</h4>
-                                <h3>Ksh <?php echo number_format($total_invoices_revenue + $total_debits_revenue -$total_waiver_revenue, 2);?></h3>
+                                <h3>Ksh <?php echo number_format($total_invoices_revenue-$total_waiver_revenue, 2);?></h3>
                                 <!-- <p><?php echo $title;?></p> -->
                             </div>
                             <div class="col-md-4 center-align">
@@ -149,34 +163,31 @@
                             </div>
                             <div class="col-md-4 center-align">
                                  <h4>BALANCE</h4>
-                                <h3>Ksh <?php echo number_format($total_invoices_revenue +$total_debits_revenue - $total_payments_revenue - $total_waiver_revenue, 2);?></h3>
+                                <h3>Ksh <?php echo number_format($total_invoices_revenue - $total_payments_revenue - $total_waiver_revenue, 2);?></h3>
                                 <!-- <p><?php echo $title;?></p> -->
                             </div>
                             
                         </div>
-                       <hr>
+                       <!--  <hr>
                         <div class="row" style="margin-top: 20px;">
-                              <div class="center-align">
+                            <div class="col-md-4 center-align">
+                                <h4>CASH BAL</h4>
+                                <h3>Ksh <?php echo number_format($total_cash_balance, 2);?></h3>
+                            </div>
+                            <div class="col-md-4 center-align">
                                 
-                              <h4>DEBT REPAYMENT</h4>
                             </div>
-                            <br>
-                            <div class="col-md-6 center-align">
-                                <h4>CASH</h4>
-                                <h3>Ksh <?php echo number_format($cash_debt_repayments, 2);?></h3>
+                            <div class="col-md-4 center-align">
+                                 <h4>INSURANCE BAL</h4>
+                                <h3>Ksh <?php echo number_format($total_insurance_balance, 2);?></h3>
                             </div>
-                            
-                            <div class="col-md-6 center-align">
-                                <h4>INSURANCE </h4>
-                                <h3>Ksh <?php echo number_format($insurance_debt_repayments, 2);?></h3>
-                            </div>
-                        </div> 
+                        </div> -->
                         <hr>
                         <div class="row" style="margin-top: 20px;">
                             <div class="center-align">
                                 
                               <h4>DEBT REPAYMENT</h4>
-                                <h3>Ksh <?php echo number_format($cash_debt_repayments + $insurance_debt_repayments, 2);?></h3>
+                                <h3>Ksh <?php echo number_format($receivable, 2);?></h3>
                             </div>
                         </div>
                         <hr>

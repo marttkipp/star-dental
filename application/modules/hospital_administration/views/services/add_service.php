@@ -1,7 +1,7 @@
 <div class="row" style="margin-top:10px;">
 	<div class="col-md-12">
 		<div class="pull-right">
-		 <a href="<?php echo site_url()?>hospital-administration/services" class="btn btn-sm btn-primary"> Back to Service List </a>
+		 <a href="<?php echo site_url()?>administration/services" class="btn btn-sm btn-primary"> Back to Service List </a>
 
 		</div>
 	</div>

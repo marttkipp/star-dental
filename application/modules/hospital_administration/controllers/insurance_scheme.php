@@ -21,7 +21,7 @@ class insurance_scheme extends Hospital_administration
 		//pagination
 		$segment = 5;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/insurance_scheme/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/insurance_scheme/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -97,7 +97,7 @@ class insurance_scheme extends Hospital_administration
 			if($this->insurance_scheme_model->add_insurance_scheme())
 			{
 				$this->session->set_userdata('success_message', 'Insurance scheme added successfully');
-				redirect('hospital-administration/insurance-scheme');
+				redirect('administration/insurance-scheme');
 			}
 			
 			else
@@ -132,7 +132,7 @@ class insurance_scheme extends Hospital_administration
 			if($this->insurance_scheme_model->update_insurance_scheme($insurance_scheme_id))
 			{
 				$this->session->set_userdata('success_message', 'Insurance scheme updated successfully');
-				redirect('hospital-administration/insurance-scheme');
+				redirect('administration/insurance-scheme');
 			}
 			
 			else
@@ -167,7 +167,7 @@ class insurance_scheme extends Hospital_administration
 		$this->insurance_scheme_model->delete_insurance_scheme($insurance_scheme_id);
 		$this->session->set_userdata('success_message', 'Insurance scheme has been deleted');
 		
-		redirect('hospital-administration/insurance-scheme');
+		redirect('administration/insurance-scheme');
 	}
     
 	/*
@@ -181,7 +181,7 @@ class insurance_scheme extends Hospital_administration
 		$this->insurance_scheme_model->activate_insurance_scheme($insurance_scheme_id);
 		$this->session->set_userdata('success_message', 'Insurance scheme activated successfully');
 		
-		redirect('hospital-administration/insurance-scheme');
+		redirect('administration/insurance-scheme');
 	}
     
 	/*
@@ -195,7 +195,7 @@ class insurance_scheme extends Hospital_administration
 		$this->insurance_scheme_model->deactivate_insurance_scheme($insurance_scheme_id);
 		$this->session->set_userdata('success_message', 'Insurance scheme disabled successfully');
 		
-		redirect('hospital-administration/insurance-scheme');
+		redirect('administration/insurance-scheme');
 	}
 }
 ?>

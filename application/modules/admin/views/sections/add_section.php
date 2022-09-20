@@ -9,7 +9,7 @@
                     <h2 class="panel-title"><?php echo $title;?></h2>
                 </header>
                 <div class="panel-body">
-                	<div class="row" style="margin-bottom:20px;">
+                    <div class="row" style="margin-bottom:20px;">
                         <div class="col-lg-12">
                             <a href="<?php echo site_url();?>administration/sections" class="btn btn-info pull-right">Back to sections</a>
                         </div>
@@ -41,27 +41,9 @@
                     <div class="form-group">
                         <label class="col-lg-4 control-label">Parent</label>
                         <div class="col-lg-6">
-                            <select name="section_parent" class="form-control" >
-                                <?php
-                                echo '<option value="0">No Parent</option>';
-                                if($all_sections->num_rows() > 0)
-                                {
-                                    $result = $all_sections->result();
-                                    
-                                    foreach($result as $res)
-                                    {
-                                        if($res->section_id == set_value('section_parent'))
-                                        {
-                                            echo '<option value="'.$res->section_id.'" selected>'.$res->section_name.'</option>';
-                                        }
-                                        else
-                                        {
-                                            echo '<option value="'.$res->section_id.'">'.$res->section_name.'</option>';
-                                        }
-                                    }
-                                }
-                                ?>
-                            </select>
+
+                            <?php echo $this->sections_model->cboMenu()?>
+                            
                         </div>
                     </div>
                     <!-- Section Position -->

@@ -22,7 +22,7 @@ class Departments extends Hospital_administration
 		//pagination
 		$segment = 5;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/departments/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/departments/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -113,7 +113,7 @@ class Departments extends Hospital_administration
 		//pagination
 		$segment = 4;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/department-accounts/'.$department_id;
+		$config['base_url'] = site_url().'administration/department-accounts/'.$department_id;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -175,7 +175,7 @@ class Departments extends Hospital_administration
 			if($this->departments_model->add_department())
 			{
 				$this->session->set_userdata('success_message', 'Department added successfully');
-				redirect('hospital-administration/departments');
+				redirect('administration/departments');
 			}
 			
 			else
@@ -209,7 +209,7 @@ class Departments extends Hospital_administration
 			if($this->departments_model->update_department($department_id))
 			{
 				$this->session->set_userdata('success_message', 'Department updated successfully');
-				redirect('hospital-administration/departments');
+				redirect('administration/departments');
 			}
 			
 			else
@@ -243,7 +243,7 @@ class Departments extends Hospital_administration
 		$this->departments_model->delete_department($department_id);
 		$this->session->set_userdata('success_message', 'Department has been deleted');
 		
-		redirect('hospital-administration/departments');
+		redirect('administration/departments');
 	}
     
 	/*
@@ -257,7 +257,7 @@ class Departments extends Hospital_administration
 		$this->departments_model->activate_department($department_id);
 		$this->session->set_userdata('success_message', 'Department activated successfully');
 		
-		redirect('hospital-administration/departments');
+		redirect('administration/departments');
 	}
     
 	/*
@@ -271,7 +271,7 @@ class Departments extends Hospital_administration
 		$this->departments_model->deactivate_department($department_id);
 		$this->session->set_userdata('success_message', 'Department disabled successfully');
 		
-		redirect('hospital-administration/departments');
+		redirect('administration/departments');
 	}
 }
 ?>

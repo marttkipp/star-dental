@@ -10,7 +10,7 @@
                 <div class="panel-body">
                 	<div class="row" style="margin-bottom:20px;">
                         <div class="col-lg-12">
-                            <a href="<?php echo site_url();?>hospital-administration/visit-types" class="btn btn-info pull-right">Back to visit types</a>
+                            <a href="<?php echo site_url();?>administration/visit-types" class="btn btn-info pull-right">Back to visit types</a>
                         </div>
                     </div>
                 <!-- Adding Errors -->
@@ -117,11 +117,21 @@
                                     if($branch_id == 2){echo '<input id="optionsRadios1" type="radio" checked value="1" name="branch_id">';}
                                     else{echo '<input id="optionsRadios1" type="radio" value="2" name="branch_id">';}
                                     ?>
-                                    Smile Essence Clinic
+                                    Prime Care Clinic
                                 </label>
                             </div>
                         </div>
-                        
+                        <div class="col-lg-3">
+                            <div class="radio">
+                                <label>
+                                    <?php
+                                    if($branch_id == 3){echo '<input id="optionsRadios1" type="radio" checked value="0" name="branch_id">';}
+                                    else{echo '<input id="optionsRadios1" type="radio" value="3" name="branch_id">';}
+                                    ?>
+                                    Dr Joseph Karanja
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

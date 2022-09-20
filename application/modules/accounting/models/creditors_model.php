@@ -600,8 +600,8 @@ class Creditors_model extends CI_Model
 			$array = array(
 				'creditor_account_delete'=>1
 			);
-			$this->db->where('creditor_id', $creditor_account_id);
-			if($this->db->update('creditor', $array))
+			$this->db->where('creditor_account_id', $creditor_account_id);
+			if($this->db->update('creditor_account', $array))
 			{
 				return TRUE;
 			}
@@ -1445,7 +1445,6 @@ class Creditors_model extends CI_Model
 							$payment_year = $payment_explode[0];
 							$payment_month = $payment_explode[1];
 							$payment_amount = $payments_key->amount_paid;
-							$receipt_number = $payments_key->receipt_number;
 							$account_payment_id = $payments_key->account_payment_id;
 
 							$account_payment_description = $payments_key->account_payment_description;
@@ -1457,21 +1456,16 @@ class Creditors_model extends CI_Model
 								// var_dump($payment_year); die();
 								// if($payment_year >= $current_year)
 								// {
-								$payment_button =  '';
-								if($payment_date == date('Y-m-d'))
-								{
-									$payment_button = '<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>';
-								}
 									$result .= 
 									'
 										<tr>
 											<td>'.date('d M Y',strtotime($payment_date)).' </td>
-											<td>'.strtoupper($receipt_number).'</td>
+											<td>PAYMENT</td>
 											<td>'.$account_payment_description.'</td>
 											<td>'.number_format($payment_amount, 2).'</td>
 											<td></td>
 											<td>'.number_format($total_arrears, 2).'</td>
-											'.$payment_button.'
+											<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>
 										</tr> 
 									';
 								// }
@@ -1492,12 +1486,6 @@ class Creditors_model extends CI_Model
 						{
 							$total_arrears += $invoice_amount;
 							$total_invoice_balance += $invoice_amount;
-
-							$invoice_button =  '';
-							if($invoice_date == date('Y-m-d'))
-							{
-								$invoice_button = '<td><a href="'.site_url().'delete-creditor-invoice-entry/'.$account_invoice_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>';
-							}
 							$result .= 
 							'
 								<tr>
@@ -1507,7 +1495,7 @@ class Creditors_model extends CI_Model
 									<td></td>
 									<td>'.number_format($invoice_amount, 2).'</td>
 									<td>'.number_format($total_arrears, 2).'</td>
-									'.$invoice_button.'
+									<td><a href="'.site_url().'delete-creditor-invoice-entry/'.$account_invoice_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>
 								</tr> 
 							';
 						}
@@ -1515,12 +1503,6 @@ class Creditors_model extends CI_Model
 						{
 							$total_arrears -= $invoice_amount;
 							$total_invoice_balance -= $invoice_amount;
-
-							$invoice_button =  '';
-							if($invoice_date == date('Y-m-d'))
-							{
-								$invoice_button = '<td><a href="'.site_url().'delete-creditor-invoice-entry/'.$account_invoice_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>';
-							}
 							$result .= 
 							'
 								<tr>
@@ -1530,7 +1512,7 @@ class Creditors_model extends CI_Model
 									<td></td>
 									<td>('.number_format($invoice_amount, 2).')</td>
 									<td>'.number_format($total_arrears, 2).'</td>
-									'.$invoice_button.'
+									<td><a href="'.site_url().'delete-creditor-invoice-entry/'.$account_invoice_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>
 								</tr> 
 							';
 
@@ -1619,7 +1601,6 @@ class Creditors_model extends CI_Model
 								$payment_month = $payment_explode[1];
 								$payment_amount = $payments_key->amount_paid;
 								$account_payment_id = $payments_key->account_payment_id;
-								$receipt_number = $payments_key->receipt_number;
 								$account_payment_description = $payments_key->account_payment_description;
 
 								if(($payment_date > $invoice_date) &&  ($payment_amount > 0))
@@ -1627,21 +1608,16 @@ class Creditors_model extends CI_Model
 									$total_arrears -= $payment_amount;
 									// if($payment_year >= $current_year)
 									// {
-									$payment_button =  '';
-									if($payment_date == date('Y-m-d'))
-									{
-										$payment_button = '<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>';
-									}
 										$result .= 
 										'
 											<tr>
 												<td>'.date('d M Y',strtotime($payment_date)).' </td>
-												<td>'.strtoupper($receipt_number).'</td>
+												<td>PAYMENT</td>
 												<td>'.$account_payment_description.'</td>
 												<td>'.number_format($payment_amount, 2).'</td>
 												<td></td> 
 												<td>'.number_format($total_arrears, 2).'</td>
-												'.$payment_date.'
+												<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>
 											</tr> 
 										';
 									// }
@@ -1736,7 +1712,6 @@ class Creditors_model extends CI_Model
 						$payment_year = $payment_explode[0];
 						$payment_month = $payment_explode[1];
 						$payment_amount = $payments_key->amount_paid;
-						$receipt_number = $payments_key->receipt_number;
 						$account_payment_id = $payments_key->account_payment_id;
 
 						if(($payment_amount > 0))
@@ -1744,22 +1719,16 @@ class Creditors_model extends CI_Model
 							$total_arrears -= $payment_amount;
 							// if($payment_year >= $current_year)
 							// {
-							$payment_button =  '';
-							if($payment_date == date('Y-m-d'))
-							{
-								$payment_button = '<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>';
-							}
-
 								$result .= 
 								'
 									<tr>
 										<td>'.date('d M Y',strtotime($payment_date)).' </td>
-										<td>'.strtoupper($receipt_number).'</td>
+										<td>PAYMENT</td>
 										<td></td>
 										<td>'.number_format($payment_amount, 2).'</td>
 										<td></td>
 										<td>'.number_format($total_arrears, 2).'</td>
-										'.$payment_button.'
+										<td><a href="'.site_url().'delete-creditor-payment-entry/'.$account_payment_id.'/'.$creditor_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want delete this entry?\');"></a></td>
 									</tr> 
 								';
 							// }
@@ -3511,74 +3480,6 @@ public function get_doctor()
 		
 		return $result;
 	}
-	public function export_creditors()
-	{
-		$this->load->library('excel');
-		$this->db->where('creditor_id > 0 AND creditor.creditor_account_delete = 0');
-		$query = $this->db->get('creditor');
 
-		$title = 'Creditors Export as at '.date('jS M Y',strtotime(date('Y-m-d')));
-		if($query->num_rows() > 0)
-		{
-			$count = 0;
-
-			$row_count = 0;
-			$report[$row_count][0] = '#';
-			$report[$row_count][1] = 'Creditor Name';
-			$report[$row_count][2] = 'Opening Balance';
-			$report[$row_count][3] = '30 Days';
-			$report[$row_count][4] = '60 Days';
-			$report[$row_count][5] = '90 Days';
-			$report[$row_count][6] = '> 90 Days';
-			$report[$row_count][7] = 'Total Payments';
-			$report[$row_count][8] = 'Total Invoice';
-			$report[$row_count][9] = 'Account Balance';
-
-			foreach ($query->result() as $key => $value) {
-				# code...
-				$creditor_id = $value->creditor_id;
-				$creditor_name = $value->creditor_name;
-
-
-				$creditor_result = $this->creditors_model->get_creditor_statement($creditor_id);
-
-				$invoice_total = $creditor_result['total_invoice_balance'];
-				$payments_total = $creditor_result['total_payment_amount'];
-
-
-				$date = date('Y-m-d');
-	            $this_month = $this->creditors_model->get_statement_value($creditor_id,$date,1);
-	            $three_months = $this->creditors_model->get_statement_value($creditor_id,$date,2);
-	            $six_months = $this->creditors_model->get_statement_value($creditor_id,$date,3);
-	            $nine_months = $this->creditors_model->get_statement_value($creditor_id,$date,4);
-
-	            $total_this_month +=$this_month;
-	            $total_three_months +=$three_months;
-	            $total_six_months +=$six_months;
-	            $total_nine_months +=$nine_months;
-	            $total_payments += $payments_total;
-	            $total_invoices += $invoice_total;
-
-	            $total_balance += $invoice_total-$payments_total;
-	            $row_count++;
-
-	            $count++;
-				//display the patient data
-				$report[$row_count][0] = $count;
-				$report[$row_count][1] = $creditor_name;
-				$report[$row_count][2] = $opening_balance;
-				$report[$row_count][3] = $this_month;
-				$report[$row_count][4] = $three_months;
-				$report[$row_count][5] = $six_months;
-				$report[$row_count][6] = $nine_months;
-				$report[$row_count][7] = $payments_total;
-				$report[$row_count][8] = $invoice_total;
-				$report[$row_count][9] = $total_balance;
-			}
-		}
-			//create the excel document
-		$this->excel->addArray ( $report );
-		$this->excel->generateXML ($title);
-	}
 }
 ?>

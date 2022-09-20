@@ -3,7 +3,6 @@
 <!-- end search -->
 <?php echo $this->load->view('transaction_statistics', '', TRUE);?>
  
-
 <div class="row">
     <div class="col-md-12">
 
@@ -13,13 +12,14 @@
             </header>             
 
           <!-- Widget content -->
-          <div class="panel-body">
+                <div class="panel-body">
           <h5 class="center-align"><?php echo $this->session->userdata('search_title');?></h5>
 <?php
-		$result = '<a href="'.site_url().'administration/reports/export_cash_report" class="btn btn-sm btn-success pull-right">Export</a>';
+		$result = '<a href="'.site_url().'accounting/reports/export_debtors" target="_blank" class="btn btn-sm btn-success pull-right">Export</a>';
+		$search = $this->session->userdata('debtors_search_query');
 		if(!empty($search))
 		{
-			echo '<a href="'.site_url().'administration/reports/close_cash_search" class="btn btn-sm btn-warning">Close Search</a>';
+			echo '<a href="'.site_url().'accounting/reports/close_reports_search" class="btn btn-sm btn-warning">Close Search</a>';
 		}
 		
 		//if users exist display them
@@ -34,72 +34,202 @@
 						<tr>
 						  <th>#</th>
 						  <th>Visit Date</th>
-						  <th>Payment Date</th>
-						  <th>Patient Number</th>
 						  <th>Patient</th>
 						  <th>Category</th>
-						  <th>Amount</th>
-						  <th>Method</th>
-						  <th>Receipt No.</th>
-						  <th>Type</th>
-						  <th>Recorded by</th>
+						  <th>Invoice No.</th>
+						  
+				';
+				
+			$result .= '
+			
+						  <th>Invoice</th>
+						  <th>Patient Bill</th>
+						  <th>Insurance Bill</th>
+						  <th>Payment</th>
+						  <th>Balance</th>
+						  <th></th>
 						</tr>
 					  </thead>
 					  <tbody>
 			';
+			
+			// $personnel_query = $this->accounting_model->get_all_personnel();
+			$total_waiver = 0;
+			$total_payments = 0;
+			$total_invoice = 0;
+			$total_balance = 0;
+			$total_rejected_amount = 0;
+			$total_cash_balance = 0;
+			$total_insurance_payments =0;
+			$total_insurance_invoice =0;
+			$total_payable_by_patient = 0;
+			$total_payable_by_insurance = 0;
 			foreach ($query->result() as $row)
 			{
-				$count++;
 				$total_invoiced = 0;
 				$visit_date = date('jS M Y',strtotime($row->visit_date));
-				$payment_created = date('jS M Y',strtotime($row->payment_created));
-				$time = date('H:i a',strtotime($row->time));
+				$visit_time = date('H:i a',strtotime($row->visit_time));
+				if($row->visit_time_out != '0000-00-00 00:00:00')
+				{
+					$visit_time_out = date('H:i a',strtotime($row->visit_time_out));
+				}
+				else
+				{
+					$visit_time_out = '-';
+				}
+				
 				$visit_id = $row->visit_id;
 				$patient_id = $row->patient_id;
 				$personnel_id = $row->personnel_id;
 				$dependant_id = $row->dependant_id;
-				$visit_type_id = $row->visit_type_id;
+				$strath_no = $row->strath_no;
+				$visit_type_id = $row->visit_type;
+				$patient_number = $row->patient_number;
 				$visit_type = $row->visit_type;
 				$visit_table_visit_type = $visit_type;
 				$patient_table_visit_type = $visit_type_id;
+				$rejected_amount = $row->amount_rejected;
+				$invoice_number = $row->invoice_number;
+				$parent_visit = $row->parent_visit;
+
+				if(empty($rejected_amount))
+				{
+					$rejected_amount = 0;
+				}
+				// $coming_from = $this->reception_model->coming_from($visit_id);
+				// $sent_to = $this->reception_model->going_to($visit_id);
 				$visit_type_name = $row->visit_type_name;
 				$patient_othernames = $row->patient_othernames;
 				$patient_surname = $row->patient_surname;
 				$patient_date_of_birth = $row->patient_date_of_birth;
-				$payment_method = $row->payment_method;
-				$amount_paid = $row->amount_paid;
-				$transaction_code = $row->transaction_code;
-				$confirm_number = $row->confirm_number;
-				$patient_number = $row->patient_number;
-				$created_by = $row->personnel_fname.' '.$row->personnel_onames;
+
+				// $payments_value = $this->accounts_model->total_payments($visit_id);
+					// var_dump($visit_id);die();
+				$cash_payment = $this->accounts_model->get_cash_payments($visit_id);
+				$insurance_payment = $this->accounts_model->get_insurance_payments($visit_id);
+				$payments_value = $insurance_payment + $cash_payment;
+                $invoice_amount = $this->accounts_model->get_visit_total_invoice($visit_id);
+
+                $cummulative_invoice = $invoice_amount;
+
+                $balance = $this->accounts_model->balance($payments_value,$invoice_total);
+
+                $invoice_total = $invoice_amount - $payments_value ;
+
+                $waiver_amount = $this->accounts_model->get_sum_debit_notes($visit_id);
+
+                $cash_balance = 0;
+                if(!empty($rejected_amount))
+                {
+                	$cash_invoice = $rejected_amount;
+                }
+
+               $rs_rejection = $this->dental_model->get_visit_rejected_updates_sum($visit_id,$visit_type);
+				$total_rejected = 0;
+				if(count($rs_rejection) >0){
+				  foreach ($rs_rejection as $r2):
+				    # code...
+				    $total_rejected = $r2->total_rejected;
+
+				  endforeach;
+				}
+
+				$rejected_amount += $total_rejected;
+				
+
+				$doctor = $row->personnel_onames.' '.$row->personnel_fname;
+				
+				$count++;
+				
+				//payment data
+				$charges = '';
+				
+				
+
+		
+				
+				$payments_value = $this->accounts_model->total_payments($visit_id);
+
+				$invoice_total = $amount_payment = $this->accounts_model->total_invoice($visit_id);
+
+				// var_dump($parent_visit); die();
+
+				// if($parent_visit == 0 OR empty($parent_visit))
+				// {
+				// 	$invoice_total = $amount_payment - $rejected_amount;
+				// }
+				// else
+				// {
+				// 	$rejected_amount = $this->accounts_model->get_child_amount_payable($visit_id);
+				// 	$invoice_total = $rejected_amount;
+				// }
 
 
-				if($visit_date == $payment_created)
+				// if($parent_visit == 0 OR empty($parent_visit))
+				// {
+				// 	$balance = $invoice_total - $payments_value;
+				// }
+				// else
+				// {
+				// 	$rejected_amount = $this->accounts_model->get_child_amount_payable($visit_id);
+				// 	// echo $rejected_amount; die();
+				// 	$balance = $rejected_amount - $payments_value;
+
+
+				// }
+
+				if($visit_type > 1 AND $total_rejected > 0)
 				{
-					$type = 'Normal Payment';
+					$payable_by_patient = $rejected_amount;
+					$payable_by_insurance = $invoice_total - $rejected_amount;
 				}
 				else
 				{
-					$type = 'Debt Repayment';
+					$payable_by_patient = $invoice_total;
+					$payable_by_insurance = 0;
 				}
+				$balance  = $this->accounts_model->balance($payments_value,$invoice_total);
+				$total_insurance_payments += $payments_value;
+				$total_balance += $balance;
+				$total_rejected_amount += $billed_amount;				
+				$total_invoice += $invoice_total;
+				$total_payable_by_insurance += $payable_by_insurance;
+				$total_payable_by_patient += $payable_by_patient;
+
 				
 				$result .= 
-						'
-							<tr>
-								<td>'.$count.'</td>
-								<td>'.$visit_date.'</td>
-								<td>'.$payment_created.'</td>
-								<td>'.$patient_number.'</td>
-								<td>'.$patient_surname.' '.$patient_othernames.'</td>
-								<td>'.$visit_type_name.'</td>
-								<td>'.number_format($amount_paid, 2).'</td>
-								<td>'.$payment_method.'</td>
-								<td>'.$confirm_number.'</td>
-								<td>'.$type.'</td>
-								<td>'.$created_by.'</td>
-							</tr> 
-					';
+					'
+						<tr>
+							<td>'.$count.'</td>
+							<td>'.$visit_date.'</td>
+							<td>'.$patient_surname.' '.$patient_othernames.'</td>
+							<td>'.$visit_type_name.'</td>
+							<td>'.$visit_id.'</td>
+					'.$charges;
+					
+				$result .= '
+							<td>'.$invoice_total.'</td>
+							<td>'.$payable_by_patient.'</td>
+							<td>'.$payable_by_insurance.'</td>
+							<td>'.($payments_value).'</td>
+							<td>'.($balance).'</td>
+							<td><a href="'.site_url().'accounts/print_invoice_new/'.$visit_id.'" class="btn btn-sm btn-success" target="_blank">Invoice</a></td>
+						</tr> 
+				';
+				
 			}
+
+			$result .= 
+					'
+						<tr>
+							<td colspan=5> Totals</td>
+							<td><strong>'.number_format($total_invoice,2).'</strong></td>
+							<td><strong>'.number_format($total_payable_by_patient,2).'</strong></td>
+							<td><strong>'.number_format($total_payable_by_insurance,2).'</strong></td>
+							<td><strong>'.number_format($total_insurance_payments,2).'</strong></td>
+							<td><strong>'.number_format($total_balance,2).'</strong></td>
+						</tr> 
+				';
 			
 			$result .= 
 			'
@@ -110,7 +240,7 @@
 		
 		else
 		{
-			$result .= "There are no payments";
+			$result .= "There are no visits";
 		}
 		
 		echo $result;

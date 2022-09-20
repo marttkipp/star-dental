@@ -30,7 +30,12 @@
 		<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/bootstrap-timepicker/css/bootstrap-timepicker.css" />
 
 		<!-- Theme CSS -->
-		<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme.css" />
+		<?php
+		$branch_session = $this->session->userdata('branch_id');
+		?>
+			<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme.css" /> 
+			
+		<!-- <link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme.css" /> -->
 		<link rel="stylesheet" href="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/stylesheets/theme-custom.css" />
 
 		<!-- Theme Custom CSS -->
@@ -45,5 +50,5 @@
 		<!-- <script src='<?php echo base_url()."assets/fullcalendar/";?>lib/jquery.min.js'></script> -->
 
 		
-		<script src="<?php echo base_url()."assets/themes/bluish/"?>js/jquery.js"></script> <!-- jQuery -->
+		<!-- <script src="<?php echo base_url()."assets/themes/bluish/"?>js/jquery.js"></script>  -->
 

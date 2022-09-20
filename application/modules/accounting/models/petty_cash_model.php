@@ -530,7 +530,6 @@
 			$account = array(
 						'account_to_id'=>$this->input->post('account_to_id'),
 						'account_from_id'=>$this->input->post('account_from_id'),
-						'branch_id'=>$this->session->userdata('branch_id'),
 						'amount_paid'=>$this->input->post('amount'),
 						'account_payment_description'=>$this->input->post('description'),
 	                    'account_to_type'=>$this->input->post('account_to_type'),
@@ -1852,12 +1851,9 @@
 							';
 						// }
 					}
-						// var_dump($total_arrears); die();
+							
 					//check if there are any more payments
-					
-							$last_date = $invoice_date;
-				}
-				if($total_invoices == $invoices_count)
+					if($total_invoices == $invoices_count)
 					{
 						//get all loan deductions before date
 						if($payments->num_rows() > 0)
@@ -1876,7 +1872,7 @@
 
 								if(($payment_date > $invoice_date) &&  ($payment_amount > 0))
 								{
-									$total_arrears += $payment_amount;
+									$total_arrears -= $payment_amount;
 
 									if($payment_date == date('Y-m-d'))
 									{
@@ -1896,7 +1892,6 @@
 															<td>'.$account_payment_description.'</td>
 															<td>'.number_format($payment_amount, 2).'</td>
 															<td></td>
-															<td>'.number_format($total_arrears,2).'</td>
 															'.$add_payment.'
 														</tr> 
 													';
@@ -1910,6 +1905,8 @@
 
 						
 					}
+							$last_date = $invoice_date;
+				}
 			}	
 			else
 			{
@@ -1938,7 +1935,7 @@
 						}
 						if(($payment_amount > 0))
 						{
-							$total_arrears += $payment_amount;
+							$total_arrears -= $payment_amount;
 							// if($payment_year >= $current_year)
 							// {
 								$result .= 
@@ -1949,8 +1946,6 @@
 											<td>'.$account_payment_description.'</td>
 											<td>'.number_format($payment_amount, 2).'</td>
 											<td></td>
-											<td>'.number_format($total_arrears, 2).'</td>
-
 											'.$add_payment.'
 										</tr> 
 									';
@@ -2260,53 +2255,6 @@
 
 			return $response;
 		
-		}
-
-		function get_all_expense_accounts()
-		{
-			
-			$this->db->where('account_type_id = 2 AND parent_account <> 0 ');
-	      	$this->db->order_by('parent_account','ASC');
-			$query = $this->db->get('account');
-
-			return $query;
-		}
-		function get_payment_detail($account_payment_id)
-		{
-
-			$this->db->where('account_payment_id',$account_payment_id);
-	     
-			$query = $this->db->get('account_payments');
-
-			return $query;
-
-		}
-
-		public function edit_account_payment()
-		{
-			$account_payment_id = $this->input->post('account_payment_id');
-			$account = array(
-						'account_to_id'=>$this->input->post('account_to_id'),
-						'account_from_id'=>$this->input->post('account_from_id'),
-						'amount_paid'=>$this->input->post('amount'),
-						'account_payment_description'=>$this->input->post('description'),
-	                    'account_to_type'=>$this->input->post('account_to_type'),
-	                    'receipt_number'=>$this->input->post('cheque_number'),
-	                    'payment_date'=>$this->input->post('payment_date'),
-	                    'payment_to'=>$this->input->post('payment_to'),
-	                    'created_by'=>$this->session->userdata('personnel_id'),
-	                    'created'=>date('Y-m-d')
-						);
-			// var_dump($account); die();
-			$this->db->where('account_payment_id',$account_payment_id);
-			if($this->db->update('account_payments',$account))
-			{
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
 		}
 
 	}

@@ -203,9 +203,193 @@ class Debtors_model extends CI_Model
 		$start_date = '2018-03-01';
 		$first_date = date('Y-m').'-01';
 		if($checked == 1)
+			{
+				// 30 days
+				$last_date = date('Y-m-t', strtotime($first_date));
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$first_date.'" AND visit.visit_date <= "'.$last_date.'" ';
+
+				$invoice_view_name ='v_visit_type_charges_current';
+				$bill_view_name = 'v_visit_type_bills_current';
+				$payment_view_name = 'v_visit_type_payment_current';
+				$waiver_view_name = 'v_visit_type_waiver_current';
+				$rejects_view_name = 'v_visit_type_rejects_current';
+			
+			}
+			else if($checked == 2)
+			{
+				// 30 days
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-1 month' , strtotime ( $sixty_months ) ) );
+				// var_dump($sixty_months); die();
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				// $last_date = date('Y-m-d', strtotime('-2 months'));
+				// var_dump($last_date); die();
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_thirty';
+				$bill_view_name = 'v_visit_type_bills_thirty';
+				$payment_view_name = 'v_visit_type_payment_thirty';
+				$waiver_view_name = 'v_visit_type_waiver_thirty';
+				$rejects_view_name = 'v_visit_type_rejects_thirty';
+
+			}
+			else if($checked == 3)
+			{
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-2 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'"AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_sixty';
+				$bill_view_name = 'v_visit_type_bills_sixty';
+				$payment_view_name = 'v_visit_type_payment_sixty';
+				$waiver_view_name = 'v_visit_type_waiver_sixty';
+				$rejects_view_name = 'v_visit_type_rejects_sixty';
+			}
+
+			else if($checked == 4)
+			{
+				// over 90 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-3 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'"AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_ninety';
+				$bill_view_name = 'v_visit_type_bills_ninety';
+				$payment_view_name = 'v_visit_type_payment_ninety';
+				$waiver_view_name = 'v_visit_type_waiver_ninety';
+				$rejects_view_name = 'v_visit_type_rejects_ninety';
+			}
+			else if($checked == 5)
+			{
+				// over 120 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-4 month' , strtotime ( $sixty_months ) ) );
+				// var_dump($sixty_months); die();
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$sixty_months.'" AND visit.visit_date <= "'.$last_date.'" ';
+
+				$invoice_view_name ='v_visit_type_charges_one_twenty';
+				$bill_view_name = 'v_visit_type_bills_one_twenty';
+				$payment_view_name = 'v_visit_type_payment_one_twenty';
+				$waiver_view_name = 'v_visit_type_waiver_one_twenty';
+				$rejects_view_name = 'v_visit_type_rejects_one_twenty';
+			}
+			else if($checked == 6)
+			{
+				// over 120 days
+
+				$sixty_months = date('Y-m-01');
+				$sixty_months = date('Y-m-d',strtotime ( '-5 month' , strtotime ( $sixty_months ) ) );
+				$newdate = date('Y-m-t',strtotime ( '+0 month' , strtotime ( $sixty_months ) ) );
+				$last_date = date('Y-m-t', strtotime($newdate));
+
+
+				$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$last_date.'" ';
+				$invoice_view_name ='v_visit_type_charges_over';
+				$bill_view_name = 'v_visit_type_bills_over';
+				$payment_view_name = 'v_visit_type_payment_over';
+				$waiver_view_name = 'v_visit_type_waiver_over';
+				$rejects_view_name = 'v_visit_type_rejects_over';
+			}
+
+	
+
+		$this->db->where('visit_type = '.$visit_type_id);
+		$this->db->select('total_invoice');
+		$query = $this->db->get($invoice_view_name);
+		$total_invoice = 0;
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				# code...
+				$total_invoice = $value->total_invoice;
+			}
+		}
+
+
+		$this->db->where('visit_type = '.$visit_type_id);
+		$this->db->select('total_invoice');
+		$query = $this->db->get($bill_view_name);
+		$total_rejected_invoice = 0;
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				# code...
+				$total_rejected_invoice = $value->total_invoice;
+			}
+		}
+
+
+
+
+		$this->db->where('visit_type = '.$visit_type_id);
+		$this->db->select('total_invoice');
+		$rejected = $this->db->get($rejects_view_name);
+		$rejections = 0;
+		if($rejected->num_rows() > 0)
+		{
+			foreach ($rejected->result() as $key => $value) {
+				# code...
+				$rejections = $value->total_invoice;
+			}
+		}
+
+		$total_rejected_invoice += $rejections;
+
+		$this->db->where('visit_type = '.$visit_type_id);
+		$this->db->select('total_payments');
+		$query_waiver = $this->db->get($payment_view_name);
+		$total_waiver = 0;
+		if($query_waiver->num_rows() > 0)
+		{
+			foreach ($query_waiver->result() as $key => $value) {
+				# code...
+				$total_waiver = $value->total_payments;
+			}
+		}
+
+
+
+
+		$this->db->where('visit_type = '.$visit_type_id);
+		$this->db->select('total_payments');
+		$query_payments = $this->db->get($waiver_view_name);
+		$total_payments = 0;
+		if($query_payments->num_rows() > 0)
+		{
+			foreach ($query_payments->result() as $key => $value) {
+				# code...
+				$total_payments = $value->total_payments;
+			}
+		}
+		
+		$amount = ($total_invoice + $total_rejected_invoice) - ($total_payments + $total_waiver);
+	
+		// var_dump($amount);
+		return $amount;
+
+	}
+
+
+	public function get_debtor_statement_value_old($visit_type_id,$date,$checked)
+	{
+		// invoices
+		$invoice = '';
+		$start_date = '2018-03-01';
+		$first_date = date('Y-m').'-01';
+		if($checked == 1)
 		{
 			// 30 days
-			$invoice = ' AND visit.visit_date >= "'.$start_date.'" AND visit.visit_date >= "'.$first_date.'" AND visit.visit_date <= "'.$date.'" ';
 		
 		}
 		else if($checked == 2)
@@ -361,6 +545,8 @@ class Debtors_model extends CI_Model
 		return $amount;
 
 	}
+
+
 
 	public function get_debtor_total_payments($visit_type_id)
 	{
@@ -582,6 +768,22 @@ class Debtors_model extends CI_Model
 				$total_rejected_invoice = $value->total_invoice;
 			}
 		}
+
+
+
+		$this->db->where('(visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_delete = 0 AND visit.visit_type = '.$visit_type.' '.$search_add.''.$invoice);
+		$this->db->select('SUM(rejected_amount) AS total_invoice');
+		$rejected_query = $this->db->get('visit');
+		$total_rejected_amount = 0;
+		if($rejected_query->num_rows() > 0)
+		{
+			foreach ($rejected_query->result() as $key => $value) {
+				# code...
+				$total_rejected_amount = $value->total_invoice;
+			}
+		}
+
+		$total_rejected_invoice += $total_rejected_amount;
 		return $total_rejected_invoice;
 
 	}
@@ -713,13 +915,17 @@ class Debtors_model extends CI_Model
 				$start_date = $billing_year.'-'.$billing_month.'-01';
 
 				$end_date =  date("Y-m-t", strtotime($start_date));
+				// $visit_charge_amount = $collections_key->visit_charge_amount;
+				// $amount_charged = $collections_key->total_charged_amount;
+
+				// $cash_amount = $this->get_cash_collection($billing_month,$billing_year,$visit_type_id,1);
 				$invoice_amount = $this->get_total_invoice_collection($visit_type_id,$start_date,$end_date,$week);
+				// var_dump($invoice_amount); die();
 				$rejected_amount = $this->get_all_debtor_rejections($visit_type_id,$start_date,$end_date,$week);
+
 				$payments = $this->get_all_payments_debtor_monthly($visit_type_id,$start_date,$end_date,$week);
 				$credit = $this->get_all_provider_waiver_month($visit_type_id,$start_date,$end_date,$week);
 				// $total_payment_amount += $payments;
-
-
 
 				$total_bill = ($invoice_amount + $rejected_amount) - $credit;
 
@@ -728,7 +934,7 @@ class Debtors_model extends CI_Model
 				$total_rejected_amount += $rejected_amount;
 				$total_payment_amount += $payments;
 				$total_bill_amount += $total_bill;
-				$total_arrears = $total_bill - $payments - $rejected_amount;
+				$total_arrears = $total_bill - $payments;
 				$total_arrears_amount += $total_arrears;
 				
 					$result .= 
@@ -742,6 +948,7 @@ class Debtors_model extends CI_Model
 							<td>('.number_format($payments, 2).')</td>
 							<td>'.number_format($total_arrears, 2).'</td>
 							<td><a href="'.site_url().'export-debtor-invoices/'.$visit_type_id.'/'.$start_date.'/'.$end_date.'"  class="btn btn-xs btn-success" >export invoices</a></td>
+							
 						</tr> 
 					';
 				
@@ -767,7 +974,24 @@ class Debtors_model extends CI_Model
 
 		
 		
-	
+						
+		//display loan
+		// $result .= 
+		// '
+		// 	<tr>
+		// 		<th colspan="6">Total</th>
+		// 		<th>'.number_format($total_invoice_balance, 2).'</th>
+		// 		<th>'.number_format($total_payment_amount, 2).'</th>
+		// 		<td></td>
+		// 	</tr> 
+		// ';
+		// $result .= 
+		// '
+		// 	<tr>
+		// 		<th colspan="6"></th>
+		// 		<th colspan="2" style="text-align:center;">'.number_format($total_invoice_balance - $total_payment_amount, 2).'</th>
+		// 	</tr> 
+		// ';
 
 
 
@@ -789,10 +1013,9 @@ class Debtors_model extends CI_Model
 	{
 		$this->load->library('excel');
 		
-		$branch_id = $this->session->userdata('branch_id');
 		
-		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit_invoice.bill_to AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_delete = 0 AND visit_invoice.bill_to = '.$visit_type_id.' AND (visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$end_date.'" ) AND visit_invoice.visit_id = visit.visit_id AND visit_invoice.visit_invoice_delete = 0 AND visit.branch_id = '.$branch_id;
-		$table = 'visit, patients, visit_type,visit_invoice';
+		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL) AND visit.visit_delete = 0 AND visit.visit_type = '.$visit_type_id.' AND (visit.visit_date >= "'.$start_date.'" AND visit.visit_date <= "'.$end_date.'" ) ';
+		$table = 'visit, patients, visit_type';
 		$visit_search = $this->session->userdata('debtors_search_query');
 		// var_dump($visit_search);die();
 		if(!empty($visit_search))
@@ -1013,7 +1236,5 @@ class Debtors_model extends CI_Model
 		
 		
 	}
-
-	
 }
 ?>

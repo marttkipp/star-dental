@@ -46,7 +46,7 @@ class Department_accounts extends Hospital_administration
 		$table = 'department_accounts,account,account_type';
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/department-accounts/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/department-accounts/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -140,14 +140,14 @@ class Department_accounts extends Hospital_administration
 		$search = $service_name.$department_id;
 		$this->session->set_userdata('department_account_search', $search);
 		
-		redirect('hospital-administration/department-accounts');
+		redirect('administration/department-accounts');
 	}
 	
 	public function close_department_account_search()
 	{
 		$this->session->unset_userdata('department_account_search');
 		
-		redirect('hospital-administration/department-accounts');
+		redirect('administration/department-accounts');
 	}
 	
 	public function department_account_charges($department_account_id, $order = 'department_account_charge_name', $order_method = 'ASC')
@@ -165,7 +165,7 @@ class Department_accounts extends Hospital_administration
 		$table = 'service,department_account_charge,visit_type';
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/service-charges/'.$department_account_id.'/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/service-charges/'.$department_account_id.'/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -247,7 +247,7 @@ class Department_accounts extends Hospital_administration
 			{
 				$this->session->set_userdata("success_message", "Successfully created a Department Account ");
 			}
-			redirect('hospital-administration/department-accounts');
+			redirect('administration/department-accounts');
 		}
 		
         $v_data["departments"] = $this->departments_model->all_departments();
@@ -274,7 +274,7 @@ class Department_accounts extends Hospital_administration
 			$this->db->update('service', $visit_data);
 			
 			$this->session->set_userdata("success_message", "Department Account updated successfully");
-			redirect('hospital-administration/department_accounts');
+			redirect('administration/department_accounts');
 		}
 		
         $v_data["departments"] = $this->departments_model->all_departments();
@@ -306,7 +306,7 @@ class Department_accounts extends Hospital_administration
 			{
 				$this->session->set_userdata("success_message","Successfully created a service charge");
 			}
-			redirect('hospital-administration/service-charges/'.$department_account_id);
+			redirect('administration/service-charges/'.$department_account_id);
 		}
 		
 		$department_account_name = $this->department_accounts_model->get_department_account_names($department_account_id);
@@ -364,7 +364,7 @@ class Department_accounts extends Hospital_administration
 			
 			$this->session->set_userdata("success_message","Successfully updated service charge");
 				
-			redirect('hospital-administration/service-charges/'.$department_account_id);
+			redirect('administration/service-charges/'.$department_account_id);
 		}
 		
 		$department_account_name = $this->department_accounts_model->get_department_account_names($department_account_id);
@@ -412,14 +412,14 @@ class Department_accounts extends Hospital_administration
 	// 	$search = $department_account_name.$department_account_id;
 	// 	$this->session->set_userdata('department_account_search', $search);
 		
-	// 	redirect('hospital-administration/department_accounts');
+	// 	redirect('administration/department_accounts');
 	// }
 	
 	// public function close_department_account_search()
 	// {
 	// 	$this->session->unset_userdata('department_account_search');
 		
-	// 	redirect('hospital-administration/department_accounts');
+	// 	redirect('administration/department_accounts');
 	// }
 	
 	public function department_account_charge_search($department_account_id)
@@ -448,14 +448,14 @@ class Department_accounts extends Hospital_administration
 		$search = $department_account_charge_name.$visit_type_id;
 		$this->session->set_userdata('department_account_charge_search', $search);
 		
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	public function close_department_account_charge_search($department_account_id)
 	{
 		$this->session->unset_userdata('department_account_charge_search');
 		
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	public function delete_department_account($department_account_id)
@@ -470,7 +470,7 @@ class Department_accounts extends Hospital_administration
 			$this->session->set_userdata('department_account_error_message', 'The Department Account could not be deleted');
 		}
 		
-			redirect('hospital-administration/department-accounts');
+			redirect('administration/department-accounts');
 	}
 	
 	public function delete_department_account_charge($department_account_id, $department_account_charge_id)
@@ -485,7 +485,7 @@ class Department_accounts extends Hospital_administration
 
 			$this->session->set_userdata('error_message', 'The charge could not be deleted');
 		}
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
     
 	/*
@@ -498,7 +498,7 @@ class Department_accounts extends Hospital_administration
 	{
 		$this->department_accounts_model->activate_department_accounts($department_account_id);
 		$this->session->set_userdata('success_message', 'Department Account activated successfully');
-		redirect('hospital-administration/department-accounts');
+		redirect('administration/department-accounts');
 	}
     
 	/*
@@ -511,7 +511,7 @@ class Department_accounts extends Hospital_administration
 	{
 		$this->department_accounts_model->deactivate_department_accounts($department_account_id);
 		$this->session->set_userdata('success_message', 'Department Account disabled successfully');
-		redirect('hospital-administration/department-accounts');
+		redirect('administration/department-accounts');
 	}
     
 	/*
@@ -524,7 +524,7 @@ class Department_accounts extends Hospital_administration
 	{
 		$this->department_accounts_model->activate_department_account_charge($department_account_charge_id);
 		$this->session->set_userdata('success_message', 'Charge activated successfully');
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
     
 	/*
@@ -537,7 +537,7 @@ class Department_accounts extends Hospital_administration
 	{
 		$this->department_accounts_model->deactivate_department_account_charge($department_account_charge_id);
 		$this->session->set_userdata('success_message', 'Charge disabled successfully');
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	public function import_lab_charges($department_account_id)
@@ -550,7 +550,7 @@ class Department_accounts extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	public function import_bed_charges($department_account_id)
@@ -563,7 +563,7 @@ class Department_accounts extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	public function import_pharmacy_charges($department_account_id)
@@ -576,7 +576,7 @@ class Department_accounts extends Hospital_administration
 		{
 		}
 		
-		redirect('hospital-administration/service-charges/'.$department_account_id);
+		redirect('administration/service-charges/'.$department_account_id);
 	}
 	
 	function import_charges_template()

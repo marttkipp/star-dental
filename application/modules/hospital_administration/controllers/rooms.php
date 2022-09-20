@@ -21,7 +21,7 @@ class Rooms extends Hospital_administration
 		//pagination
 		$segment = 6;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/rooms/'.$ward_id.'/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/rooms/'.$ward_id.'/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -97,7 +97,7 @@ class Rooms extends Hospital_administration
 			if($this->rooms_model->add_room($ward_id))
 			{
 				$this->session->set_userdata('success_message', 'Room added successfully');
-				redirect('hospital-administration/rooms/'.$ward_id);
+				redirect('administration/rooms/'.$ward_id);
 			}
 			
 			else
@@ -133,7 +133,7 @@ class Rooms extends Hospital_administration
 			if($this->rooms_model->update_room($room_id))
 			{
 				$this->session->set_userdata('success_message', 'Room updated successfully');
-				redirect('hospital-administration/rooms/'.$ward_id);
+				redirect('administration/rooms/'.$ward_id);
 			}
 			
 			else
@@ -168,7 +168,7 @@ class Rooms extends Hospital_administration
 		$this->rooms_model->delete_room($room_id);
 		$this->session->set_userdata('success_message', 'Room has been deleted');
 		
-		redirect('hospital-administration/rooms/'.$ward_id);
+		redirect('administration/rooms/'.$ward_id);
 	}
     
 	/*
@@ -182,7 +182,7 @@ class Rooms extends Hospital_administration
 		$this->rooms_model->activate_room($room_id);
 		$this->session->set_userdata('success_message', 'Room activated successfully');
 		
-		redirect('hospital-administration/rooms/'.$ward_id);
+		redirect('administration/rooms/'.$ward_id);
 	}
     
 	/*
@@ -196,7 +196,7 @@ class Rooms extends Hospital_administration
 		$this->rooms_model->deactivate_room($room_id);
 		$this->session->set_userdata('success_message', 'Room disabled successfully');
 		
-		redirect('hospital-administration/rooms/'.$ward_id);
+		redirect('administration/rooms/'.$ward_id);
 	}
 }
 ?>

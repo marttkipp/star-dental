@@ -21,7 +21,7 @@ class Visit_types extends Hospital_administration
 		//pagination
 		$segment = 5;
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-administration/visit_types/'.$order.'/'.$order_method;
+		$config['base_url'] = site_url().'administration/visit_types/'.$order.'/'.$order_method;
 		$config['total_rows'] = $this->users_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -97,7 +97,7 @@ class Visit_types extends Hospital_administration
 			if($this->visit_types_model->add_visit_type())
 			{
 				$this->session->set_userdata('success_message', 'Visit type added successfully');
-				redirect('hospital-administration/visit-types');
+				redirect('administration/visit-types');
 			}
 			
 			else
@@ -132,7 +132,7 @@ class Visit_types extends Hospital_administration
 			if($this->visit_types_model->update_visit_type($visit_type_id))
 			{
 				$this->session->set_userdata('success_message', 'Visit type updated successfully');
-				redirect('hospital-administration/visit-types');
+				redirect('administration/visit-types');
 			}
 			
 			else
@@ -167,7 +167,7 @@ class Visit_types extends Hospital_administration
 		$this->visit_types_model->delete_visit_type($visit_type_id);
 		$this->session->set_userdata('success_message', 'Visit type has been deleted');
 		
-		redirect('hospital-administration/visit-types');
+		redirect('administration/visit-types');
 	}
     
 	/*
@@ -181,7 +181,7 @@ class Visit_types extends Hospital_administration
 		$this->visit_types_model->activate_visit_type($visit_type_id);
 		$this->session->set_userdata('success_message', 'Visit type activated successfully');
 		
-		redirect('hospital-administration/visit-types');
+		redirect('administration/visit-types');
 	}
     
 	/*
@@ -195,7 +195,7 @@ class Visit_types extends Hospital_administration
 		$this->visit_types_model->deactivate_visit_type($visit_type_id);
 		$this->session->set_userdata('success_message', 'Visit type disabled successfully');
 		
-		redirect('hospital-administration/visit-types');
+		redirect('administration/visit-types');
 	}
 }
 ?>

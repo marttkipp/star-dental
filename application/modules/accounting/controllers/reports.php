@@ -1,5 +1,5 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+error_reporting(E_ALL);
 require_once "./application/modules/accounting/controllers/company_financial.php";
 
 class Reports extends company_financial
@@ -18,14 +18,9 @@ class Reports extends company_financial
 		
 		$v_data['branch_name'] = $branch_name;
 		
-		// $where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.close_card <> 2 AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL)';
-		// $table = 'visit, patients, visit_type';
-
-
-		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
-		
-		$table = 'payments, visit, patients, visit_type, payment_method';
-		$visit_search = $this->session->userdata('visit_payments');
+		$where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.close_card <> 2 AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL)';
+		$table = 'visit, patients, visit_type';
+		$visit_search = $this->session->userdata('debtors_search_query');
 		// var_dump($visit_search);die();
 		if(!empty($visit_search))
 		{
@@ -54,7 +49,7 @@ class Reports extends company_financial
 		
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-reports/all-transactions';
+		$config['base_url'] = site_url().'hospital-reports/debtors';
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -86,8 +81,7 @@ class Reports extends company_financial
 		
 		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
         $v_data["links"] = $this->pagination->create_links();
-		// $query = $this->accounting_model->get_all_visits($table, $where, $config["per_page"], $page, 'ASC');
-		$query = $this->reports_model->get_all_payments($table, $where, $config["per_page"], $page, 'ASC');
+		$query = $this->accounting_model->get_all_visits_reports($table, $where, $config["per_page"], $page, 'ASC');
 		
 		$v_data['query'] = $query;
 		$v_data['page'] = $page;
@@ -99,8 +93,6 @@ class Reports extends company_financial
 		{
 			$page_title = 'All transactions for '.date('Y-m-d');
 		}
-		$v_data['normal_payments'] = $this->reports_model->get_normal_payments($where, $table, 'cash');
-		$v_data['payment_methods'] = $this->reports_model->get_payment_methods($where, $table, 'cash');
 		// var_dump($page_title);die();
 		$data['title'] = $v_data['title'] = $page_title;
 		$v_data['debtors'] = $this->session->userdata('debtors');
@@ -212,12 +204,12 @@ class Reports extends company_financial
 			{
 				if($count == $total)
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\')';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')';
 				}
 				
 				else
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\' OR OR patients.patient_othernames LIKE \'%'.mysql_real_escape_string($surnames[$r]).'%\') AND ';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
 				}
 				$count++;
 			}
@@ -239,7 +231,7 @@ class Reports extends company_financial
 		$this->session->set_userdata('patient_number', $patient_number);
 		$this->session->set_userdata('search_title', $search_title);
 		
-		redirect('hospital-reports/all-transactions');
+		redirect('hospital-reports/debtors');
 	}
 
 	public function close_reports_search()
@@ -252,12 +244,177 @@ class Reports extends company_financial
 		$this->session->unset_userdata('patient_number');
 		$this->session->unset_userdata('search_title');
 
-		redirect('hospital-reports/all-transactions');
+		redirect('hospital-reports/debtors');
 	}
 
 	public function export_debtors()
 	{
 		$this->accounting_model->export_debtors();
 	}
+
+
+
+	public function all_debtors()
+	{
+		$module = NULL;
+		
+		$v_data['branch_name'] = $branch_name;
+		
+		// $where = 'visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND visit.visit_delete = 0  AND visit.close_card <> 2 AND (visit.parent_visit = 0 OR visit.parent_visit IS NULL)';
+		// $table = 'visit, patients, visit_type';
+
+
+		$where = 'v_patient_balances.balance > 0 AND patients.patient_id = v_patient_balances.patient_id';
+		$table = 'patients,v_patient_balances';
+
+		$visit_search = $this->session->userdata('all_debtors_search_query');
+		// var_dump($visit_search);die();
+		if(!empty($visit_search))
+		{
+			$where .= $visit_search;
+		
+			
+			
+		}
+		else
+		{
+			$where .= '';
+
+		}
+		$segment = 3;
+		
+		//pagination
+		$this->load->library('pagination');
+		$config['base_url'] = site_url().'hospital-reports/debtors';
+		$config['total_rows'] = $this->reception_model->count_items($table, $where);
+		$config['uri_segment'] = $segment;
+		$config['per_page'] = 20;
+		$config['num_links'] = 5;
+		
+		$config['full_tag_open'] = '<ul class="pagination pull-right">';
+		$config['full_tag_close'] = '</ul>';
+		
+		$config['first_tag_open'] = '<li>';
+		$config['first_tag_close'] = '</li>';
+		
+		$config['last_tag_open'] = '<li>';
+		$config['last_tag_close'] = '</li>';
+		
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = 'Next';
+		$config['next_tag_close'] = '</span>';
+		
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = 'Prev';
+		$config['prev_tag_close'] = '</li>';
+		
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$this->pagination->initialize($config);
+		
+		$page = ($this->uri->segment($segment)) ? $this->uri->segment($segment) : 0;
+        $v_data["links"] = $this->pagination->create_links();
+		$query = $this->accounting_model->get_all_visits($table, $where, $config["per_page"], $page, 'ASC');
+		
+		$v_data['query'] = $query;
+		$v_data['page'] = $page;
+		$v_data['search'] = $visit_search;
+		$v_data['total_patients'] = $config['total_rows'];		
+		
+		$page_title = $this->session->userdata('page_title');
+		if(empty($page_title))
+		{
+			$page_title = 'Debtors';
+		}
+		// var_dump($page_title);die();
+		$data['title'] = $v_data['title'] = $page_title;
+		$v_data['debtors'] = $this->session->userdata('debtors');
+		$v_data['type'] = $this->reception_model->get_types();
+		$v_data['doctors'] = $this->reception_model->get_doctor();
+		$v_data['total_visits'] = $config['total_rows'];
+		
+		$v_data['module'] = $module;
+		
+		$data['content'] = $this->load->view('reports/all_debtors_view', $v_data, true);
+		
+		$this->load->view('admin/templates/general_page', $data);
+	}
+
+	public function search_all_debtors_report()
+	{
+		$patient_number = $this->input->post('patient_number');
+		$patient_phone = $this->input->post('patient_phone');
+		$patient_name = $this->input->post('patient_name');
+		$this->session->set_userdata('search_branch_code', $branch_code);
+		
+		$search_title = 'Showing reports for: ';
+		
+		if(!empty($patient_phone))
+		{
+
+			$patient_phone = ' AND patients.patient_phone1 = '.$patient_phone.' ';
+
+
+		}
+		
+		if(!empty($patient_number))
+		{
+			$patient_number = ' AND patients.patient_number LIKE \'%'.$patient_number.'%\' ';
+			
+			$search_title .= 'Patient number. '.$patient_number;
+		}
+		
+		
+		
+		$surname = '';
+
+		//search surname
+		if(!empty($_POST['patient_name']))
+		{
+			$search_title .= ' first name <strong>'.$_POST['patient_name'].'</strong>';
+			$surnames = explode(" ",$_POST['patient_name']);
+			$total = count($surnames);
+			
+			$count = 1;
+			$surname = ' AND (';
+			for($r = 0; $r < $total; $r++)
+			{
+				if($count == $total)
+				{
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')';
+				}
+				
+				else
+				{
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
+				}
+				$count++;
+			}
+			$surname .= ') ';
+		}
+		
+		else
+		{
+			$surname = '';
+		}
+		
+		$search = $patient_number.$surname.$patient_phone;
+		// var_dump($search); die();
+		$this->session->set_userdata('all_debtors_search_query', $search);
+		$this->session->set_userdata('search_title', $search_title);
+		
+		redirect('hospital-reports/debtors');
+	}
+
+	public function close_all_reports_search()
+	{
+		$this->session->unset_userdata('all_debtors_search_query');
+
+		redirect('hospital-reports/debtors');
+	}
+
 }
 ?>

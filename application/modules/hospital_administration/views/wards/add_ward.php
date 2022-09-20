@@ -10,7 +10,7 @@
                 <div class="panel-body">
                 	<div class="row" style="margin-bottom:20px;">
                         <div class="col-lg-12">
-                            <a href="<?php echo site_url();?>hospital-administration/wards" class="btn btn-info btn-sm pull-right">Back to wards</a>
+                            <a href="<?php echo site_url();?>administration/wards" class="btn btn-info btn-sm pull-right">Back to wards</a>
                         </div>
                     </div>
                         

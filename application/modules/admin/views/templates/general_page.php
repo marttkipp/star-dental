@@ -11,6 +11,7 @@
 <html class="fixed sidebar-left-collapsed">
     <head>
         <?php echo $this->load->view('admin/includes/header', $contacts, TRUE); ?>
+          <script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/jquery/jquery.js"></script>  
     </head>
 
     <body>
@@ -35,7 +36,6 @@
                 
                 </section>
             </div>
-
              <aside id="sidebar-right" class="sidebar-right" style="display: none;">
                 <div class="nano has-scrollbar">
                     <div class="nano-content" tabindex="0" style="right: -17px;">
@@ -45,6 +45,7 @@
             
                         <div class="sidebar-right-wrapper">
                             <div id="current-sidebar-div"></div>
+                            <div id="existing-sidebar-div"></div>  
                             <div id="sidebar-div"></div>                           
             
                         </div>
@@ -55,7 +56,7 @@
         </section>
         
         <!-- Vendor -->
-        <script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/jquery/jquery.js"></script>       
+           
         <script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>     
         <script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/jquery-cookie/jquery.cookie.js"></script>     
         <script src="<?php echo base_url()."assets/themes/porto-admin/1.4.1/";?>assets/vendor/bootstrap/js/bootstrap.js"></script>      
@@ -130,7 +131,7 @@
         <script type="text/javascript">
             tinymce.init({
                 selector: ".cleditor",
-                height: "150"
+                height: "250"
             });
         </script>
         <script>
@@ -150,8 +151,54 @@
                 }
             }
         })   
+           function close_side_bar()
+            {
+                // $('html').removeClass('sidebar-right-opened');
+                document.getElementById("sidebar-right").style.display = "none"; 
+                // document.getElementById("current-sidebar-div").style.display = "none"; 
+                // document.getElementById("existing-sidebar-div").style.display = "none"; 
+                tinymce.remove();
+            }
 
+            function open_sidebar()
+            {
+                document.getElementById("sidebar-right").style.display = "block"; 
+                document.getElementById("current-sidebar-div").style.display = "none"; 
+            }
 
+        function change_branch(branch_id)
+        {
+            var current_page = $('#current_page').val();
+            var config_url = $('#config_url').val();
+            var url = config_url+"site/change_branch/"+branch_id;
+            // alert(current_page);
+            $.ajax({
+            type:'POST',
+            url: url,
+            data:{branch_id: branch_id},
+            dataType: 'text',
+            // processData: false,
+            // contentType: false,
+            success:function(data){
+              var data = jQuery.parseJSON(data);
+
+              if(data.message == 'success')  
+              {
+                window.location.href = current_page;
+              }
+              else
+              {
+               
+              }
+             
+
+            },
+            error: function(xhr, status, error) {
+            alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+
+            }
+            });
+        }
         </script>
 
 

@@ -254,9 +254,7 @@ class Personnel_model extends CI_Model
 			'bank_account_number'=>$this->input->post('bank_account_number'),
 			'bank_code' => $this->input->post('bank_code'),
 			'bank_id' => $this->input->post('bank_id'),
-			'staff_id'=>$this->input->post('staff_id'),
-			'nssf_status'=>$this->input->post('nssf_status'),
-			'nhif_status'=>$this->input->post('nhif_status')
+			'staff_id'=>$this->input->post('staff_id')
 		);
 		
 		if($this->db->insert('personnel', $data))
@@ -302,9 +300,7 @@ class Personnel_model extends CI_Model
 			'personnel_type_id'=>$this->input->post('personnel_type_id'),
 			'bank_code' => $this->input->post('bank_code'),
 			'bank_id'=>$this->input->post('bank_id'),
-			'staff_id'=>$this->input->post('staff_id'),
-			'nssf_status'=>$this->input->post('nssf_status'),
-			'nhif_status'=>$this->input->post('nhif_status')
+			'staff_id'=>$this->input->post('staff_id')
 		);
 		
 		$this->db->where('personnel_id', $personnel_id);

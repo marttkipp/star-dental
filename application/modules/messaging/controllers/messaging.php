@@ -1394,4 +1394,173 @@ class Messaging extends MX_Controller
 		// echo 'window.self.close();';
 		// echo '</script>';
 	}
+	public function send_fourty_eight_appointments()
+	{
+		$date_tomorrow = date("Y-m-d",strtotime("tomorrow"));
+
+		$date_tomorrow = date('Y-m-d', strtotime($date_tomorrow . " +1 days"));
+
+
+		// $date_tomorrow = date('Y-m-d');
+		// $this->db->select('*');
+		// $this->db->where('visit.visit_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.schedule_id = 0 ');
+	
+		// $query = $this->db->get('visit,patients');
+
+			$this->db->select('*,appointments.appointment_id AS appointment_idd');
+		$this->db->where('appointments.appointment_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND appointments.appointment_delete = 0 AND appointments.visit_id = visit.visit_id AND (appointments.appointment_status <> 6 OR appointments.appointment_status <> 7 OR appointments.appointment_status <> 3 OR appointments.appointment_status <> 8)  AND appointments.appointment_rescheduled = 0 AND visit.branch_id = branch.branch_id ');
+		// $this->db->limit(1);
+		$this->db->order_by('appointments.resource_id','ASC');
+		$query = $this->db->get('visit,patients,appointments,branch');
+
+		// var_dump($query);die();
+
+		$email_message = '';
+		if($query->num_rows() > 0)
+		{
+			foreach ($query->result() as $key => $value) {
+				# code...
+				$patient_phone = $value->patient_phone1;
+				$patient_id = $value->patient_id;
+				$patient_othernames = $value->patient_othernames;
+				$patient_surname = $value->patient_surname;
+				$time_start = $value->time_start;
+				$visit_id = $value->visit_id;
+
+				$time_start = $value->time_start;
+				$branch_name = $value->branch_name;
+				$branch_phone = $value->branch_phone;
+				$appointment_id = $value->appointment_idd;
+				$appointment_status = $value->appointment_status;
+				$time_start = date('H:i A',strtotime($value->appointment_start_time));
+
+				$surname = explode(' ', $patient_surname);
+				$patient_name = $surname[0];
+
+				$visit_date = date('jS M Y',strtotime($date_tomorrow));
+				$message = 'Dear '.$patient_name.', kindly remember your appointment at Planet Dental Clinic on '.$visit_date.' at '.$time_start.'. Al Hidaya Heights 201, (opposite Al Hidaya Mosque). For more information contact 0717123440.';
+
+				$message_data = array(
+						"phone_number" => $patient_phone,
+						"entryid" => $patient_id,
+						"message" => $message,
+						"message_batch_id"=>0,
+						'message_status' => 0
+					);
+				$this->db->insert('messages', $message_data);
+				$message_id = $this->db->insert_id();
+				// $patient_phone = '704808007';
+				$patient_phone = str_replace(' ', '', $patient_phone);
+				$response = $this->messaging_model->sms($patient_phone,$message);
+				
+				// $status = $response->success;
+				// var_dump($response);die();	
+					
+
+				if($response== 'Success')
+				{
+
+					// var_dump('you'); die();
+
+					$email_message .= $patient_surname.' '.$patient_othernames.' AT '.$time_start.'<br>';
+					$visit_update = array('schedule_id' => 1);
+					$this->db->where('visit_id',$visit_id);
+					$this->db->update('visit', $visit_update);
+
+
+					if($appointment_status == 2 )
+					{
+
+					}
+					else
+					{
+						
+						$appointment_update = array('appointment_status' => 6);
+						$this->db->where('appointment_id',$appointment_id);
+						$this->db->update('appointments', $appointment_update);
+					}
+
+					// $email_message .= $patient_surname.' '.$patient_othernames.' AT '.$time_start.'<br>';
+					
+
+					
+					$service_charge_update = array('message_status' => 1,'delivery_message'=>'Success','sms_cost'=>3);
+					$this->db->where('message_id',$message_id);
+					$this->db->update('messages', $service_charge_update);
+
+				}
+				else
+				{
+
+					if($appointment_status == 2 )
+					{
+
+					}
+					else
+					{
+						
+						$appointment_update = array('appointment_status' => 7);
+						$this->db->where('appointment_id',$appointment_id);
+						$this->db->update('appointments', $appointment_update);
+					}
+
+					// var_dump('sdada'); die();
+					$service_charge_update = array('message_status' => 0,'delivery_message'=>'Success','sms_cost'=>0);
+					$this->db->where('message_id',$message_id);
+					$this->db->update('messages', $service_charge_update);
+
+
+				}
+			}
+
+
+			if($email_message == '')
+			{
+
+			}
+			else
+			{
+				// $this->send_email_for_appointment($email_message);
+				$date_tomorrow = date('Y-m-d');
+				$date_tomorrow = date("Y-m-d", strtotime("+1 day", strtotime($date_tomorrow)));
+				$visit_date = date('jS M Y',strtotime($date_tomorrow));
+				$branch = $this->config->item('branch_name');
+				$message_result['subject'] = 'Appointment report';
+				$v_data['persons'] = $email_message;
+				$text =  $this->load->view('reception/emails_items',$v_data,true);
+
+				// echo $text; die();
+				$message_result['text'] = $text;
+				$contacts = $this->site_model->get_contacts();
+				$sender_email =$this->config->item('sender_email');//$contacts['email'];
+				$shopping = "";
+				$from = $sender_email; 
+				
+				$button = '';
+				$sender['email']= $sender_email; 
+				$sender['name'] = $contacts['company_name'];
+				$receiver['name'] = $message_result['subject'];
+				// $payslip = $title;
+
+				$sender_email = $sender_email;
+				$tenant_email = $this->config->item('appointments_email');
+				// var_dump($tenant_email); die();
+				$email_array = explode('/', $tenant_email);
+				$total_rows_email = count($email_array);
+
+				for($x = 0; $x < $total_rows_email; $x++)
+				{
+					$receiver['email'] = $email_tenant = $email_array[$x];
+
+					$this->email_model->send_sendgrid_mail($receiver, $sender, $message_result, NULL);		
+					
+
+				}
+			}
+		}
+		// redirect('appointments');
+		echo '<script language="JavaScript">';
+		echo 'window.self.close();';
+		echo '</script>';
+	}
 }

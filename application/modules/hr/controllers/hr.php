@@ -1,5 +1,5 @@
 <?php   if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+error_reporting(0);
 class Hr extends MX_Controller 
 {
 	var $csv_path;
@@ -16,6 +16,7 @@ class Hr extends MX_Controller
 		$this->load->model('hr/personnel_model');
 		$this->load->model('hr/leave_model');
 		$this->load->model('hr/hr_model');
+		$this->load->model('admin/sections_model');
 		$this->load->model('hr/schedules_model');
 		$this->load->model('admin/branches_model');
 		$this->load->model('tutorial_model');

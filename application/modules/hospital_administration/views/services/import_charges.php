@@ -3,7 +3,7 @@
         <header class="panel-heading">
           <h4 class="pull-left"><i class="icon-reorder"></i><?php echo $title;?></h4>
           <div class="widget-icons pull-right">
-          	<a href="<?php echo base_url().'hospital-administration/services';?>" class="btn btn-sm btn-info">Back to services</a>
+          	<a href="<?php echo base_url().'administration/services';?>" class="btn btn-sm btn-info">Back to services</a>
           </div>
           <div class="clearfix"></div>
         </header>             
@@ -49,7 +49,7 @@
             ?>
                 </div>
             </div>
-            <?php echo form_open_multipart('hospital-administration/import-services/'.$service_id, array("class" => "form-horizontal", "role" => "form"));?>
+            <?php echo form_open_multipart('administration/import-services/'.$service_id, array("class" => "form-horizontal", "role" => "form"));?>
             <div class="alert alert-info">
             	Please ensure that you have set up the following in the hospital administration:
                 <ol>
@@ -61,7 +61,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <ul>
-                        <li>Download the import template <a href="<?php echo site_url().'hospital-administration/import-services-template';?>">here.</a></li>
+                        <li>Download the import template <a href="<?php echo site_url().'administration/import-services-template';?>">here.</a></li>
                         
                         <li>Save your file as a <strong>csv</strong> file before importing</li>
                         <li>After adding your patients to the import template please import them using the button below</li>

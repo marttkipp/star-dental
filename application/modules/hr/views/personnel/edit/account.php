@@ -124,29 +124,15 @@ if(!empty($validation_error))
                                 <div class="panel-body">
                                     <?php echo form_open(''.site_url().'human-resource/update-personnel-roles/'.$personnel_id.'', array("class" => "form-horizontal", "role" => "form"));?>
                                     <div class="parent_sections">
-                                        <select class="form-control" name="section_id">
-                                            <option value="" selected="selected">--Select section--</option>
-                                            <?php
-                                                if($parent_sections->num_rows() > 0)
-                                                {
-                                                    foreach($parent_sections->result() as $res)
-                                                    {
-                                                        $section_id = $res->section_id;
-                                                        $section_name = $res->section_name;
-                                                        
-                                                        echo '<option value="'.$section_id.'" >'.$section_name.'</option>';
-                                                    }
-                                                }
-                                            ?>
-                                        </select>
+                                        <?php echo $this->sections_model->cboMenu()?>
                                     </div>
                                     
-                                    <div class="child_sections">
+                                   <!--  <div class="child_sections" >
                                         <select class="form-control" name="child_id">
                                             <option value="" >--Select section to display sub sections--</option>
                                         </select>
                                     </div>
-                                    
+                                     -->
                                     <div class="row" style="margin-top:10px;">
                                         <div class="col-md-12">
                                             <div class="form-actions center-align">

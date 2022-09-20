@@ -60,13 +60,13 @@
 				if($insurance_scheme_status == 0)
 				{
 					$status = '<span class="label label-default">Deactivated</span>';
-					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'hospital-administration/activate-insurance-scheme/'.$insurance_scheme_id.'" onclick="return confirm(\'Do you want to activate '.$insurance_scheme_name.'?\');" title="Activate '.$insurance_scheme_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
+					$button = '<a class="btn btn-info btn-sm" href="'.site_url().'administration/activate-insurance-scheme/'.$insurance_scheme_id.'" onclick="return confirm(\'Do you want to activate '.$insurance_scheme_name.'?\');" title="Activate '.$insurance_scheme_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
 				}
 				//create activated status display
 				else if($insurance_scheme_status == 1)
 				{
 					$status = '<span class="label label-success">Active</span>';
-					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'hospital-administration/deactivate-insurance-scheme/'.$insurance_scheme_id.'" onclick="return confirm(\'Do you want to deactivate '.$insurance_scheme_name.'?\');" title="Deactivate '.$insurance_scheme_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
+					$button = '<a class="btn btn-default btn-sm" href="'.site_url().'administration/deactivate-insurance-scheme/'.$insurance_scheme_id.'" onclick="return confirm(\'Do you want to deactivate '.$insurance_scheme_name.'?\');" title="Deactivate '.$insurance_scheme_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
 				}
 				
 				//creators & editors
@@ -101,9 +101,9 @@
 						<td>'.$last_modified.'</td>
 						<td>'.$modified_by.'</td>
 						<td>'.$status.'</td>
-						<td><a href="'.site_url().'hospital-administration/edit-insurance-scheme/'.$insurance_scheme_id.'" class="btn btn-sm btn-info" title="Edit '.$insurance_scheme_name.'"><i class="fa fa-pencil"></i> Edit</a></td>
+						<td><a href="'.site_url().'administration/edit-insurance-scheme/'.$insurance_scheme_id.'" class="btn btn-sm btn-info" title="Edit '.$insurance_scheme_name.'"><i class="fa fa-pencil"></i> Edit</a></td>
 						<td>'.$button.'</td>
-						<td><a href="'.site_url().'hospital-administration/delete-insurance-scheme/'.$insurance_scheme_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete '.$insurance_scheme_name.'?\');" title="Delete '.$insurance_scheme_name.'"><i class="fa fa-trash"></i> Delete</a></td>
+						<td><a href="'.site_url().'administration/delete-insurance-scheme/'.$insurance_scheme_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete '.$insurance_scheme_name.'?\');" title="Delete '.$insurance_scheme_name.'"><i class="fa fa-trash"></i> Delete</a></td>
 					</tr> 
 				';
 			}
@@ -132,7 +132,7 @@
 							<div class="panel-body">
                             	<div class="row" style="margin-bottom:20px;">
                                     <div class="col-lg-12">
-                                    	<a href="<?php echo site_url();?>hospital-administration/add-insurance-scheme" class="btn btn-success btn-sm pull-right">Add Insurance Scheme</a>
+                                    	<a href="<?php echo site_url();?>administration/add-insurance-scheme" class="btn btn-success btn-sm pull-right">Add Insurance Scheme</a>
                                     </div>
                                 </div>
                                 <?php

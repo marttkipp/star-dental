@@ -1691,22 +1691,7 @@
             
             </div>
         </div>
-        <!-- Widget ends -->
-          <hr>
 
-        <?php 
-
-        	$v_data['patient_id'] = $patient_id;
-        	$v_data['past_visit_date'] = $past_visit_date;
-
-        	echo $this->load->view("diary", $v_data, TRUE);
-
-        ?>
-        <div class="row">
-        	<div class="col-md-12">
-        		<div id="patient_schedule"></div>
-        	</div>
-        </div>
 
       </div>
 

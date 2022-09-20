@@ -19,14 +19,14 @@
             if($department_id == 18)
 			{
 				?>
-					<a href="<?php echo site_url()?>hospital-administration/import-lab-charges/<?php echo $service_id;?>" class="btn btn-sm btn-warning"><i class="fa fa-sign-out"></i> Import from department </a>
+					<a href="<?php echo site_url()?>administration/import-lab-charges/<?php echo $service_id;?>" class="btn btn-sm btn-warning"><i class="fa fa-sign-out"></i> Import from department </a>
 				<?php 
 			}
 			
-            else if($department_id == 3)
+            else if($department_id == 4)
 			{
 				?>
-					<a href="<?php echo site_url()?>hospital-administration/import-pharmacy-charges/<?php echo $service_id;?>" class="btn btn-sm btn-warning"><i class="fa fa-sign-out"></i> Import from department </a>
+					<a href="<?php echo site_url()?>administration/import-pharmacy-charges/<?php echo $service_id;?>" class="btn btn-sm btn-warning"><i class="fa fa-sign-out"></i> Import from department </a>
 				<?php 
 			}
 			
@@ -40,13 +40,13 @@
 			else
 			{
 				?>
-					<a href="<?php echo site_url()?>hospital-administration/add-service-charge/<?php echo $service_id;?>" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Add <?php echo strtolower($service_name);?> charge </a>
+					<a href="<?php echo site_url()?>administration/add-service-charge/<?php echo $service_id;?>" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Add <?php echo strtolower($service_name);?> charge </a>
 				<?php 
 			}
 			?>
-			<a href="<?php echo site_url()?>hospital-administration/services" class="btn btn-sm btn-primary"><i class="fa fa-angle-left"></i> Back to services </a>
+			<a href="<?php echo site_url()?>administration/services" class="btn btn-sm btn-primary"><i class="fa fa-angle-left"></i> Back to services </a>
 			
-			<a href="<?php echo site_url()?>hospital-administration/update-charges/<?php echo $service_id?>" class="btn btn-sm btn-warning"><i class="fa fa-recycle"></i> Update Charges </a>
+			<a href="<?php echo site_url()?>administration/update-charges/<?php echo $service_id?>" class="btn btn-sm btn-warning"><i class="fa fa-recycle"></i> Update Charges </a>
 			
 		</div>
 	</div>
@@ -54,7 +54,8 @@
 
 		<?php
 		$result_two = "";
-		if($department_id == 5)
+		// var_dump($department_id);die();
+		if($department_id == 4)
 		{
 			?>
              <section class="panel">
@@ -67,6 +68,8 @@
 			// get all unsyned products from pharmacy
 
 			$unsyned_rs = $this->services_model->get_unsynced_pharmacy_charges();
+
+			// var_dump($unsyned_rs);die();
 			$result_two = '';
 			$counter = 0;
 			if ($unsyned_rs->num_rows() > 0)
@@ -236,8 +239,8 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
-						  <th><a href="'.site_url().'hospital-administration/service-charges/'.$service_id.'/service_charge.visit_type_id/'.$order_method.'/'.$page.'">Patient type</a></th>
-						  <th><a href="'.site_url().'hospital-administration/service-charges/'.$service_id.'/service_charge.service_charge_name/'.$order_method.'/'.$page.'">Charge name</a></th>
+						  <th><a href="'.site_url().'administration/service-charges/'.$service_id.'/service_charge.visit_type_id/'.$order_method.'/'.$page.'">Patient type</a></th>
+						  <th><a href="'.site_url().'administration/service-charges/'.$service_id.'/service_charge.service_charge_name/'.$order_method.'/'.$page.'">Charge name</a></th>
 						  <th>Amount</th>
 						  <th colspan="3">Actions</th>
 						</tr>
@@ -273,13 +276,13 @@
 				if($service_charge_status == 0)
 				{
 					$status = '<span class="label label-important">Deactivated</span>';
-					$button = '<a class="btn btn-info" href="'.site_url().'hospital-administration/activate-service-charge/'.$service_id.'/'.$service_charge_id.'" onclick="return confirm(\'Do you want to activate '.$service_charge_name.'?\');" title="Activate '.$service_charge_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
+					$button = '<a class="btn btn-info" href="'.site_url().'administration/activate-service-charge/'.$service_id.'/'.$service_charge_id.'" onclick="return confirm(\'Do you want to activate '.$service_charge_name.'?\');" title="Activate '.$service_charge_name.'"><i class="fa fa-thumbs-up"></i> Activate</a>';
 				}
 				//create activated status display
 				else if($service_charge_status == 1)
 				{
 					$status = '<span class="label label-success">Active</span>';
-					$button = '<a class="btn btn-default" href="'.site_url().'hospital-administration/deactivate-service-charge/'.$service_id.'/'.$service_charge_id.'" onclick="return confirm(\'Do you want to deactivate '.$service_charge_name.'?\');" title="Deactivate '.$service_charge_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
+					$button = '<a class="btn btn-default" href="'.site_url().'administration/deactivate-service-charge/'.$service_id.'/'.$service_charge_id.'" onclick="return confirm(\'Do you want to deactivate '.$service_charge_name.'?\');" title="Deactivate '.$service_charge_name.'"><i class="fa fa-thumbs-down"></i> Deactivate</a>';
 				}
 				
 				//creators & editors
@@ -309,9 +312,9 @@
 							<td>'.$visit_type_name.'</td>
 							<td>'.$service_charge_name.'</td>
 							<td>'.number_format($service_charge_amount, 2).'</td>
-							<td><a href="'.site_url().'hospital-administration/edit-service-charge/'.$service_id.'/'.$service_charge_id.'" class="btn btn-sm btn-info"><i class="fa fa-pencil"></i> Edit</a></td>
+							<td><a href="'.site_url().'administration/edit-service-charge/'.$service_id.'/'.$service_charge_id.'" class="btn btn-sm btn-info"><i class="fa fa-pencil"></i> Edit</a></td>
 							<td>'.$button.'</td>
-							<td><a href="'.site_url().'hospital-administration/delete-service-charge/'.$service_id.'/'.$service_charge_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete this charge?\')"><i class="fa fa-trash"></i> Delete </a></td>
+							<td><a href="'.site_url().'administration/delete-service-charge/'.$service_id.'/'.$service_charge_id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Do you really want to delete this charge?\')"><i class="fa fa-trash"></i> Delete </a></td>
 						</tr> 
 					';
 			}
