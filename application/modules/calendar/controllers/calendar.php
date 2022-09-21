@@ -1177,12 +1177,13 @@ class Calendar extends admin
 				$app_update_visit['visit_type'] = 1;
 				$app_update_visit['branch_id'] = $branch_id;
 				$app_update_visit['branch_code'] = $branch_code;
+				$app_update_visit['department_id'] = $branch_code;
 				$this->db->where('visit_id',$visit_id);
 				$this->db->update('visit',$app_update_visit);
 
 
 				// var_dump($visit_id);die();
-				$this->reception_model->set_visit_department($visit_id, 7);
+				$this->reception_model->set_visit_department($visit_id, 4);
 
 
 				// chek if there is another visit before this 

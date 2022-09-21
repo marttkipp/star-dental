@@ -52,8 +52,7 @@
 						?>
 						<a  href="<?php echo site_url().'send-fourty-eight-appointment';?>" class="btn btn-danger" target="_blank" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> 48 Hour Reminders</a>
 
-						
-						<a  href="<?php echo site_url().'send-appointment-reminders';?>" class="btn btn-warning" target="_blank" onclick="return confirm('Do you want to send notifications for appointment ?')"><i class="fa fa-recycle"></i> 24 Hour Reminders</a>
+					
 
 
 						<?php

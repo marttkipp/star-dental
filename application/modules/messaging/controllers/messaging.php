@@ -1394,11 +1394,11 @@ class Messaging extends MX_Controller
 		// echo 'window.self.close();';
 		// echo '</script>';
 	}
-	public function send_fourty_eight_appointments()
+	public function send_todays_appointments()
 	{
-		$date_tomorrow = date("Y-m-d",strtotime("tomorrow"));
+		$date_tomorrow = date("Y-m-d");
 
-		$date_tomorrow = date('Y-m-d', strtotime($date_tomorrow . " +1 days"));
+		// $date_tomorrow = date('Y-m-d', strtotime($date_tomorrow . " +1 days"));
 
 
 		// $date_tomorrow = date('Y-m-d');
@@ -1438,7 +1438,7 @@ class Messaging extends MX_Controller
 				$patient_name = $surname[0];
 
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
-				$message = 'Dear '.$patient_name.', kindly remember your appointment at Planet Dental Clinic on '.$visit_date.' at '.$time_start.'. Al Hidaya Heights 201, (opposite Al Hidaya Mosque). For more information contact 0717123440.';
+				$message = 'Dear '.$patient_name.', kindly remember your appointment at Star Dental Clinic today at '.$time_start.'. Al Hidaya Heights 201, (opposite Al Hidaya Mosque). For more information contact 0717123440.';
 
 				$message_data = array(
 						"phone_number" => $patient_phone,
