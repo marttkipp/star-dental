@@ -1328,7 +1328,7 @@ public function save_visit2($patient_id)
 		$search = $visit_type_id.$patient_number.$surname.$other_name.$visit_date.$patient_national_id.$personnel_id;
 		$this->session->set_userdata('appointment_search', $search);
 		
-		redirect('appointments');
+		redirect('appointments/appointment-list');
 	}
 
 
@@ -1518,14 +1518,14 @@ public function save_visit2($patient_id)
 	public function close_visit_search($visit, $page_name = NULL)
 	{
 		$this->session->unset_userdata('visit_search');
-		redirect('appointments');
+		redirect('appointments/appointment-list');
 		// $this->visit_list($visit, $page_name);
 	}
 	public function close_appointments_search($visit, $page_name = NULL)
 	{
 		$this->session->unset_userdata('appointment_search');
 		
-		redirect('appointments');
+		redirect('appointments/appointment-list');
 	}
 	public function close_patient_search($page = NULL)
 	{
@@ -1656,10 +1656,10 @@ public function save_visit2($patient_id)
 		
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'appointments';
+		$config['base_url'] = site_url().'appointments/appointment-list';
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
-		$config['uri_segment'] = 2;
-		$config['per_page'] = 20;
+		$config['uri_segment'] = 3;
+		$config['per_page'] = 40;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -1690,7 +1690,7 @@ public function save_visit2($patient_id)
 		$config['num_tag_close'] = '</li>';
 		$this->pagination->initialize($config);
 		
-		$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
         $v_data["links"] = $this->pagination->create_links();
 		$query = $this->reception_model->get_all_ongoing_appointments($table, $where, $config["per_page"], $page);
 		
@@ -1858,7 +1858,7 @@ public function save_visit2($patient_id)
 			$this->session->set_userdata('appointment_search', $search);
 		}
 		
-		redirect('appointments');
+		redirect('appointments/appointment-list');
 	}
 	
 	public function delete_patient($patient_id, $page)

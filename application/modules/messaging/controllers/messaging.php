@@ -1260,7 +1260,7 @@ class Messaging extends MX_Controller
 		redirect('senders-view/'.$message_batch_id.'/'.$message_template_id);
 	}
 
-	public function send_appointments()
+	public function send_appointments($list=null)
 	{
 		$date_tomorrow = date("Y-m-d",strtotime("tomorrow"));
 
@@ -1388,6 +1388,11 @@ class Messaging extends MX_Controller
 
 				}
 			}
+		}
+
+		if(!empty($list))
+		{
+			 redirect('appointments/appointments-calendar');
 		}
 		// redirect('appointments');
 		// echo '<script language="JavaScript">';

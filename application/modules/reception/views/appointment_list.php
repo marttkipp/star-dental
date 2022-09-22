@@ -43,7 +43,6 @@
 						  <th>Time Start</th>
 						  <th>Last Visit</th>
 						  <th>Doctor</th>
-						  <th colspan="2">Actions</th>
 						</tr>
 					  </thead>
 					  <tbody>
@@ -91,6 +90,7 @@
 				$time_start = $row->time_start;
 				$time_end = $row->time_end;
 				$procedure_done = $row->procedure_done;
+				$visit_type_name = $row->visit_type_name;
 				
 				$last_visit = $row->last_visit;
 				$last_visit_date = $row->last_visit;
@@ -143,201 +143,14 @@
 						<td>'.$patient_phone.'</td>
 						<td>'.$procedure_done.'</td>
 						<td>
-								<select name="visit_type_id'.$visit_id.'" id="visit_type_id2'.$visit_id.'" class="form-control"  onchange="get_visit_type('.$visit_id.')">
-									<option value="">----Select a visit type----</option>';
-										$visit_types = $this->reception_model->get_visit_types();	
-										if($visit_types->num_rows() > 0){
-
-											foreach($visit_types->result() as $row):
-												$visit_type_name = $row->visit_type_name;
-												$visit_type_id = $row->visit_type_id;
-
-												if($visit_type_id == set_value('visit_type_id'))
-												{
-													$result .=  "<option value='".$visit_type_id."' selected='selected'>".$visit_type_name."</option>";
-												}
-												
-												else
-												{
-													$result .=  "<option value='".$visit_type_id."'>".$visit_type_name."</option>";
-												}
-											endforeach;
-										}
-									$result.='
-								</select>
-								<div id="insured_company2'.$visit_id.'" style="display: none;margin-top:5px;">
-                                    <div class="form-group" style="margin-bottom: 15px;">
-										<label class="col-lg-4 control-label">Insurance Scheme: </label>
-										<div class="col-lg-8">
-											<input type="text" name="insurance_description'.$visit_id.'" id="insurance_description'.$visit_id.'" class="form-control">
-										</div>
-									</div>
-									<div class="form-group" style="margin-bottom: 15px;">
-										<label class="col-lg-4 control-label">Insurance Number: </label>
-										<div class="col-lg-8">
-											<input type="text" name="insurance_number'.$visit_id.'" id="insurance_number'.$visit_id.'" class="form-control">
-										</div>
-									</div>
-                                    
-								</div>
+								'.$visit_type_name.'
 
 						</td>
 						<td>'.$time_start.'</td>
 						<td>'.$last_visit.'</td>
 						<td>'.$doctor.'</td>
-						<td><a class="btn btn-sm btn-primary" onclick="start_appointment_visit('.$visit_id.','.$patient_id.')">Queue</a>
-						</td>
-						<td><button type="button" class="btn btn-sm btn-success " data-toggle="modal" data-target="#book-appointment'.$visit_id.'"><i class="fa fa-pencil"></i> Edit </button>
-								<div class="modal fade " id="book-appointment'.$visit_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-								    <div class="modal-dialog modal-lg" role="document">
-								        <div class="modal-content ">
-								            <div class="modal-header">
-								            	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								            	<h4 class="modal-title" id="myModalLabel">Schedule Appointment for '.$patient_surname.'</h4>
-								            </div>
-								            '.form_open("reception/update_visit/".$patient_id.'/'.$visit_id, array("class" => "form-horizontal")).'
-
-								            <div class="modal-body">
-								            	<div class="row">
-								            		<input type="hidden" name="redirect_url" id="redirect_url'.$visit_id.'" value="'.$this->uri->uri_string().'">
-								            		<input type="hidden" name="patient_id" id="patient_id'.$visit_id.'" value="'.$patient_id.'">
-								            		<input type="hidden" name="current_date" id="current_date'.$visit_id.'" value="'.$visit_date_old.'">
-								            		<div class="col-md-12">
-								            			<div class="col-md-6">
-								            				<div class="form-group">
-															<label class="col-lg-4 control-label">Visit date: </label>
-															
-															<div class="col-lg-8">
-						                                        <div class="input-group">
-						                                            <span class="input-group-addon">
-						                                                <i class="fa fa-calendar"></i>
-						                                            </span>
-						                                            <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="visit_date" id="scheduledate'.$visit_id.'" placeholder="Visit Date" value="'.$visit_date_old.'" required>
-						                                        </div>
-															</div>
-														</div>
-
-														<div class="form-group">
-														  <label class="col-lg-4 control-label">Room: </label>	
-															<div class="col-lg-8">
-																	<select name="room_id" id="room_id'.$visit_id.'" class="form-control" >
-																		<option value="">----Select Room----</option>';
-																		 if($rooms->num_rows() >  0){
-																			foreach($rooms->result() as $row):
-																				$room_name = $row->room_name;
-																				$room_id = $row->room_id;
-																				
-																				if($room_id == $room_id2)
-																				{
-																					$result .="<option value='".$room_id."' selected='selected'>".$room_name."</option>";
-																				}
-																				
-																				else
-																				{
-																					$result .="<option value='".$room_id."'>".$room_name."</option>";
-																				}
-																			endforeach;
-																		}
-																	$result .='</select>
-															</div>
-														</div>
-														
-
-														 <div class="form-group">
-										                        <label class="col-lg-4 control-label">Procedure to be done</label>
-										                        <div class="col-lg-8">
-										                        	<textarea class="form-control" name="procedure_done" id="procedure_done'.$visit_id.'">'.$procedure_done.'</textarea>
-										                           
-										                       </div>
-							                             </div>  
-														
-						                                	
-								            			</div>
-								            			<div class="col-md-6">
-								            				<div class="form-group">
-																<label class="col-lg-4 control-label">Doctor: </label>
-																<div class="col-lg-8">
-																	 <select name="doctor_id" id="doctor_id'.$visit_id.'" class="form-control">
-																		<option value="">----Select a Doctor----</option>';
-																		 if($doctors->num_rows() >  0){
-																			foreach($doctors->result() as $row):
-																				$fname = $row->personnel_fname;
-																				$onames = $row->personnel_onames;
-																				$personnel_id = $row->personnel_id;
-																				
-																				if($personnel_id == $personnel_id3)
-																				{
-																					$result .="<option value='".$personnel_id."' selected='selected'>".$onames." ".$fname."</option>";
-																				}
-																				
-																				else
-																				{
-																					$result .="<option value='".$personnel_id."'>".$onames." ".$fname."</option>";
-																				}
-																			endforeach;
-																		}
-																	$result .='
-																	</select>
-																</div>
-															</div>
-								            				<div id="appointment_details" >
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">Schedule: </label>
-							                                        
-							                                        <div class="col-lg-8">
-							                                            <a onclick="check_date('.$visit_id.')" style="cursor:pointer;">[Show Doctors Schedule]</a><br>
-							                                            <div id="show_doctor'.$visit_id.'" style="display:none;"> 
-							                                                
-							                                            </div>
-							                                            <div  id="doctors_schedule'.$visit_id.'" style="margin-left: -94px;font-size: 10px;"> </div>
-							                                        </div>
-							                                    </div>
-							                                    
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">Start time : </label>
-							                                    
-							                                        <div class="col-lg-8">
-							                                            <div class="input-group">
-							                                                <span class="input-group-addon">
-							                                                    <i class="fa fa-clock-o"></i>
-							                                                </span>
-							                                                <input type="text" class="form-control" data-plugin-timepicker="" name="timepicker_start" id="timepicker_start'.$visit_id.'" value="'.$time_start.'">
-							                                            </div>
-							                                        </div>
-							                                    </div>
-							                                    <div class="form-group">
-							                                        <label class="col-lg-4 control-label">End time : </label>
-							                                    
-							                                        <div class="col-lg-8">
-							                                            <div class="input-group">
-							                                                <span class="input-group-addon">
-							                                                    <i class="fa fa-clock-o"></i>
-							                                                </span>
-							                                                <input type="text" class="form-control" data-plugin-timepicker="" name="timepicker_end" id="timepicker_end'.$visit_id.'" value="'.$time_end.'">
-							                                            </div>
-							                                        </div>
-							                                    </div>
-							                                </div>
-								            			</div>
-								            		</div>
-								            	</div>
-								            	
-														
-								              	
-								            </div>
-								            <div class="modal-footer">
-								            	<a  class="btn btn-sm btn-success" onclick="update_appointment('.$visit_id.','.$patient_id.')">Reschedule Appointment</a>
-								                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
-								            </div>
-
-								               '.form_close().'
-								        </div>
-								    </div>
-								</div>
-
-							</td>
-							<td><a href="'.site_url().'reception/delete_appontment/'.$visit_id.'" class="btn btn-sm btn-danger fa fa-trash" onclick="return confirm(\'Do you really want to remove this visit ?\',);"></a>
-							</td>
+						
+						
 					</tr> 
 				';
 			}

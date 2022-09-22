@@ -916,8 +916,8 @@ $route['queue/(:num)'] = 'reception/patients_queue/$1';
 
 // appointments
 
-$route['appointments'] = 'reception/appointment_list';
-$route['appointments/(:num)'] = 'reception/appointment_list/$1';
+$route['appointments/appointment-list'] = 'reception/appointment_list';
+$route['appointments/appointment-list/(:num)'] = 'reception/appointment_list/$1';
 
 
 // patients
@@ -1314,7 +1314,7 @@ $route['view-doctor-patients/(:num)/(:any)/(:num)/(:num)'] = 'administration/rep
 
 $route['creditor-statement/(:num)'] = 'accounting/creditors/statement/$1';
 
-$route['send-appointment-reminders'] = 'reception/send_appointments';
+$route['send-appointment-reminders'] = 'messaging/send_appointments/1';
 $route['print-sick-off/(:num)'] = 'dental/print_sick_leave/$1';
 $route['print-prescription/(:num)'] = 'dental/print_prescription/$1';
 $route['print-patient-statement/(:num)'] = 'administration/print_individual_statement/$1';
@@ -1695,5 +1695,5 @@ $route['delete-transfered-payment/(:num)'] = 'finance/transfer/delete_transfer_p
 
 
 
-$route['appointments'] = 'calendar/index';
+$route['appointments/appointments-calendar'] = 'calendar/index';
 
