@@ -95,6 +95,81 @@
 				$last_visit = $row->last_visit;
 				$last_visit_date = $row->last_visit;
 
+
+				$appointment_start_time = $row->appointment_start_time; 
+				$appointment_end_time = $row->appointment_end_time; 
+				$time_start = $row->appointment_date_time_start; 
+				$time_end = $row->appointment_date_time_end;
+				$patient_id = $row->patient_id;
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;				
+				$visit_id = $row->visit_id;
+				$appointment_id = $row->appointment_id;
+				$resource_id = $row->resource_id;
+				$event_name = $row->event_name;
+				$event_description = $row->event_description;
+				$appointment_status = $row->appointment_status;
+				$procedure_done = $row->procedure_done;
+				$resource_id = $row->resource_id;
+				$patient_data = $patient_surname.' '.$patient_othernames;
+				$patient_phone1 = $row->patient_phone1;
+				$patient_email = $row->patient_email;
+				$visit_type_name = $row->visit_type_name;
+				$procedure = $row->event_description;
+				if($appointment_status == 0)
+				{
+					$color = 'blue';
+					$status_name = 'unassigned';
+				}
+				else if($appointment_status == 1)
+				{
+					$color = 'indigo';
+					$status_name = 'unassigned';
+				}
+				else if($appointment_status == 2)
+				{
+					$color = 'green';
+					$status_name = 'Confirmed';
+				}
+				else if($appointment_status == 3)
+				{
+					$color = 'red';
+					$status_name = 'Cancelled';
+				}
+				else if($appointment_status == 4)
+				{
+					$color = 'purple';
+					$status_name = 'Showed';
+				}
+				else if($appointment_status == 5)
+				{
+					$color = 'black';
+					$status_name = 'No Showed';
+				}
+				else if($appointment_status == 6)
+				{
+					$color = 'brown';
+					$status_name = 'Notified';
+				}
+				else if($appointment_status == 7)
+				{
+					$color = 'blue';
+					$status_name = 'Not Notified';
+				}
+				else
+				{
+					$color = 'orange';
+					$status_name = '';
+				}
+				if(empty($patient_data))
+				{
+					$patient_data = '';
+				}
+				if(empty($procedure_done))
+				{
+					$procedure_done = '';
+				}
+
 				if($last_visit != NULL)
 				{
 					$last_visit = date('jS M Y',strtotime($last_visit));
@@ -149,6 +224,7 @@
 						<td>'.$time_start.'</td>
 						<td>'.$last_visit.'</td>
 						<td>'.$doctor.'</td>
+						<td style="background-color:'.$color.';color:white;">'.$status_name.'</td>
 						
 						
 					</tr> 

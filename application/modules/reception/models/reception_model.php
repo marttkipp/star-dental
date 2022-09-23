@@ -104,7 +104,7 @@ class Reception_model extends CI_Model
 		// var_dump($page);die();
 
 
-		$sql = 'SELECT `visit`.*, `patients`.*, `visit_type`.`visit_type_name` FROM (`visit`, `patients`) LEFT JOIN `visit_type` ON `visit_type`.`visit_type_id` = `visit`.`visit_type` WHERE '.$where.' ORDER BY `visit`.`visit_date`, STR_TO_DATE(visit.time_start, "%l:%i %p") ASC LIMIT '.$per_page;
+		$sql = 'SELECT `visit`.*, `patients`.*, `visit_type`.`visit_type_name` FROM (`visit`, `patients`,appointments) LEFT JOIN `visit_type` ON `visit_type`.`visit_type_id` = `visit`.`visit_type` WHERE '.$where.' ORDER BY `visit`.`visit_date`, STR_TO_DATE(visit.time_start, "%l:%i %p") ASC LIMIT '.$per_page;
 		//retrieve all users
 		// $this->db->from($table);
 		// $this->db->select('visit.*, patients.*, visit_type.visit_type_name');
@@ -116,6 +116,26 @@ class Reception_model extends CI_Model
 		
 		return $query;
 	}
+
+	public function get_all_appointments_list($table, $where, $per_page, $page, $order = NULL)
+	{
+		// var_dump($page);die();
+
+
+		//retrieve all users
+		$this->db->from($table);
+		$this->db->select('visit.*, patients.*, visit_type.visit_type_name,appointments.*');
+		$this->db->where($where);
+		$this->db->order_by('appointments.appointment_date,appointments.appointment_start_time','ASC');
+		$this->db->join('visit_type','visit_type.visit_type_id = visit.visit_type','left');
+		$query = $this->db->get('', $per_page, $page);
+		// $query = $this->db->query($sql);
+		
+		return $query;
+	}
+
+
+
 
 	 
 	

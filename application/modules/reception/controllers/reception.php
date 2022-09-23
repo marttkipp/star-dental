@@ -1250,6 +1250,7 @@ public function save_visit2($patient_id)
 		$visit_date = $this->input->post('visit_date');
 		$patient_number = $this->input->post('patient_number');
 		$patient_national_id = $this->input->post('patient_national_id');
+		// $visit_date = $this->input->post('visit_date');
 		
 		if(!empty($patient_national_id))
 		{
@@ -1273,7 +1274,7 @@ public function save_visit2($patient_id)
 		
 		if(!empty($visit_date))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date.'\' ';
+			$visit_date = ' AND appointments.appointment_date = \''.$visit_date.'\' ';
 		}
 		//search surname
 		$surnames = explode(" ",$_POST['surname']);
@@ -1644,14 +1645,18 @@ public function save_visit2($patient_id)
 	}
 	public function appointment_list()
 	{
-		$where = 'visit.visit_delete = 0 AND visit.patient_id = patients.patient_id AND close_card = 2  AND visit.appointment_id = 1 AND visit.visit_date >= "'.date('Y-m-d').'" ';
+		$where = 'visit.visit_delete = 0 AND visit.patient_id = patients.patient_id AND appointments.appointment_delete = 0  AND visit.visit_id = appointments.visit_id  ';
 		
-		$table = 'visit, patients';
+		$table = 'visit, patients,appointments';
 		$appointment_search = $this->session->userdata('appointment_search');
 		// var_dump($appointment_search); die();
 		if(!empty($appointment_search))
 		{
 			$where .= $appointment_search;
+		}
+		else
+		{
+			$where .= ' AND appointments.appointment_date >= "'.date('Y-m-d').'"';
 		}
 		
 		//pagination
@@ -1692,7 +1697,7 @@ public function save_visit2($patient_id)
 		
 		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
         $v_data["links"] = $this->pagination->create_links();
-		$query = $this->reception_model->get_all_ongoing_appointments($table, $where, $config["per_page"], $page);
+		$query = $this->reception_model->get_all_appointments_list($table, $where, $config["per_page"], $page);
 		
 		$v_data['query'] = $query;
 		$v_data['page'] = $page;
