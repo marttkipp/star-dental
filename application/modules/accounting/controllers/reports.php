@@ -49,7 +49,7 @@ class Reports extends company_financial
 		
 		//pagination
 		$this->load->library('pagination');
-		$config['base_url'] = site_url().'hospital-reports/debtors';
+		$config['base_url'] = site_url().'hospital-reports/all-transactions';
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
 		$config['per_page'] = 20;
@@ -231,7 +231,7 @@ class Reports extends company_financial
 		$this->session->set_userdata('patient_number', $patient_number);
 		$this->session->set_userdata('search_title', $search_title);
 		
-		redirect('hospital-reports/debtors');
+		redirect('hospital-reports/all-transactions');
 	}
 
 	public function close_reports_search()
@@ -244,7 +244,7 @@ class Reports extends company_financial
 		$this->session->unset_userdata('patient_number');
 		$this->session->unset_userdata('search_title');
 
-		redirect('hospital-reports/debtors');
+		redirect('hospital-reports/all-transactions');
 	}
 
 	public function export_debtors()

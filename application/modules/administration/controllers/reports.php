@@ -1245,7 +1245,7 @@ class Reports extends administration
 		
 		if(!empty($visit_date_from) && !empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
+			$visit_date = ' AND payments.payment_created BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 			$petty_cash_date = ' AND petty_cash.petty_cash_date BETWEEN \''.$visit_date_from.'\' AND \''.$visit_date_to.'\'';
 
 			$search_title .= 'Payments from '.date('jS M Y', strtotime($visit_date_from)).' to '.date('jS M Y', strtotime($visit_date_to)).' ';
@@ -1253,14 +1253,14 @@ class Reports extends administration
 		
 		else if(!empty($visit_date_from))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_from.'\'';
+			$visit_date = ' AND payments.payment_created = \''.$visit_date_from.'\'';
 			$petty_cash_date = ' AND petty_cash.petty_cash_date = \''.$visit_date_from.'\'';
 			$search_title .= 'Payments of '.date('jS M Y', strtotime($visit_date_from)).' ';
 		}
 		
 		else if(!empty($visit_date_to))
 		{
-			$visit_date = ' AND visit.visit_date = \''.$visit_date_to.'\'';
+			$visit_date = ' AND payments.payment_created = \''.$visit_date_to.'\'';
 			$petty_cash_date = ' AND petty_cash.petty_cash_date = \''.$visit_date_to.'\'';
 			$search_title .= 'Payments of '.date('jS M Y', strtotime($visit_date_to)).' ';
 		}
