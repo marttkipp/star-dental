@@ -128,7 +128,7 @@ $insurance_companys = $this->reception_model->get_insurance();
             </div>
             <input type="hidden" class="form-control" name="patient_id" id="patient_id"  placeholder="Names" value="<?php echo $patient_id;?>">
             <input type="hidden" class="form-control" name="appointment_id" id="appointment_id"  placeholder="Names" value="<?php echo $appointment_id;?>">
-            <div class="form-group" style="display: none">
+            <div class="form-group">
                 <label class="col-md-4 control-label">Other Names: </label>
                 
                 <div class="col-md-8">
@@ -139,15 +139,15 @@ $insurance_companys = $this->reception_model->get_insurance();
                 <label class="col-lg-4 control-label">New Patient ?</label>
                 <div class="col-lg-8">
                     <div class="radio">
-                       
-                        <label>
-                            <input id="optionsRadios1" type="radio" <?php echo $walkin_checked;?> value="2" name="category">
-                            Active Patient
-                        </label>
-                        <label>
+                         <label>
                             <input id="optionsRadios1" type="radio" <?php echo $new_checked;?> value="1" name="category">
                             New Patient 
                         </label>
+                        <label>
+                            <input id="optionsRadios1" type="radio" <?php echo $walkin_checked;?> value="2" name="category">
+                            Activate Patient
+                        </label>
+                       
                        
                        
                     </div>
@@ -171,7 +171,7 @@ $insurance_companys = $this->reception_model->get_insurance();
                         <span class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                         </span>
-                        <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control" name="patient_dob" placeholder="Date of Birth" value="<?php echo $patient_date_of_birth;?>">
+                        <input data-format="yyyy-MM-dd" type="text" data-plugin-datepicker class="form-control datepicker" name="patient_dob" placeholder="Date of Birth" value="<?php echo $patient_date_of_birth;?>">
                     </div>
                 </div>
             </div>

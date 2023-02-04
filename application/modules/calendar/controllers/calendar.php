@@ -12,6 +12,7 @@ class Calendar extends admin
 		$this->load->model('auth/auth_model');
 		$this->load->model('reception/reception_model');
 		$this->load->model('messaging/messaging_model');
+		$this->load->model('reception/database');
 		
 		// if(!$this->auth_model->check_login())
 		// {
@@ -283,12 +284,12 @@ class Calendar extends admin
 				if($count == $total)
 				{
 
-					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' )';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\')';
 				}
 				
 				else
 				{
-					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
+					$surname .= ' (patients.patient_surname LIKE \'%'.addslashes($surnames[$r]).'%\' OR patients.patient_othernames LIKE \'%'.addslashes($surnames[$r]).'%\') AND ';
 				}
 				$count++;
 			}
@@ -369,7 +370,7 @@ class Calendar extends admin
 									);
 		$this->db->insert('appointments', $appointment_array);
 		$appointment_id = $this->db->insert_id();
-		$this->reception_model->send_appointments_to_cloud($appointment_id);
+		// $this->reception_model->send_appointments_to_cloud($appointment_id);
 		$response['message'] ='success';
 		$response['appointment_id'] = $appointment_id;
 		$response['appointment_detail'] = $this->get_new_appointment_detail($appointment_id);
@@ -608,7 +609,6 @@ class Calendar extends admin
 					$new_patient_array['patient_phone1'] = $patient_phone = $patient_phone1;
 					$new_patient_array['patient_number'] = '';
 					$new_patient_array['category_id'] = 1;
-					$new_patient_array['sync_status'] = 0;
 					$new_patient_array['about_us'] = $this->input->post('about_us'.$appointment_id);
 					$new_patient_array['about_us_view'] = $this->input->post('about_us_view'.$appointment_id);
 					$new_patient_array['patient_year'] = date('Y');
@@ -1472,10 +1472,10 @@ class Calendar extends admin
 
 				if(!empty($visit_id))
 				{
-					$time_start = $this->input->post('time_start');
+					// $time_start = $this->input->post('time_start');
 
 
-					$appointment_start_time = date("H:i:00", strtotime($time_start));
+					$appointment_start_time = date("H:i:00", strtotime($appointment_start_time));
 					$minutes_to_add = $this->input->post('visit_time');
 					$time = strtotime($appointment_start_time);
 					$endTime = date("H:i", strtotime('+'.$minutes_to_add.' minutes', $time));
@@ -1486,7 +1486,7 @@ class Calendar extends admin
 					$appointment_array['appointment_status'] = 1;
 					$appointment_array['appointment_date'] = $appointment_date;
 					$appointment_array['sync_status'] = 0;
-
+					// var_dump($appointment_array);die();
 					$this->db->where('appointment_id',$appointment_id);
 					$this->db->update('appointments',$appointment_array);
 
@@ -1530,7 +1530,7 @@ class Calendar extends admin
 						$message_id = $this->db->insert_id();
 						
 						$patient_phone1 = str_replace(' ', '', $patient_phone1);
-						// $this->messaging_model->sms($patient_phone1,$message);
+						$this->messaging_model->sms($patient_phone1,$message);
 					}
 
 

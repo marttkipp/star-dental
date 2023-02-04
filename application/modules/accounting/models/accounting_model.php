@@ -44,7 +44,7 @@ class accounting_model extends CI_Model
 		$this->db->from($table);
 		$this->db->select('patients.*,v_patient_balances.*');
 		$this->db->where($where);
-		$this->db->order_by('patients.last_visit','DESC');
+		$this->db->order_by('patients.last_visit,v_patient_balances.balance','DESC');
 		// $this->db->group_by('patients.patient_id');
 		// $this->db->join('v_patient_balances','v_patient_balances.patient_id = visit.visit_id','LEFT');
 		// $this->db->join('personnel','visit.personnel_id = personnel.personnel_id','left');
@@ -983,6 +983,139 @@ class accounting_model extends CI_Model
 				$current_column++;
 				
 			}
+		}
+		
+		//create the excel document
+		$this->excel->addArray ( $report );
+		$this->excel->generateXML ($title);
+	}
+
+
+	function export_debtors_report()
+	{
+		$this->load->library('excel');
+		
+		
+		$where = 'v_patient_balances.balance > 0 AND patients.patient_id = v_patient_balances.patient_id';
+		$table = 'patients,v_patient_balances';
+
+		$visit_search = $this->session->userdata('all_debtors_search_query');
+		// var_dump($visit_search);die();
+		if(!empty($visit_search))
+		{
+			$where .= $visit_search;
+		
+			
+			
+		}
+		else
+		{
+			$where .= '';
+
+		}
+		
+		$this->db->from($table);
+		$this->db->select('patients.*,v_patient_balances.*');
+		$this->db->where($where);
+		$this->db->order_by('patients.last_visit,v_patient_balances.balance','DESC');
+		$visits_query = $this->db->get('');
+		
+		$title = 'Transactions Export';
+		$col_count = 0;
+
+		$total_waiver = 0;
+		$total_payments = 0;
+		$total_invoice = 0;
+		$total_balance = 0;
+		$total_rejected_amount = 0;
+		$total_cash_balance = 0;
+		$total_insurance_payments =0;
+		$total_insurance_invoice =0;
+		$total_payable_by_patient = 0;
+		$total_payable_by_insurance = 0;
+		$total_waiver = 0;
+
+		// var_dump($visits_query);die();
+		
+		if($visits_query->num_rows() > 0)
+		{
+			$count = 0;
+			/*
+				-----------------------------------------------------------------------------------------
+				Document Header
+				-----------------------------------------------------------------------------------------
+			*/
+			$row_count = 0;
+			$report[$row_count][$col_count] = '#';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Last Visit Date';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Patient Number';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Patient';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Phone';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Balance';
+			//display all patient data in the leftmost columns
+			foreach($visits_query->result() as $row)
+			{
+				$row_count++;
+				$total_invoiced = 0;
+				$patient_id = $row->patient_id;
+				$visit_type_id = $row->visit_type;
+				$last_visit = $row->last_visit;
+				$patient_number = $row->patient_number;
+				$patient_surname = $row->patient_surname;
+				$patient_othernames = $row->patient_othernames;
+				$patient_phone1 = $row->patient_phone1;
+				$balance = $row->balance;
+				$invoices = $row->total_invoice_amount;
+				$amount_paid = $row->total_paid_amount;
+				$amount_waived = $row->total_waived_amount;
+				
+
+
+				
+				$count++;
+				
+				$total_invoice += $invoices;
+				$total_payments += $amount_paid;
+				$total_balance +=$balance;
+				$total_waiver +=$amount_waived;
+
+				$last_visit = date('jS M Y',strtotime($last_visit));
+			
+				//display the patient data
+				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $last_visit;
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_number;
+				
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_surname.' '.$patient_othernames;
+				$col_count++;
+				$report[$row_count][$col_count] = $patient_phone1;
+				$col_count++;
+				$report[$row_count][$col_count] = $balance;
+
+				
+			}
+			$row_count++;
+			$report[$row_count][$col_count] = '';
+			$col_count++;
+			$report[$row_count][$col_count] = '';
+			$col_count++;
+			$report[$row_count][$col_count] = '';
+			
+			$col_count++;
+			$report[$row_count][$col_count] = '';
+			$col_count++;
+			$report[$row_count][$col_count] = '';
+			$col_count++;
+			$report[$row_count][$col_count] = $total_balance;
+			
 		}
 		
 		//create the excel document

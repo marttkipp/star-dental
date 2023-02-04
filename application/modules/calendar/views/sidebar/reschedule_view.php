@@ -112,7 +112,7 @@ if($duration == 360)
 			<div class="form-group">
 				<label class="col-lg-4 control-label">Description: </label>
 				<div class="col-lg-8">
-					<textarea id="procedure_done" class="form-control" name="procedure_done"><?php echo $event_description;?></textarea>
+					<textarea id="procedure_done" class="form-control" name="procedure_done"><?php echo $event_description.' '.$appointment_start_time;?> </textarea>
 				</div>
 			</div>
 			<div class="form-group">

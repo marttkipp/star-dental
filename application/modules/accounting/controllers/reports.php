@@ -416,5 +416,10 @@ class Reports extends company_financial
 		redirect('hospital-reports/debtors');
 	}
 
+	public function export_debtors_report()
+	{
+		$this->accounting_model->export_debtors_report();
+	}
+
 }
 ?>

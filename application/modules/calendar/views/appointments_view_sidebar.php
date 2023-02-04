@@ -171,6 +171,8 @@ if($query->num_rows() > 0)
 
 }
 
+// var_dump($appointment_type);die();
+
 if($appointment_type == 1)
 {
 ?>

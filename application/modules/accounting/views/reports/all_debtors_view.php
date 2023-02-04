@@ -15,7 +15,7 @@
                 <div class="panel-body">
           <h5 class="center-align"><?php echo $this->session->userdata('search_title');?></h5>
 <?php
-		$result = '<a href="'.site_url().'accounting/reports/export_debtors" target="_blank" class="btn btn-sm btn-success pull-right">Export</a>';
+		$result = '<a href="'.site_url().'accounting/reports/export_debtors_report" target="_blank" class="btn btn-sm btn-success pull-right">Export</a>';
 		$search = $this->session->userdata('all_debtors_search_query');
 		if(!empty($search))
 		{
@@ -33,7 +33,7 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
-						   <th>Last Visit Date</th>
+						  <th>Last Visit Date</th>
 						  <th>Patient Number</th>
 						  <th>Patient</th>
 						  <th>Phone</th>

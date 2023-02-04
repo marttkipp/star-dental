@@ -43,12 +43,12 @@
 								<div class="col-md-6">		
 									<!-- <div class="form-group">
 										<input id="first_name<?php echo $appointment_id?>" class="form-control" name="first_name<?php echo $appointment_id?>" placeholder="First Name" onkeyup="search_patients_list(<?php echo $appointment_id?>)">
-									</div>
+									</div>-->				
 									<div class="form-group">
 										<input id="other_names<?php echo $appointment_id?>" class="form-control" name="other_names<?php echo $appointment_id?>" placeholder="Other Names" onkeyup="search_patients_list(<?php echo $appointment_id?>)">
-									</div> -->				
+									</div> 
 									<div class="form-group">
-										<input id="surname<?php echo $appointment_id?>" class="form-control" name="surname<?php echo $appointment_id?>" placeholder="Patient Name" onkeyup="search_patients_list(<?php echo $appointment_id?>)" autocomplete="off">
+										<input id="surname<?php echo $appointment_id?>" class="form-control" name="surname<?php echo $appointment_id?>" placeholder="Surname" onkeyup="search_patients_list(<?php echo $appointment_id?>)" autocomplete="off">
 									</div>									
 							
 									

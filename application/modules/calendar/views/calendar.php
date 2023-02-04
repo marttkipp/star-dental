@@ -1863,9 +1863,9 @@ function search_patients_list(appointment_id)
   var data_url = config_url+"calendar/search_patients_list/"+appointment_id;
   //window.alert(data_url);
   var surname = $('#surname'+appointment_id).val();
-  var first_name = $('#first_name'+appointment_id).val();
+  // var first_name = $('#first_name'+appointment_id).val();
   var other_names = $('#other_names'+appointment_id).val();
-  var other_names = $('#other_names'+appointment_id).val();
+  // var other_names = $('#other_names'+appointment_id).val();
   var phone_number = $('#phone_number'+appointment_id).val();
   var lab_test = '';
   if(surname != null)
@@ -1873,12 +1873,7 @@ function search_patients_list(appointment_id)
   	lab_test += ' '+surname;
 
   }
-  if(first_name != null)
-  {
-  	lab_test += first_name;
-
-  }
-
+ 
   if(other_names != null)
   {
   	lab_test += ' '+other_names;
@@ -2162,10 +2157,10 @@ function edit_patients_div(appointment_id)
 
 			$('.datepicker').datepicker({
 				    format: 'yyyy-mm-dd'
-				});
+			});
 
 		  	// $('.datepicker').datepicker();
-		    $('.timepicker').timepicker();
+		    // $('.timepicker').timepicker();
 			// alert(data);
 		},
 		error: function(xhr, status, error) {
@@ -2419,7 +2414,9 @@ function get_appointment_details(appointment_id)
 			//obj.innerHTML = XMLHttpRequestObject.responseText;
 			$("#appointment-details").html(data);
 
-			 $('.datepicker').datepicker();
+			 $('.datepicker').datepicker({
+				    format: 'yyyy-mm-dd'
+			 });
 	         $('.timepicker').timepicker();
 			// alert(data);
 		},
