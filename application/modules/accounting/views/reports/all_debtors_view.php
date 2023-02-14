@@ -43,6 +43,7 @@
 			$result .= '
 			
 						  <th>Balance</th>
+						   <th>Last Date Message Sent</th>
 						  <th></th>
 						</tr>
 					  </thead>
@@ -68,6 +69,7 @@
 				$patient_id = $row->patient_id;
 				$visit_type_id = $row->visit_type;
 				$last_visit = $row->last_visit;
+				$last_message_sent = $row->last_message_sent;
 				$patient_number = $row->patient_number;
 				$patient_surname = $row->patient_surname;
 				$patient_othernames = $row->patient_othernames;
@@ -86,7 +88,36 @@
 				$charges = '';
 				
 				$last_visit = date('jS M Y',strtotime($last_visit));
-				
+				$month  = '';
+				$year = date('Y');
+
+
+				if(!empty($last_message_sent) OR $last_message_sent != '0000-00-00'){
+					$year = date('Y',strtotime($last_message_sent));
+					$month = date('m',strtotime($last_message_sent));
+
+					$date_message = date('jS M Y',strtotime($last_message_sent));
+				}
+				else{
+					$month  = '';
+					$date_message = ' - ';
+				}
+					 
+
+
+				if(empty($month)){
+
+					$button = '<a class="btn btn-xs btn-info" onclick="sendmessage_sidebar('.$patient_id.','.$balance.')" > Send Message </a>';
+				}
+				else
+				{
+					if($month == date('m') AND $year == date('Y'))
+						$button = 'Message Sent';
+					else
+						$button = '<a class="btn btn-xs btn-info" onclick="sendmessage_sidebar('.$patient_id.','.$balance.')" > Send Message </a>';
+				}
+
+
 				$result .= 
 					'
 						<tr>
@@ -96,8 +127,9 @@
 							<td>'.$patient_surname.' '.$patient_othernames.'</td>
 							<td>'.$patient_phone1.'</td>
 							<td>'.$balance.'</td>
+							<td>'.$date_message.'</td>
 							<td><a href="'.site_url().'administration/individual_statement/'.$patient_id.'/1" class="btn btn-sm btn-warning" target="_blank">Statement</a></td>
-							<td><a class="btn btn-xs btn-info" onclick="sendmessage_sidebar('.$patient_id.','.$balance.')" > Send Message </a></td>
+							<td>'.$button.'</td>
 						</tr> 
 				';
 				
@@ -177,4 +209,62 @@ function close_side_bar()
 		// document.getElementById("existing-sidebar-div").style.display = "none"; 
 		tinymce.remove();
 	}
+
+
+
+$(document).on("submit","form#send-message",function(e)
+{
+	// alert("sdasdjakgdaskjdag");
+
+
+	e.preventDefault();
+	var res = confirm('Are you sure you want to send the message ? ');
+
+
+	if(res)
+	{
+
+
+		var form_data = new FormData(this);
+
+		// alert(form_data);
+
+
+		
+		var config_url = $('#config_url').val();	
+
+		 var url = config_url+"accounting/reports/send_message";
+	       $.ajax({
+	       type:'POST',
+	       url: url,
+	       data:form_data,
+	       dataType: 'text',
+	       processData: false,
+	       contentType: false,
+	       success:function(data){
+	          var data = jQuery.parseJSON(data);
+	        
+	          	if(data.message == "success")
+				{
+					
+						close_side_bar();
+						window.location.href = config_url+"hospital-reports/debtors";
+				}
+				else
+				{
+
+					alert(data.message);
+				}
+	       
+	       },
+	       error: function(xhr, status, error) {
+	       alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+	       
+	       }
+	       });
+	}
+	
+   
+	
+});
 </script>

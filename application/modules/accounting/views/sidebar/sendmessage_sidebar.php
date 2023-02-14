@@ -24,33 +24,44 @@ $patient_number = $patient['patient_number'];
 $next_of_kin_contact = $patient['patient_kin_phonenumber1'];
 $current_patient_number = $patient['current_patient_number'];
 // $patient['patient_phone_number'] = $patient_phone_number;
+
+$message = "Hello ".$patient_surname.",Your balance up to date is Kes. ".number_format($balance,2).".\nKindly pay at your earliest. M-PESA (Buy Goods till No. Account No. 630642).\nIncase of queries kindly contact 0717123440.";
 ?>
 
 <section class="panel">
 
-<div class="panel-body">
-    <div class="col-md-12">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="col-lg-5 control-label" style="margin-left:-15px;">Phone Number: </label>
+    <div class="panel-body">
+            <?php 
+                echo form_open("reception/register_other_patient", array("class" => "form-horizontal","id"=> 'send-message'));
+            ?>
 
-                                <div class="col-lg-7" style="margin-left:110px; margin-top:-30px;">
-                                <input type="text" class="form-control"  value="<?php echo $patient_phone1;?>">
+            <input type="hidden" name="patient_id" id="patient_id" value="<?php echo $patient_id;?>" required>
+                <div class="col-md-12">
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Phone Number: </label>
+
+                                <div class="col-lg-8">
+                                <input type="text" class="form-control" name="phone_number" id="phone_number" value="<?php echo $patient_phone1;?>" required>
                                 </div>
                         </div>
                        
                         <div class="form-group">
-                                <h4>MESSAGE</h4>
-                                <br>
-                                <textarea class="form-control">Hello <?php echo $patient_surname?>,Your balance up to date is <?php echo $balance;?>. Kindly pay at your earliest.</textarea>
+                            <label class="col-md-4 control-label">MESSAGE</label>
+                     
+                            <div class="col-md-8">
+                                 <textarea class="form-control" name="message" id="message" rows="5" required><?php echo $message?></textarea>
+                            </div>
+                               
                         </div>
-                        <div class="" style="margin-left:480px;">
-                         <a class="btn btn-xs btn-info" onclick="sendmessage_sidebar('.$patient_id.','.$balance.')" > Send Message </a></td>
-                        </div>
+                        <div class="col-md-12" style="text-align: center;">
+                            <button class="btn btn-md btn-info"  > Send Message </button>
                         </div>
                     </div>
                 </div>
-    </div>
+            </form>
+        </div>
+    </section>
 
     <div class="row" style="margin-top: 5px;">
         <ul>

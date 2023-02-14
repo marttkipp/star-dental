@@ -10,6 +10,7 @@ class Reports extends company_financial
 		$this->load->model('accounting_model');
 		$this->load->model('administration/reports_model');
 		$this->load->model('reception/reception_model');
+		$this->load->model('messaging/messaging_model');
 	}
 	
 
@@ -431,6 +432,28 @@ class Reports extends company_financial
 		$page = $this->load->view('sidebar/sendmessage_sidebar',$data);
 
 		echo $page;
+	}
+	public function send_message()
+	{
+		$phone_number = $this->input->post('phone_number');
+		$message = $this->input->post('message');
+		$patient_id = $this->input->post('patient_id');
+
+		if(!empty($phone_number) OR !empty($message))
+		{
+			$response_text = $this->messaging_model->sms($phone_number,$message);
+		}
+
+		$array_update['last_message_sent'] = date('Y-m-d');
+		$array_update['sent_by'] = $this->session->userdata('personnel_id');
+		// update patient data 
+		$this->db->where('patient_id',$patient_id);
+		$this->db->update('patients',$array_update);
+
+		$response['message'] = 'success';
+
+		echo json_encode($response);
+
 	}
 
 }
