@@ -9,6 +9,7 @@ class Reports extends company_financial
 		parent:: __construct();
 		$this->load->model('accounting_model');
 		$this->load->model('administration/reports_model');
+		$this->load->model('reception/reception_model');
 	}
 	
 
@@ -419,6 +420,17 @@ class Reports extends company_financial
 	public function export_debtors_report()
 	{
 		$this->accounting_model->export_debtors_report();
+	}
+
+	public function sendmessage_sidebar($patient_id,$balance)
+	{
+		$data = array('patient_id'=>$patient_id,'balance'=>$balance);
+		
+		$data['patient'] = $this->reception_model->patient_names2($patient_id);
+		
+		$page = $this->load->view('sidebar/sendmessage_sidebar',$data);
+
+		echo $page;
 	}
 
 }

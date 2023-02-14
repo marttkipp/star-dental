@@ -97,6 +97,7 @@
 							<td>'.$patient_phone1.'</td>
 							<td>'.$balance.'</td>
 							<td><a href="'.site_url().'administration/individual_statement/'.$patient_id.'/1" class="btn btn-sm btn-warning" target="_blank">Statement</a></td>
+							<td><a class="btn btn-xs btn-info" onclick="sendmessage_sidebar('.$patient_id.','.$balance.')" > Send Message </a></td>
 						</tr> 
 				';
 				
@@ -137,3 +138,43 @@
 		</section>
     </div>
   </div>
+
+
+<script type="text/javascript">
+
+function sendmessage_sidebar(patient_id,balance){
+
+open_sidebar();
+var config_url = $('#config_url').val();
+var data_url = config_url+"accounting/reports/sendmessage_sidebar/"+patient_id+"/"+balance;
+//window.alert(data_url);
+$.ajax({
+type:'POST',
+url: data_url,
+data:{patient: patient_id},
+dataType: 'text',
+success:function(data){
+//window.alert("You have successfully updated the symptoms");
+//obj.innerHTML = XMLHttpRequestObject.responseText;
+// alert(data);
+ $("#sidebar-div").html(data);
+//  get_visit_labtest2(patient);
+  // alert(data);
+},
+error: function(xhr, status, error) {
+//alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
+alert(error);
+}
+
+});
+}
+
+function close_side_bar()
+	{
+		// $('html').removeClass('sidebar-right-opened');
+		document.getElementById("sidebar-right").style.display = "none"; 
+		document.getElementById("current-sidebar-div").style.display = "none"; 
+		// document.getElementById("existing-sidebar-div").style.display = "none"; 
+		tinymce.remove();
+	}
+</script>
