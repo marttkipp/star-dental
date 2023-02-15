@@ -49,8 +49,7 @@ class Reporting extends Accounts
 		{
 			$receiver['email'] = $email_tenant = $email_array[$x];
 
-			$this->email_model->send_sendgrid_mail($receiver, $sender, $message, NULL);	
-			
+			$esponse = $this->email_model->send_sendgrid_mail($receiver, $sender, $message, NULL);	
 
 		}
 

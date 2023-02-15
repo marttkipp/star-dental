@@ -666,7 +666,7 @@ class Reception_model extends CI_Model
 	{
 		$table = "personnel, personnel_job,job_title";
 		$where = "personnel_job.personnel_id = personnel.personnel_id AND personnel_job.job_title_id = job_title.job_title_id AND job_title.job_title_name = 'Dentist'";
-		$items = "personnel.personnel_onames, personnel.personnel_fname, personnel.personnel_id";
+		$items = "personnel.personnel_onames, personnel.personnel_fname, personnel.personnel_id,personnel.personnel_phone,personnel.authorize_invoice_changes,personnel.branch_id";
 		$order = "personnel_onames";
 		
 		$result = $this->database->select_entries_where($table, $where, $items, $order);

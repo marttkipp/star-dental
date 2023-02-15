@@ -13,8 +13,8 @@ class Messaging extends MX_Controller
 		$this->load->model('admin/email_model');
 		$this->load->model('admin/users_model');
 		$this->load->model('hr/personnel_model');
-		// $this->load->model('admin/companies_model');
-		// $this->load->model('admin/members_model');
+		$this->load->model('reception/reception_model');
+		$this->load->model('reception/database');
 		//$this->load->model('member/patient_model');
 
 
@@ -1568,4 +1568,99 @@ class Messaging extends MX_Controller
 		echo 'window.self.close();';
 		echo '</script>';
 	}
+
+	public function send_doctors_appointments()
+	{
+
+
+		    $date_tomorrow = $tomorrows_date = date("Y-m-d",strtotime("tomorrow"));
+		      // $date_tomorrow = date("Y-m-d");
+
+		    $dt= $date_tomorrow;
+		    $dt1 = strtotime($dt);
+		    $dt2 = date("l", $dt1);
+		    $dt3 = strtolower($dt2);
+		  
+	        $date_tomorrow = $dt;
+	        $day =  'tomorrow';
+		 
+	        $doctor = $this->reception_model->get_doctor();
+	        if(count($doctor) > 0){
+				foreach($doctor as $row):
+					$fname = $row->personnel_fname;
+					$onames = $row->personnel_onames;
+					$personnel_id = $row->personnel_id;
+					$personnel_phone = $row->personnel_phone;
+					$authorize_invoice_changes = $row->authorize_invoice_changes;
+					$branch_id = $row->branch_id;
+					
+					$this->db->select('*,appointments.appointment_id AS appointment_idd');
+					$this->db->where('appointments.appointment_date = "'.$date_tomorrow.'" AND visit.patient_id = patients.patient_id AND visit.visit_delete = 0 AND appointments.appointment_delete = 0 AND appointments.visit_id = visit.visit_id AND (appointments.appointment_status <> 6 OR appointments.appointment_status <> 7 OR appointments.appointment_status <> 3 OR appointments.appointment_status <> 8)  AND appointments.appointment_rescheduled = 0 AND visit.branch_id = branch.branch_id  AND appointments.resource_id ='.$personnel_id);
+					// $this->db->limit(1);
+					$this->db->order_by('appointments.resource_id','ASC');
+					$query = $this->db->get('visit,patients,appointments,branch');
+					// var_dump($query);die();
+					$total_items = $query->num_rows();
+					if($query->num_rows() > 0)
+					{
+						$email_message = '';
+						$consultant_id = 0;
+						$patient_list = '';
+						foreach ($query->result() as $key => $value)
+						{
+							# code...
+							$patient_phone = $value->patient_phone1;
+							$patient_id = $value->patient_id;
+							$visit_id = $value->visit_id;
+							// $patient_othernames = $value->patient_othernames;
+							$patient_surname = $value->patient_surname;
+							// $patient_first_name = $value->patient_first_name;
+							$personnel_id = $value->resource_id;
+							$patient_email = $value->patient_email;
+							$appointment_status = $value->appointment_status;
+							$time_start = $value->appointment_start_time;
+							$appointment_id = $value->appointment_idd;
+							$branch_name = $value->branch_name;
+							$branch_phone = $value->branch_phone;
+							$visit_date = date('jS M Y',strtotime($date_tomorrow));
+							// $time_start = date('H:i A',strtotime($time_start));
+							$patient_explode = explode(" ", $patient_surname);
+
+							if(is_array($patient_explode))
+							{
+								$patient_surname = ucfirst(strtolower($patient_explode[0]));
+							}
+
+							$time_start = date("g:iA", strtotime($time_start));
+
+
+							$patient_list .= $patient_surname." AT ".$time_start."\n";
+
+						}
+						
+						$message_template = "Dear Dr. ".$onames.",\n".$tomorrows_date." appts.\n".$patient_list."Star Dental Clinic.";
+
+						$message_template = str_replace('  ', '', $message_template);
+						// $personnel_phone = '+254704808007';
+						if(!empty($personnel_phone))
+						{
+							$this->messaging_model->sms($personnel_phone,$message_template);
+						}
+							// var_dump($message_template);die();
+
+						
+					}
+
+					
+
+
+				endforeach;
+			}
+
+
+
+			
+
+	}
+
 }

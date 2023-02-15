@@ -370,6 +370,18 @@ class Site_model extends CI_Model
 		
 		return $crumbs;
 	}
+	public function get_all_branches()
+	{
+		$this->db->where('branch_id > 0');
+
+		$query = $this->db->get('branch');
+
+		return $query;
+	}
+	public function get_configuration()
+	{
+		return $this->db->get('configuration');
+	}
 }
 
 ?>

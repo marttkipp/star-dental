@@ -34,9 +34,26 @@ class Email_model extends CI_Model
 	public function send_sendgrid_mail($receiver, $sender, $message, $attachment)
 	{
 
-		$sendgrid = new SendGrid('SG.WZgtvddLT-Kj8v5oYUKmAg.dDo-PsINDbNo7KKv-k7XbWtiO28mNREKoFYUgii9RKU');
-		// $sendgrid = new SendGrid('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');
-		// SG.WZgtvddLT-Kj8v5oYUKmAg.dDo-PsINDbNo7KKv-k7XbWtiO28mNREKoFYUgii9RKU
+		$configuration = $this->site_model->get_configuration();
+
+		$mandrill = '';
+		$configuration_id = 0;
+		
+		if($configuration->num_rows() > 0)
+		{
+			$res = $configuration->row();
+			
+	        $mandrill = $res->mandrill;
+		}
+	    else
+	    {
+	      
+	        $mandrill = '';
+
+	    }
+		$sendgrid = new SendGrid($mandrill);
+
+		
 		$email = new SendGrid\Email();
 		// var_dump($receiver); die();
 		$email
