@@ -100,17 +100,18 @@
                             </tbody>
                         </table>
                     </div>
+                   
                     <div class="col-md-3">
-                        <h4>Cash / Petty Cash Transfer</h4> 
-                        <h3>Ksh <?php echo number_format($total_transfers, 2);?></h3>
+                        <h4>Debt Collection</h4> 
+                        <h3>Ksh <?php echo number_format($total_debt_cash, 2);?></h3>
                     </div>
                     <div class="col-md-3">
                         <h4>Todays Cash Collection</h4> 
-                        <h3>Ksh <?php echo number_format($total_cash - $total_transfers, 2);?></h3>
+                        <h3>Ksh <?php echo number_format($total_cash, 2);?></h3>
                     </div>
                     <div class="col-md-3">
                         <h4>Total Collection</h4>   
-                        <h3>Ksh <?php echo number_format($total_cash_breakdown-$total_transfers, 2);?></h3>
+                        <h3>Ksh <?php echo number_format($total_cash_breakdown, 2);?></h3>
                     </div>
                 </div>
             </div>

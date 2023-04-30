@@ -1093,7 +1093,7 @@ class Reports extends administration
 		$config['base_url'] = site_url().'hospital-reports/cash-report';
 		$config['total_rows'] = $this->reception_model->count_items($table, $where);
 		$config['uri_segment'] = $segment;
-		$config['per_page'] = 20;
+		$config['per_page'] = 5000;
 		$config['num_links'] = 5;
 		
 		$config['full_tag_open'] = '<ul class="pagination pull-right">';
@@ -1173,7 +1173,7 @@ class Reports extends administration
 		$v_data['total_transfers'] = $this->reports_model->get_total_transfers($where1,$table1);
 
 		$table3 = 'payments,visit';
-		$where3 = 'payments.cancel = 0  AND payments.payment_method_id = 2 AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0';
+		$where3 = 'payments.cancel = 0  AND payments.payment_method_id <> 0 AND visit.visit_date = payments.payment_created AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0';
 
 		$today_cash_date_search = $this->session->userdata('today_cash_date_search');
 		
@@ -1186,6 +1186,23 @@ class Reports extends administration
 			$where3 .=' AND visit.visit_date = "'.date('Y-m-d').'"';
 		}
 		$v_data['total_cash'] = $this->reports_model->get_total_cash_today($where3,$table3);
+
+
+
+		$table3 = 'payments,visit';
+		$where3 = 'payments.cancel = 0  AND payments.payment_method_id <> 0 AND visit.visit_date <> payments.payment_created AND visit.visit_id = payments.visit_id AND visit.visit_delete = 0';
+
+		$today_cash_date_search = $this->session->userdata('today_cash_date_search');
+		
+		if(!empty($today_cash_date_search))
+		{
+			$where3 .= $today_cash_date_search;
+		}
+		else
+		{
+			$where3 .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+		}
+		$v_data['total_debt_cash'] = $this->reports_model->get_total_cash_today($where3,$table3);
 
 
 		

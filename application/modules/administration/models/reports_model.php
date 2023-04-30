@@ -2057,17 +2057,22 @@ class Reports_model extends CI_Model
 		}
 		$v_data['branch_name'] = $branch_name;
 		
-		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1 AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
+		$where = 'payments.payment_method_id = payment_method.payment_method_id AND payments.visit_id = visit.visit_id AND payments.payment_type = 1  AND visit.visit_delete = 0  AND visit.patient_id = patients.patient_id AND visit_type.visit_type_id = visit.visit_type AND payments.cancel = 0';
 		
 		$table = 'payments, visit, patients, visit_type, payment_method';
 
 
-		$visit_search = $this->session->userdata('visit_payments');
+		$visit_search = $this->session->userdata('cash_report_search');
 		
 		if(!empty($visit_search))
 		{
 			$where .= $visit_search;
 		}
+		else
+		{
+			$where .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+		}
+
 		
 		$this->db->select('visit.*, (visit.visit_time_out - visit.visit_time) AS waiting_time, patients.*, visit_type.visit_type_name, payments.*, payment_method.*, personnel.personnel_fname, personnel.personnel_onames, service.service_name,payments.confirm_number');
 		$this->db->join('personnel', 'payments.payment_created_by = personnel.personnel_id', 'left');
@@ -2089,6 +2094,8 @@ class Reports_model extends CI_Model
 			*/
 			$row_count = 0;
 			$report[$row_count][$col_count] = '#';
+			$col_count++;
+			$report[$row_count][$col_count] = 'Category';
 			$col_count++;
 			$report[$row_count][$col_count] = 'Visit Date';
 			$col_count++;
@@ -2154,6 +2161,8 @@ class Reports_model extends CI_Model
 				}
 				
 				$report[$row_count][$col_count] = $count;
+				$col_count++;
+				$report[$row_count][$col_count] = $type;
 				$col_count++;
 				$report[$row_count][$col_count] = $visit_date;
 				$col_count++;

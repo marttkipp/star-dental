@@ -32,6 +32,8 @@
 					  <thead>
 						<tr>
 						  <th>#</th>
+						  <th>Category</th>
+						  <th>Visit Date</th>
 						  <th>Payment Date</th>
 						  <th>Time recorded</th>
 						  <th>Patient</th>
@@ -39,16 +41,18 @@
 						  <th>Service</th>
 						  <th>Amount</th>
 						  <th>Method</th>
-						  <th>Description</th>
+						  <th>Transaction Code</th>
 						  <th>Recorded by</th>
 						</tr>
 					  </thead>
 					  <tbody>
 			';
+			$total_amount = 0;
 			foreach ($query->result() as $row)
 			{
 				$count++;
 				$total_invoiced = 0;
+				$visit_date = date('jS M Y',strtotime($row->visit_date));
 				$payment_created = date('jS M Y',strtotime($row->payment_created));
 				$time = date('H:i a',strtotime($row->time));
 				$visit_id = $row->visit_id;
@@ -68,12 +72,26 @@
 				$transaction_code = $row->transaction_code;
 				$service_name = $row->service_name;
 				$created_by = $row->personnel_fname.' '.$row->personnel_onames;
+
+				if($visit_date == $payment_created)
+				{
+					$class = 'class="default"';
+					$view = 'Normal Payment';
+				}
+				else 
+				{
+					$class = 'class="info"';
+					$view = 'Debt Payment';
+				}
+				$total_amount += $amount_paid;
 				
 				$result .= 
 						'
 							<tr>
 								<td>'.$count.'</td>
-								<td>'.$payment_created.'</td>
+								<td '.$class.'>'.$view.'</td>
+								<td '.$class.'>'.$visit_date.'</td>
+								<td '.$class.'>'.$payment_created.'</td>
 								<td>'.$time.'</td>
 								<td>'.$patient_surname.' '.$patient_othernames.'</td>
 								<td>'.$visit_type_name.'</td>
@@ -85,6 +103,24 @@
 							</tr> 
 					';
 			}
+
+			$result .= 
+						'
+							<tr>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th> Total</th>
+								<th>'.number_format($total_amount,2).'</th>
+								<th></th>
+								<th></th>
+								<th></th>
+							</tr> 
+					';
 			
 			$result .= 
 			'
