@@ -2070,7 +2070,7 @@ class Reports_model extends CI_Model
 		}
 		else
 		{
-			$where .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+			$where .=' AND payments.payment_created = "'.date('Y-m-d').'"';
 		}
 
 		
