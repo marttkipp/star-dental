@@ -1084,7 +1084,7 @@ class Reports extends administration
 		}
 		else
 		{
-			$where .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+			$where .=' AND payments.payment_created = "'.date('Y-m-d').'"';
 		}
 		$segment = 3;
 		
@@ -1183,7 +1183,7 @@ class Reports extends administration
 		}
 		else
 		{
-			$where3 .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+			$where3 .=' AND payments.payment_created = "'.date('Y-m-d').'"';
 		}
 		$v_data['total_cash'] = $this->reports_model->get_total_cash_today($where3,$table3);
 
@@ -1200,7 +1200,7 @@ class Reports extends administration
 		}
 		else
 		{
-			$where3 .=' AND visit.visit_date = "'.date('Y-m-d').'"';
+			$where3 .=' AND payments.payment_created = "'.date('Y-m-d').'"';
 		}
 		$v_data['total_debt_cash'] = $this->reports_model->get_total_cash_today($where3,$table3);
 
