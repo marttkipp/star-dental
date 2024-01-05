@@ -1302,7 +1302,7 @@ class Messaging extends MX_Controller
 				$time_start = $value->time_start;
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
 				// $time_start = date('H:i A',strtotime($time_start));
-				$message = 'Hello '.$patient_surname.', please remember that you have a dental appointment scheduled for '.$date_to_send.' '.$visit_date.' at '.$time_start.' Al Hidaya Heights 201, (opposite Al Hidaya Mosque). For more information contact 0717123440.';
+				$message = 'Hello '.$patient_surname.', your dental appointment for '.$date_to_send.' '.$visit_date.' at '.$time_start.', Al Hidaya Heights 201, (Opp. Al Hidaya Mosque). For info, call 0717123440.';
 
 				// $patient_phone = 734808007;
 				$message_data = array(
@@ -1443,7 +1443,9 @@ class Messaging extends MX_Controller
 				$patient_name = $surname[0];
 
 				$visit_date = date('jS M Y',strtotime($date_tomorrow));
-				$message = 'Dear '.$patient_name.', kindly remember your appointment at Star Dental Clinic today at '.$time_start.'. Al Hidaya Heights 201, (opposite Al Hidaya Mosque). For more information contact 0717123440.';
+				$message = 'Dear '.$patient_name.', remember your '.$time_start.' appointment at Star Dental Clinic today, Al Hidaya Heights 201 (opposite Al Hidaya Mosque). For info, call 0717123440.';
+
+
 
 				$message_data = array(
 						"phone_number" => $patient_phone,
