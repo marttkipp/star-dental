@@ -765,7 +765,76 @@ class accounting_model extends CI_Model
 		$this->db->order_by('visit.visit_date','DESC');
 		$this->db->group_by('visit.visit_id');
 		$visits_query = $this->db->get($table);
+
+
+		$visit_charge_query = $this->reports_model->get_all_visit_charges();
+		$array_charge = array();
+		if($visit_charge_query->num_rows() > 0)
+		{
+			foreach ($visit_charge_query->result() as $key_service) {
+				// code...
+				$array_charge[$key_service->service_id][$key_service->visit_id] = $key_service;
+			}
+		}
+
+
+		$visit_charge_item_query = $this->reports_model->get_all_visit_charges(null,null,1);
+		$array_charge_items = array();
+		if($visit_charge_item_query->num_rows() > 0)
+		{
+			foreach ($visit_charge_item_query->result() as $key_service_item) {
+				// code...
+				$array_charge_items[$key_service_item->visit_id] = $key_service_item;
+			}
+		}
 		
+
+		$visit_charge_documents = $this->reports_model->get_service_notes();
+		$array_documents = array();
+		if($visit_charge_documents->num_rows() > 0)
+		{
+			foreach ($visit_charge_documents->result() as $key_document) {
+				// code...
+				$array_documents[$key_document->service_id][$key_document->visit_id][$key_document->payment_type] = $key_document;
+			}
+		}
+
+
+		$visit_dbcred = $this->reports_model->get_service_notes(null,null,1);
+		$array_debcred = array();
+		if($visit_dbcred->num_rows() > 0)
+		{
+			foreach ($visit_dbcred->result() as $key_debcred) {
+				// code...
+				$array_debcred[$key_debcred->visit_id][$key_debcred->payment_type] = $key_debcred;
+			}
+		}
+
+
+		$visit_charge_payments = $this->reports_model->get_all_payment_values();
+		$array_collections = array();
+		if($visit_charge_payments->num_rows() > 0)
+		{
+			foreach ($visit_charge_payments->result() as $key_collections) {
+				// code...
+				$array_collections[$key_collections->visit_id][$key_collections->payment_method_id] = $key_collections;
+			}
+		}
+
+
+		$payments_rs = $this->reports_model->get_all_payment_values(null,null,1);
+		$array_payments = array();
+		if($payments_rs->num_rows() > 0)
+		{
+			foreach ($payments_rs->result() as $key_payments) {
+				// code...
+				$array_payments[$key_payments->visit_id] = $key_payments;
+			}
+		}
+
+
+		
+
 		$title = 'Transactions Export '.date('jS M Y H:i a',strtotime(date('Y-m-d H:i:s')));
 		$col_count = 0;
 		
@@ -871,9 +940,28 @@ class accounting_model extends CI_Model
 				// $waiver_amount = $transactions['waiver_amount'];
 				// $balance = $invoice_total - ($payments_value + $waiver_amount);
 
-				$payments_value = $this->accounts_model->total_payments($visit_id);
+				// $payments_value = $this->accounts_model->total_payments($visit_id);
+				$payments_value = 0;
+					if(array_key_exists($visit_id, $array_payments))
+						$payments_value = $array_payments[$visit_id]->total_paid;
 
-                $invoice_amount = $this->accounts_model->total_invoice($visit_id);
+                // $invoice_amount = $this->accounts_model->total_invoice($visit_id);
+
+
+                $invoice_amount = 0;
+					if(array_key_exists($visit_id, $array_charge_items))
+						$invoice_amount = $array_charge_items[$visit_id]->total_invoiced;
+
+
+				$credit_note = 0;
+					if(array_key_exists($visit_id, $array_debcred))
+						$credit_note = $array_debcred[$visit_id][3]->total_paid;
+
+				$debit_notes = 0;
+					if(array_key_exists($visit_id, $array_debcred))
+						$debit_notes = $array_debcred[$visit_id][2]->total_paid;
+
+				$invoice_total = ($invoice_amount + $debit_notes)-$credit_note;
 
                 $balance = $this->accounts_model->balance($payments_value,$invoice_total);
 
@@ -911,7 +999,14 @@ class accounting_model extends CI_Model
 				foreach($services_query->result() as $service)
 				{
 					$service_id = $service->service_id;
-					$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
+					// $visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
+
+					$visit_charge = 0;
+					if(array_key_exists($service_id, $array_charge))
+					{
+						if(array_key_exists($visit_id,$array_charge[$service_id]))
+							$visit_charge = $array_charge[$service_id][$visit_id]->total_invoiced;
+					}
 					$total_invoiced2 += $visit_charge;
 				}
 				
@@ -935,14 +1030,38 @@ class accounting_model extends CI_Model
 				foreach($services_query->result() as $service)
 				{
 					$service_id = $service->service_id;
-					$visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
+					// $visit_charge = $this->reports_model->get_all_visit_charges($visit_id, $service_id);
+					$visit_charge = 0;
+					if(array_key_exists($service_id, $array_charge))
+					{
+						if(array_key_exists($visit_id,$array_charge[$service_id]))
+							$visit_charge = $array_charge[$service_id][$visit_id]->total_invoiced;
+					}
+
 					$total_invoiced += $visit_charge;
 					
 					//get debit notes for that service
-					$service_debit_notes = $this->reports_model->get_service_notes($visit_id, $service_id, 2);
+					// $service_debit_notes = $this->reports_model->get_service_notes($visit_id, $service_id, 2);
+
+					$service_debit_notes = 0;
+					if(array_key_exists($service_id, $array_documents))
+					{
+						if(array_key_exists($visit_id,$array_documents[$service_id]))
+							if(array_key_exists(2, $array_documents[$service_id][$visit_id]))
+								$service_debit_notes = $array_charge[$service_id][$visit_id][2]->total_invoiced;
+					}
 					
 					//get debit notes for that service
-					$service_credit_notes = $this->reports_model->get_service_notes($visit_id, $service_id, 3);
+					// $service_credit_notes = $this->reports_model->get_service_notes($visit_id, $service_id, 3);
+
+
+					$service_credit_notes = 0;
+					if(array_key_exists($service_id, $array_documents))
+					{
+						if(array_key_exists($visit_id,$array_documents[$service_id]))
+							if(array_key_exists(3, $array_documents[$service_id][$visit_id]))
+								$service_credit_notes = $array_charge[$service_id][$visit_id][3]->total_invoiced;
+					}
 					
 					$notes_difference = $service_debit_notes - $service_credit_notes;
 					
@@ -969,7 +1088,15 @@ class accounting_model extends CI_Model
 				foreach($payment_method_query->result() as $paymentmethod)
 				{
 					$payment_method_id = $paymentmethod->payment_method_id;
-					$amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
+
+
+					// $amount_paid = $this->reports_model->get_all_payment_values($visit_id, $payment_method_id);
+					$amount_paid = 0;
+					if(array_key_exists($visit_id, $array_collections))
+					{
+						if(array_key_exists($payment_method_id,$array_collections[$visit_id]))
+							$amount_paid = $array_collections[$visit_id][$payment_method_id]->total_paid;
+					}
 					$report[$row_count][$current_column] = $amount_paid;
 					$current_column++;
 				}
@@ -984,6 +1111,9 @@ class accounting_model extends CI_Model
 				
 			}
 		}
+		unset($array_charge);
+		unset($array_documents);
+		unset($array_collections);
 		
 		//create the excel document
 		$this->excel->addArray ( $report );

@@ -509,67 +509,141 @@ class Reports_model extends CI_Model
 	*	Retrieve all service charges
 	*
 	*/
-	public function get_all_visit_charges($visit_id, $service_id)
+	public function get_all_visit_charges($visit_id=null, $service_id=null,$type=0)
 	{
+		$add = '';
+		if(!empty($visit_id))
+			$add .= ' AND visit_charge.visit_id = '.$visit_id;
+		if(!empty($service_id))
+			$add .= ' AND service_charge.service_id = '.$service_id;
+
+
+		$visit_search = $this->session->userdata('debtors_search_query');
+
+		if(!empty($visit_search))
+		{
+			$add .= $visit_search;
+		}
+		else
+		{
+			$add .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
+		}
+
 		//retrieve all users
-		$this->db->from('visit_charge, service_charge');
-		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced');
-		$this->db->where('visit_charge.visit_id = '.$visit_id.' AND service_charge.service_id = '.$service_id.' AND visit_charge.service_charge_id = service_charge.service_charge_id AND visit_charge.visit_charge_delete = 0');
+		$this->db->from('visit_charge, service_charge,visit');
+		$this->db->select('SUM(visit_charge.visit_charge_amount * visit_charge.visit_charge_units) AS total_invoiced,visit_charge.visit_id,service_charge.service_id');
+		$this->db->where('visit_charge.service_charge_id = service_charge.service_charge_id and visit.visit_id = visit_charge.visit_id AND visit_charge.visit_charge_delete = 0'.$add);
+
+		if(empty($visit_id) AND empty($service_id) AND $type == 0)
+			$this->db->group_by('service_charge.service_id,visit_charge.visit_id');
+		else if(empty($visit_id) AND empty($service_id) AND $type == 1)
+			$this->db->group_by('visit_charge.visit_id');
+
 		$query = $this->db->get();
 		
 		$cash = $query->row();
 		
-		if($cash->total_invoiced > 0)
+		if($cash->total_invoiced > 0 and !empty($visit_id) AND !empty($service_id))
 		{
 			return $cash->total_invoiced;
 		}
 		
 		else
 		{
-			return 0;
+			return $query;
 		}
 	}
 	
-	public function get_service_notes($visit_id, $service_id, $payment_type)
+	public function get_service_notes($visit_id=null, $service_id=null, $payment_type=null,$type= 0)
 	{
+		$add = '';
+		if(!empty($visit_id))
+			$add .= ' AND payments.visit_id = '.$visit_id;
+		if(!empty($service_id))
+			$add .= ' AND payments.payment_service_id = '.$service_id;
+		if(!empty($payment_type))
+			$add .= ' AND payments.payment_type = '.$payment_type;
+
+
+		$visit_search = $this->session->userdata('debtors_search_query');
+
+		if(!empty($visit_search))
+		{
+			$add .= $visit_search;
+		}
+		else
+		{
+			$add .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
+		}
+
+
 		//retrieve all users
-		$this->db->from('payments');
-		$this->db->select('SUM(amount_paid) AS total_invoiced');
-		$this->db->where('payments.visit_id = '.$visit_id.' AND payments.payment_service_id = '.$service_id.' AND payments.payment_type = '.$payment_type);
+		$this->db->from('payments,visit');
+		$this->db->select('SUM(amount_paid) AS total_invoiced,payments.payment_type,payments.payment_service_id AS service_id,payments.visit_id');
+		$this->db->where('visit.visit_id = payments.visit_id AND cancel = 0'.$add);
 		$query = $this->db->get();
+
+		if(empty($visit_id) AND empty($service_id) AND empty($payment_type) AND $type== 0)
+			$this->db->group_by('payments.payment_service_id,payments.visit_id,payments.payment_type');
+		else if(empty($visit_id) AND empty($service_id) AND empty($payment_type) AND $type== 1)
+			$this->db->group_by('payments.visit_id,payments.payment_type');
 		
 		$cash = $query->row();
 		
-		if($cash->total_invoiced > 0)
+		if($cash->total_invoiced > 0 and !empty($visit_id) AND !empty($service_id) AND !empty($payment_type))
 		{
 			return $cash->total_invoiced;
 		}
 		
 		else
 		{
-			return 0;
+			return $query;
 		}
 	}
 	
-	public function get_all_payment_values($visit_id,$payment_method_id)
+	public function get_all_payment_values($visit_id=null,$payment_method_id=null,$type=0)
 	{
+		$add = '';
+		if(!empty($visit_id))
+			$add .= ' AND payments.visit_id = '.$visit_id;
+		if(!empty($payment_method_id))
+			$add .= ' AND payment_method_id = '.$payment_method_id;
+		
+
+		$visit_search = $this->session->userdata('debtors_search_query');
+
+		if(!empty($visit_search))
+		{
+			$add .= $visit_search;
+		}
+		else
+		{
+			$add .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
+		}
 		# code...
 		//retrieve all users
-		$this->db->from('payments');
-		$this->db->select('SUM(amount_paid) AS total_paid');
-		$this->db->where('payments.cancel = 0 AND visit_id = '.$visit_id.' AND payment_method_id = '.$payment_method_id.' AND payment_type = 1');
+		$this->db->from('payments,visit');
+		$this->db->select('SUM(amount_paid) AS total_paid,payments.visit_id,payments.payment_method_id');
+		$this->db->where('payments.cancel = 0 AND payment_type = 1 AND visit.visit_id = payments.visit_id'.$add);
+
+		if(empty($visit_id) AND empty($payment_method_id) AND $type == 0)
+			$this->db->group_by('payments.visit_id,payments.payment_method_id');
+		else if(empty($visit_id) AND empty($payment_method_id) and $type == 1)
+			$this->db->group_by('payments.visit_id');
+
+
 		$query = $this->db->get();
 		
 		$cash = $query->row();
 		
-		if($cash->total_paid > 0)
+		if($cash->total_paid > 0 and !empty($visit_id) AND !empty($payment_method_id))
 		{
 			return $cash->total_paid;
 		}
 		
 		else
 		{
-			return 0;
+			return $query;
 		}
 	}
 	/*

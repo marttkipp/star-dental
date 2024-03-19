@@ -31,9 +31,29 @@ class Accounts_model extends CI_Model
 		
 		return $value;
 	}
-	public function total_invoice($visit_id)
+	public function total_invoice($visit_id=null)
 	{
-		 $item_invoiced_rs = $this->get_patient_visit_charge_items($visit_id);
+
+		$add = '';
+		if(!empty($visit_id))
+			$add .= ' AND payments.visit_id = '.$visit_id; 
+
+		$visit_search = $this->session->userdata('debtors_search_query');
+
+		if(!empty($visit_search))
+		{
+			$add .= $visit_search;
+		}
+		else
+		{
+			$add .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
+		}
+
+
+		if($visit_id > 0)
+		{
+
+		 			$item_invoiced_rs = $this->get_patient_visit_charge_items($visit_id);
          $credit_note_amount = $this->get_sum_credit_notes($visit_id);
          $debit_note_amount = $this->get_sum_debit_notes($visit_id);
          $total = 0;
@@ -66,34 +86,80 @@ class Accounts_model extends CI_Model
           }
           $total_amount = ($total + $debit_note_amount) - $credit_note_amount;
           return $total_amount;
+		}
+		else
+		{
+			$table = "visit_charge, service_charge, service,visit";
+			$where = "visit_charge.visit_charge_units <> 0 AND visit.visit_id = visit_charge.visit_id AND service_charge.service_id = service.service_id AND visit_charge.visit_charge_delete = 0 AND visit_charge.charged = 1 AND visit_charge.service_charge_id = service_charge.service_charge_id AND visit_charge.visit_id =". $visit_id;
+			$items = "SUM(visit_charge.visit_charge_units*visit_charge.visit_charge_amount) AS total_invoiced,visit.visit_id";
+			$order = "service.service_name";
+
+			$this->db->where($where);
+    	$this->db->select($select);
+    	$this->db->group_by('visit_charge.visit_id');
+    	$query = $this->db->get($table);
+    	return $query;
+		}
 	}
-	public function total_payments($visit_id)
+	public function total_payments($visit_id=null)
 	{
-	      $payments_rs = $this->accounts_model->payments($visit_id);
-	      $total_payments = 0;
-	      
-	      if(count($payments_rs) > 0)
-	      {
-	        $x=0;
-	        
-	          foreach ($payments_rs as $key_items):
-	            $x++;
-	                $payment_type = $key_items->payment_type;
-	                $payment_status = $key_items->payment_status;
-	                if($payment_type == 1 && $payment_status ==1)
-	                {
-	                  $payment_method = $key_items->payment_method;
-	                  $amount_paid = $key_items->amount_paid;
-	                  
-	                  $total_payments = $total_payments + $amount_paid;
-	                }
-	          endforeach;
-	                    
-	      }
-	      else
-	      {
-	      	$total_payments = 0;
-	      }
+				$add = '';
+				if(!empty($visit_id))
+					$add .= ' AND payments.visit_id = '.$visit_id; 
+
+				$visit_search = $this->session->userdata('debtors_search_query');
+
+				if(!empty($visit_search))
+				{
+					$add .= $visit_search;
+				}
+				else
+				{
+					$add .= ' AND visit.visit_date = "'.date('Y-m-d').'" ';
+				}
+
+				$table = "payments, payment_method,visit";
+				$where = "payments.cancel = 0 and visit.visit_id = payments.visit_id AND payment_type = 1 AND payments.payment_status = 1 AND payment_method.payment_method_id = payments.payment_method_id".$add;
+				$items = "SUM(payments.amount_paid) AS total_paid,payments.visit_id";
+				$order = "payments.payment_id";
+
+				if(!empty($visit_id))
+				{
+
+
+		      $payments_rs = $this->accounts_model->payments($visit_id);
+		      $total_payments = 0;
+		      
+		      if(count($payments_rs) > 0)
+		      {
+		        $x=0;
+		        
+		          foreach ($payments_rs as $key_items):
+		            $x++;
+		                $payment_type = $key_items->payment_type;
+		                $payment_status = $key_items->payment_status;
+		                if($payment_type == 1 && $payment_status ==1)
+		                {
+		                  $payment_method = $key_items->payment_method;
+		                  $amount_paid = $key_items->amount_paid;
+		                  
+		                  $total_payments = $total_payments + $amount_paid;
+		                }
+		          endforeach;
+		                    
+		      }
+		      else
+		      {
+		      	$total_payments = 0;
+		      }
+		    }
+		    else
+		    {
+		    	$this->db->where($where);
+		    	$this->db->select($select);
+		    	$this->db->group_by('payments.visit_id');
+		    	$total_payments = $this->db->get($table);
+		    }
 	      return $total_payments;
 	}
 
