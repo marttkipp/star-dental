@@ -49,6 +49,7 @@ class Auth extends MX_Controller
                    'personnel_type_id'     => '2',
                    'personnel_id' => 0,
                    'branch_code'   => 'N',
+                   'authorize_invoice_changes'   => true,
                    'branch_name'     => 'Star Dental Clinics',
                    'branch_id' => 2
                );

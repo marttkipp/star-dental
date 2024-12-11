@@ -589,7 +589,7 @@ $route['reception/validate-import'] = 'reception/do_patients_import';
 $route['reception/import-template'] = 'reception/import_template';
 $route['reception/import-patients'] = 'reception/import_patients';
 $route['reception/print-invoice/(:num)/(:any)'] = 'accounts/print_invoice_new/$1/$2';
-
+$route['reception/export-patients'] = 'reception/export_patients';
 /*
 *	nurse Routes
 */
