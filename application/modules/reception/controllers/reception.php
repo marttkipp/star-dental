@@ -5738,5 +5738,6 @@ public function save_visit2($patient_id)
 		redirect('queue');
 	}
 
+
 }
 ?>

@@ -7,9 +7,15 @@
         <h2 class="panel-title"><?php echo $title;?></h2>
         <div class="pull-right">
         	<?php
+
+        	$authorize_invoice_changes = $this->session->userdata('authorize_invoice_changes');
+
+        	if($authorize_invoice_changes)
+        		echo '<a href="'.site_url().'reception/export-patients" class="btn btn-success  btn-sm " target="_blank" style="margin-left:10px; margin-top:-40px;">Export Patients</a>
+			<a href="'.site_url().'reception/import-patients" class="btn btn-primary  btn-sm " style="margin-left:10px; margin-top:-40px;">Import Patients</a>';
+
+
         	echo '
-			<a href="'.site_url().'reception/import-patients" class="btn btn-primary  btn-sm " style="margin-left:10px; margin-top:-40px;">Import Patients</a>
-			
 			<a href="'.site_url().'add-patient" class="btn btn-success btn-sm" style="margin-top:-40px;">Add Patient</a>
 			';
         	?>
@@ -58,7 +64,19 @@
 			$result = '';
 		}
 		
-		
+		$pt_balances_rs = $this->reception_model->get_patient_balances();
+		$pd_balances_array = array();
+
+		if($pt_balances_rs->num_rows() > 0)
+		{
+			foreach ($pt_balances_rs->result() as $key) {
+				// code...
+				$pd_balances_array[$key->patient_id] = $key;
+			}
+		}
+			// echo "<pre>";
+			// 	print_r(print_r($pd_balances_array));
+			// 	echo "</pre>";
 		//if users exist display them
 		if ($query->num_rows() > 0)
 		{
@@ -83,7 +101,8 @@
 				';
 			
 			$personnel_query = $this->personnel_model->get_all_personnel();
-			
+				
+
 			foreach ($query->result() as $row)
 			{
 
@@ -101,12 +120,12 @@
 				$patient_phone1 = $row->patient_phone1;
 				$patient_number = $row->patient_number;
 				$current_patient_number = $row->current_patient_number;
-				$patient = $this->reception_model->patient_names2($patient_id);
-				$patient_type = $patient['patient_type'];
-				$patient_othernames = $patient['patient_othernames'];
-				$patient_surname = $patient['patient_surname'];
-				$patient_type_id = $patient['visit_type_id'];
-				$account_balance = $patient['account_balance'];
+				$patient_othernames = $row->patient_othernames;
+				$patient_surname = $row->patient_surname;
+				$patient_date_of_birth = $row->patient_date_of_birth;
+				$gender_id = $row->gender_id;
+
+			
 				$last_visit = $row->last_visit;
 				$last_visit_date = $row->last_visit;
 				//$card_no = $row->card_no;
@@ -123,11 +142,6 @@
 				}
 				
 
-				$patient_type = $patient['patient_type'];
-				$patient_othernames = $patient['patient_othernames'];
-				$patient_surname = $patient['patient_surname'];
-				$patient_date_of_birth = $patient['patient_date_of_birth'];
-				$gender = $patient['gender'];
 				
 				//creators and editors
 				if($personnel_query->num_rows() > 0)
@@ -197,6 +211,18 @@
 
 				// $cash_balance = $this->accounts_model->get_cash_balance($patient_id);
 				// $insurance_balance = $this->accounts_model->get_insurance_balance($patient_id);
+
+				$balance = 0;
+
+
+				if(array_key_exists($patient_id, $pd_balances_array)){
+
+
+					$dr_amount = $pd_balances_array[$patient_id]->dr_amount;
+					$cr_amount = $pd_balances_array[$patient_id]->cr_amount;
+
+					$balance = $dr_amount - $cr_amount;
+				}
 				$count++;
 				
 				
@@ -210,7 +236,7 @@
 							<td>'.$patient_phone1.'</td>							
 							<td>'.$last_visit.'</td>
 							<td>'.$doctor.'</td>
-							<td>'.number_format($account_balance,2).'</td>
+							<td>'.number_format($balance,2).'</td>
 							<td><a href="'.site_url().'reception/set_visit/'.$patient_id.'" class="btn btn-sm btn-info">Queue </a></td>
 							<td><a href="'.site_url().'reception/edit_patient/'.$patient_id.'" class="btn btn-sm btn-warning">Edit </a></td>
 							
@@ -231,7 +257,7 @@
 		{
 			$result .= "There are no patients";
 		}
-		
+		unset($pd_balances_array);
 		echo $result;
 ?>
           </div>

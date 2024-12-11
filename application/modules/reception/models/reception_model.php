@@ -3608,33 +3608,30 @@ class Reception_model extends CI_Model
 
 			$row_count = 0;
 			$report[$row_count][0] = '#';
-			$report[$row_count][1] = 'New Patient Number';
-			$report[$row_count][2] = 'Patient Number';
-			$report[$row_count][3] = 'Scheme Name';
-			$report[$row_count][4] = 'First Appointment Date';
-			$report[$row_count][5] = 'Patient';
-			$report[$row_count][6] = 'Registration Date';
-			$report[$row_count][7] = 'Patient Date of Birth';
-			$report[$row_count][8] = 'Patient Address';
-			$report[$row_count][9] = 'Postal Code';
-			$report[$row_count][10] = 'Town';
-			$report[$row_count][11] = 'Phone';
-			$report[$row_count][12] = 'Alternate Phone';
-			$report[$row_count][13] = 'Email';
-			$report[$row_count][14] = 'Next Of Kin';
-			$report[$row_count][15] = 'Next of Kin Phone';
-			$report[$row_count][16] = 'Relationship to Kin';
-			$report[$row_count][17] = 'Occupation';
-			$report[$row_count][18] = 'Place of Work';
-			$report[$row_count][19] = 'Group';
+			$report[$row_count][1] = 'Patient Number';
+			$report[$row_count][2] = 'Patient Name';
+			$report[$row_count][3] = 'Patient Contact';
+			$report[$row_count][4] = 'Last Visit';
+			$report[$row_count][5] = 'Doctor';
+			$report[$row_count][6] = 'Balance';
 			//get & display all services
-			
+
+			$pt_balances_rs = $this->reception_model->get_patient_balances();
+			$pd_balances_array = array();
+
+			if($pt_balances_rs->num_rows() > 0)
+			{
+				foreach ($pt_balances_rs->result() as $key) {
+					// code...
+					$pd_balances_array[$key->patient_id] = $key;
+				}
+			}
+				$personnel_query = $this->personnel_model->get_all_personnel();
 			//display all patient data in the leftmost columns
 			foreach($visits_query->result() as $row)
 			{
 				$row_count++;
 				$total_invoiced = 0;
-				$registration_date = date('jS M Y',strtotime($row->patient_date));
 				$patient_id = $row->patient_id;
 				$dependant_id = $row->dependant_id;
 				$strath_no = $row->strath_no;
@@ -3648,97 +3645,137 @@ class Reception_model extends CI_Model
 				$last_visit = $row->last_visit;
 				$patient_phone1 = $row->patient_phone1;
 				$patient_number = $row->patient_number;
-				$patient_email = $row->patient_email;
-				$patient_surname = $row->patient_surname;
+				$current_patient_number = $row->current_patient_number;
 				$patient_othernames = $row->patient_othernames;
-				$patient_first_name = $row->patient_first_name;
-				$patient_postalcode = $row->patient_postalcode;
-				$patient_date_of_birth = date('jS M Y',strtotime($row->patient_date_of_birth));
-				$place_of_work = $row->place_of_work;
-				$occupation = $row->occupation;
-				$patient_address = $row->patient_address;
-				$patient_town = $row->patient_town;
+				$patient_surname = $row->patient_surname;
+				// $patient_first_name = $row->patient_first_name;
+				$patient_date_of_birth = $row->patient_date_of_birth;
+				$gender_id = $row->gender_id;
+
+
+			
 				$last_visit = $row->last_visit;
-				$age_group = $row->age_group;
-				$relationship_name = '';
-				$patient_kin_sname = $row->patient_kin_sname;
-				$patient_kin_othernames = $row->patient_kin_othernames;
-				$patient_kin_phonenumber1 = $row->patient_kin_phonenumber1;
-				$patient_phone2 = $row->patient_phone2;
-				$patient_date = $row->patient_date;
-				$new_patient_number = $row->new_patient_number;
-				if($patient_date != NULL)
+				$last_visit_date = $row->last_visit;
+				//$card_no = $row->card_no;
+				$patient_phone1 = $row->patient_phone1;
+				$patient_number = $row->patient_number;
+				if($last_visit != NULL)
 				{
-					$patient_date = date('jS M Y',strtotime($patient_date));
+					$last_visit = date('jS M Y',strtotime($last_visit));
 				}
 				
 				else
-				{
-					$patient_date = '';
-				}
-				
-
-				$insurance_company = $this->reception_model->get_patient_insurance_company($patient_id);
-
-				$last_visit_date = $this->reception_model->get_last_visit_date($patient_id);
-				// var_dump($last_visit_date);die();
-				if($last_visit_date != NULL)
-				{
-					$last_visit_date = date('jS M Y',strtotime($last_visit_date));
-				}
-				
-				else
-				{
-					$last_visit_date = '';
-				}
-
-				if($last_visit_date == "0000-00-00")
-				{
-					$last_visit_date = '';
-				}
-
-				if($age_group == "A")
-				{
-					$age_group = "Adult";
-				}
-				else if($age_group == "D")
-				{
-					$age_group = "Dependant";
-				}
-				else
-				{
-					$age_group ="";
-				}
-				$count++;
-				
-				if($last_visit == "0000-00-00")
 				{
 					$last_visit = '';
 				}
+				
+
+				
+				//creators and editors
+				if($personnel_query->num_rows() > 0)
+				{
+					$personnel_result = $personnel_query->result();
+					
+					foreach($personnel_result as $adm)
+					{
+						$personnel_id = $adm->personnel_id;
+						
+						if($personnel_id == $created_by)
+						{
+							$created_by = $adm->personnel_fname;
+						}
+						
+						if($personnel_id == $modified_by)
+						{
+							$modified_by = $adm->personnel_fname;
+						}
+						
+						if($personnel_id == $modified_by)
+						{
+							$modified_by = $adm->personnel_fname;
+						}
+						
+						if($personnel_id == $deleted_by)
+						{
+							$deleted_by = $adm->personnel_fname;
+						}
+					}
+				}
+				
+				else
+				{
+					$created_by = '-';
+					$modified_by = '-';
+					$deleted_by = '-';
+				}
+				$insurance_company = $this->reception_model->get_patient_insurance_company($patient_id);
+
+				$personnel_id = $this->reception_model->get_last_personnel_id($patient_id,$last_visit_date);
+				if($personnel_query->num_rows() > 0)
+				{
+					$personnel_result = $personnel_query->result();
+					
+					foreach($personnel_result as $adm)
+					{
+						$personnel_id2 = $adm->personnel_id;
+						
+						if($personnel_id == $personnel_id2)
+						{
+							$doctor = $adm->personnel_fname;
+							break;
+						}
+						
+						else
+						{
+							$doctor = '-';
+						}
+					}
+				}
+				
+				else
+				{
+					$doctor = '-';
+				}
+
+				// $cash_balance = $this->accounts_model->get_cash_balance($patient_id);
+				// $insurance_balance = $this->accounts_model->get_insurance_balance($patient_id);
+
+				$balance = 0;
+
+
+				if(array_key_exists($patient_id, $pd_balances_array)){
+
+
+					$dr_amount = $pd_balances_array[$patient_id]->dr_amount;
+					$cr_amount = $pd_balances_array[$patient_id]->cr_amount;
+
+					$balance = $dr_amount - $cr_amount;
+				}
+
+
+				$count++;
+				
+				if($last_visit != NULL AND $last_visit != "0000-00-00")
+				{
+					$last_visit = date('jS M Y',strtotime($last_visit));
+				}
+				
+				else
+				{
+					$last_visit = '';
+				}
+				
 
 				//display the patient data
 				$report[$row_count][0] = $count;
-				$report[$row_count][1] = $new_patient_number;
-				$report[$row_count][2] = $patient_number;
-				$report[$row_count][3] = $insurance_company;
-				$report[$row_count][4] = $last_visit_date;
-				$report[$row_count][5] = $patient_othernames.' '.$patient_first_name.' '.$patient_surname;
-				$report[$row_count][6] = $patient_date;
-				$report[$row_count][7] = $patient_date_of_birth;
-				$report[$row_count][8] = $patient_address;
-				$report[$row_count][9] = $patient_postalcode;
-				$report[$row_count][10] = $patient_town;
-				$report[$row_count][11] = $patient_phone1;
-				$report[$row_count][12] = $patient_phone2;
-				$report[$row_count][13] = $patient_email;
-				$report[$row_count][14] = $patient_kin_sname.' '.$patient_kin_othernames;
-				$report[$row_count][15] = $patient_kin_phonenumber1;
-				$report[$row_count][16] = $relationship_name;
-				$report[$row_count][17] = $occupation;
-				$report[$row_count][18] = $place_of_work;
-				$report[$row_count][19] = $age_group;
+				$report[$row_count][1] = $patient_number;
+				$report[$row_count][2] = $patient_othernames.' '.$patient_surname;
+				$report[$row_count][3] = $patient_phone1;
+				$report[$row_count][4] = $last_visit;
+				$report[$row_count][5] = $doctor;
+				$report[$row_count][6] = number_format($balance,2);
 
-					
+			
 				
 				
 			}
@@ -4333,6 +4370,89 @@ class Reception_model extends CI_Model
 
 
 		return TRUE;
+	}
+
+
+	public function get_patient_balances()
+	{
+
+		$select = "SELECT 
+						data.patient_id AS patient_id,
+						SUM(dr_amount) AS dr_amount,
+						SUM(cr_amount) AS cr_amount
+					FROM
+					(
+						SELECT
+							visit.visit_id AS visit_id,
+							visit.patient_id AS `patient_id`,
+							((
+									`visit_charge`.`visit_charge_amount` * `visit_charge`.`visit_charge_units` 
+								)) AS `dr_amount`,
+							0 AS cr_amount,
+							'Bills' AS category 
+						FROM
+							`visit_charge`,
+							visit 
+						WHERE
+							((`visit_charge`.`charged` = 1 ) 
+							AND ( `visit_charge`.`visit_charge_delete` = 0 )) 
+							AND visit.visit_id = visit_charge.visit_id 
+							-- AND visit.visit_delete = 0 
+
+						UNION ALL
+
+						SELECT
+							`visit`.`visit_id` AS `visit_id`,
+							`visit`.`patient_id` AS `patient_id`,
+							0 AS dr_amount,
+							( `payments`.`amount_paid` ) AS `cr_amount`,
+							'Payments' AS category 
+						FROM
+							`payments`,
+							visit 
+						WHERE
+							((
+									`payments`.`cancel` = 0 
+									) 
+							AND ( `payments`.`payment_type` = 1 )) 
+							AND visit.visit_id = payments.visit_id 
+							AND visit.visit_delete = 0 UNION ALL
+						SELECT
+							visit.visit_id AS visit_id,
+							visit.patient_id AS patient_id,
+							0 AS dr_amount,
+							( `payments`.`amount_paid` ) AS `cr_amount`,
+							'Waiver' AS category 
+						FROM
+							`payments`,
+							visit 
+						WHERE
+							((
+									`payments`.`cancel` = 0 
+									) 
+							AND ( `payments`.`payment_type` = 2 )) 
+							AND visit.visit_id = payments.visit_id 
+							AND visit.visit_delete = 0 UNION ALL
+						SELECT
+							visit.visit_id AS visit_id,
+							visit.patient_id AS patient_id,
+							( `payments`.`amount_paid` ) AS dr_amount,
+							0 AS `cr_amount`,
+							'Debit Note' AS category 
+						FROM
+							`payments`,
+							visit 
+						WHERE
+							((
+									`payments`.`cancel` = 0 
+									) 
+							AND ( `payments`.`payment_type` = 3 )) 
+							AND visit.visit_id = payments.visit_id 
+							AND visit.visit_delete = 0
+						) AS data GROUP BY data.patient_id";
+			$query = $this->db->query($select);
+
+			return $query;
 	}
 	
 }
