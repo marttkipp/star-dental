@@ -20,7 +20,7 @@ class S3_model extends CI_Model
 			'suppress_php_deprecation_warning' => true,  // Suppress PHP deprecation warnings
 		]);
 
-		$subdomain = 'star-dental';//isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
+		$subdomain = 'stardental';//isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
 		$bucket_folder = $subdomain . '/' . $loc . '/';
 
 		if ($loc == 'scans' AND !empty($patient_id)) {
