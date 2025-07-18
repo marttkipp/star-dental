@@ -46,20 +46,20 @@ class S3  extends MX_Controller
 			// 	'loc' => 'personnel',
 			// 	'file_type' => ''
 			// ),
-			// 'patient_document_uploads' => array(
-			// 	'field' => 'document_upload_name',
-			// 	'path' => 'document_uploads',
-			// 	'field_id' => 'document_upload_id',
-			// 	'loc' => 'scans',
-			// 	'file_type' => ''
-			// ),
-			'branch' => array(
-				'field' => 'branch_image_name',
-				'path' => 'logo',
-				'field_id' => 'branch_id',
-				'loc' => 'logo',
+			'patient_document_uploads' => array(
+				'field' => 'document_upload_name',
+				'path' => 'document_uploads',
+				'field_id' => 'document_upload_id',
+				'loc' => 'scans',
 				'file_type' => ''
 			),
+			// 'branch' => array(
+			// 	'field' => 'branch_image_name',
+			// 	'path' => 'logo',
+			// 	'field_id' => 'branch_id',
+			// 	'loc' => 'logo',
+			// 	'file_type' => ''
+			// ),
 		);
 		// var_dump($tables);die();
 		// loop through the tables
@@ -85,7 +85,7 @@ class S3  extends MX_Controller
 			}
 
 
-			var_dump($query->num_rows());
+			// var_dump($query->num_rows());
 			if($query->num_rows() > 0)
 			{
 				foreach($query->result() as $key => $value)
