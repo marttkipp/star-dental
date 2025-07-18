@@ -77,7 +77,7 @@ class S3  extends MX_Controller
 			$id = $field_id;//$table.'_id';
 			// get only the field that has the file
 			if($loc == 'scans'){
-				$this->db->limit(1000);
+				$this->db->limit(2);
 				$query = $this->db->select([$id, $data['field'],'patient_id'])->get($table);
 			}
 			else{
@@ -104,7 +104,7 @@ class S3  extends MX_Controller
 					}
 					if ($this->check_if_digital_ocean_link($value->$field_name))
 					{
-						
+
 						var_dump($value->$field_name);
 						var_dump('File already uploaded');
 						continue;
