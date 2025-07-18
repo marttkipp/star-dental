@@ -3,10 +3,11 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 class S3_model extends CI_Model 
 {
-
 	
 	public function upload_file_to_digital_ocean_using_path($path, $loc, $s3_file_name='',$patient_id=null)
 	{
+		
+	error_reporting(E_ALL);
 		$path = str_replace('\\', '/', $path);
 		$client = new S3Client([
 			'version' => 'latest',

@@ -110,7 +110,7 @@ class S3  extends MX_Controller
 						continue;
 					}
 
-								var_dump($patient_id);die();
+						
 					$concatenated_name = $value->$field_name.$extension_name;
 					$path = $data['path'].'/'.$concatenated_name;
 					$full_path = $this->document_upload_path.'/'.$path;
