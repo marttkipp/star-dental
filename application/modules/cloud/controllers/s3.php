@@ -76,10 +76,13 @@ class S3  extends MX_Controller
 			
 			$id = $field_id;//$table.'_id';
 			// get only the field that has the file
-			if($loc == 'scans')
+			if($loc == 'scans'){
+				$this->db->limit(1000);
 				$query = $this->db->select([$id, $data['field'],'patient_id'])->get($table);
-			else
+			}
+			else{
 				$query = $this->db->select([$id, $data['field']])->get($table);
+			}
 
 
 			// var_dump($query->num_rows());die();
