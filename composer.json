@@ -1,0 +1,21 @@
+{
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "require": {
+        "aws/aws-sdk-php": "^3.305",
+        "smtp2go-oss/smtp2go-php": "*",
+        "mpdf/mpdf": "^8.2",
+        "phpoffice/phpspreadsheet": "1.29.0"
+    },
+    "config": {
+        "platform": {
+          "php": "7.4.33"
+        },
+        "allow-plugins": {
+          "php-http/discovery": true
+        }
+      }
+}
