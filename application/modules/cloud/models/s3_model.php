@@ -21,7 +21,7 @@ class S3_model extends CI_Model
 		]);
 // https://stardental.fra1.digitaloceanspaces.com
 		$subdomain = isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
-		var_dump($subdomain);
+	
 		$bucket_folder = $subdomain . '/' . $loc . '/';
 
 		if ($loc == 'scans' AND !empty($patient_id)) {
@@ -40,7 +40,7 @@ class S3_model extends CI_Model
 			'ContentType' => mime_content_type($path),
 			'ContentEncoding' => 'base64'
 		]);
-
+	var_dump($result);
 		if($result)
 		{
 			$response['check'] = TRUE;
