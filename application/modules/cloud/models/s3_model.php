@@ -11,7 +11,7 @@ class S3_model extends CI_Model
 		$client = new S3Client([
 			'version' => 'latest',
 			'region'  => 'fra1',
-			'endpoint' => 'https://stardental.fra1.digitaloceanspaces.com',
+			'endpoint' => 'https://fra1.digitaloceanspaces.com',
 			'use_path_style_endpoint' => false,
 			'credentials' => [
 				'key'    => 'allbuckets-1752049433202',
@@ -28,7 +28,7 @@ class S3_model extends CI_Model
 		} else {
 			$bucket_folder = $subdomain . '/' . $loc . '/';
 		}
-		$bucket = 'dental-files';
+		$bucket = 'stardental';
 
 		$result = $client->putObject([
 			'Bucket' => $bucket,
