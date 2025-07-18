@@ -51,7 +51,7 @@ class S3_model extends CI_Model
             $bucket_folder = $subdomain . '/' . $loc . '/';
         }
         
-        $bucket = 'dental-files';
+        $bucket = 'stardental';
         $file_name = $s3_file_name ?: basename($path);
         $key = $bucket_folder . $file_name;
         
@@ -150,7 +150,7 @@ class S3_model extends CI_Model
 		} else {
 			$bucket_folder = $subdomain . '/' . $loc . '/';
 		}
-		$bucket = 'dental-files';
+		$bucket = 'stardental';
 
 		$result = $client->putObject([
 			'Bucket' => $bucket,
