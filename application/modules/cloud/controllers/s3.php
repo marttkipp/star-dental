@@ -96,7 +96,7 @@ class S3  extends MX_Controller
 					if($loc == 'scans')
 						$patient_id = $value->patient_id;
 
-
+					var_dump($patient_id);die();
 					if ($value->$field_name == '')
 					{
 						var_dump('No file to upload');
