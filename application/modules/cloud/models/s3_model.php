@@ -4,7 +4,7 @@ use Aws\S3\S3Client;
 class S3_model extends CI_Model 
 {
 
-	public function upload_file_to_digital_ocean_using_path($path, $loc, $s3_file_name='', $patient_id=null)
+	public function upload_file_to_digital_ocean_using_path___($path, $loc, $s3_file_name='', $patient_id=null)
 {
     try {
         // Initialize response array
@@ -126,7 +126,7 @@ class S3_model extends CI_Model
         return $response;
     }
 }
-	public function upload_file_to_digital_ocean_using_path_old($path, $loc, $s3_file_name='',$patient_id=null)
+	public function upload_file_to_digital_ocean_using_path($path, $loc, $s3_file_name='',$patient_id=null)
 	{
 		$path = str_replace('\\', '/', $path);
 		$client = new S3Client([
@@ -135,7 +135,7 @@ class S3_model extends CI_Model
 			'endpoint' => 'https://stardental.fra1.digitaloceanspaces.com',
 			'use_path_style_endpoint' => false,
 			'credentials' => [
-				'key'    => 'allbuckets-1752049433202',
+				'key'    => 'DO00LMQZ82XCHG4D7L9D',
 				'secret' => 'khmN7cj+LjWbhq7yaPimpENcTJwSkEEtcsh8gI+fxDk',
 			],
 			'suppress_php_deprecation_warning' => true,  // Suppress PHP deprecation warnings
