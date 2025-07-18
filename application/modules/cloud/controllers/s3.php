@@ -85,7 +85,7 @@ class S3  extends MX_Controller
 			}
 
 
-			// var_dump($query->num_rows());die();
+			var_dump($query->num_rows());
 			if($query->num_rows() > 0)
 			{
 				foreach($query->result() as $key => $value)
