@@ -3,11 +3,10 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 class S3_model extends CI_Model 
 {
+
 	
 	public function upload_file_to_digital_ocean_using_path($path, $loc, $s3_file_name='',$patient_id=null)
 	{
-
-	error_reporting(E_ALL);
 		$path = str_replace('\\', '/', $path);
 		$client = new S3Client([
 			'version' => 'latest',
@@ -20,16 +19,17 @@ class S3_model extends CI_Model
 			],
 			'suppress_php_deprecation_warning' => true,  // Suppress PHP deprecation warnings
 		]);
+// https://stardental.fra1.digitaloceanspaces.com
+		$subdomain = isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
+		var_dump($subdomain);
+		$bucket_folder = $subdomain . '/' . $loc . '/';
 
-		$subdomain = 'stardental';//isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
-		// $bucket_folder = $subdomain . '/' . $loc . '/';
-		$bucket_folder = $subdomain;
 		if ($loc == 'scans' AND !empty($patient_id)) {
 			$bucket_folder = $subdomain . '/' . $loc . '/' . $patient_id . '/';
 		} else {
 			$bucket_folder = $subdomain . '/' . $loc . '/';
 		}
-		$bucket = 'stardental';
+		$bucket = 'dental-files';
 
 		$result = $client->putObject([
 			'Bucket' => $bucket,
