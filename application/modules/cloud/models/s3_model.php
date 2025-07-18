@@ -6,7 +6,7 @@ class S3_model extends CI_Model
 	
 	public function upload_file_to_digital_ocean_using_path($path, $loc, $s3_file_name='',$patient_id=null)
 	{
-		
+
 	error_reporting(E_ALL);
 		$path = str_replace('\\', '/', $path);
 		$client = new S3Client([
@@ -20,7 +20,7 @@ class S3_model extends CI_Model
 			],
 			'suppress_php_deprecation_warning' => true,  // Suppress PHP deprecation warnings
 		]);
-
+		var_dump($client);die();
 		$subdomain = 'stardental';//isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
 		$bucket_folder = $subdomain . '/' . $loc . '/';
 
