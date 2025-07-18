@@ -96,7 +96,7 @@ class S3  extends MX_Controller
 					if($loc == 'scans')
 						$patient_id = $value->patient_id;
 
-					var_dump($patient_id);die();
+		
 					if ($value->$field_name == '')
 					{
 						var_dump('No file to upload');
@@ -104,10 +104,13 @@ class S3  extends MX_Controller
 					}
 					if ($this->check_if_digital_ocean_link($value->$field_name))
 					{
+						
 						var_dump($value->$field_name);
 						var_dump('File already uploaded');
 						continue;
 					}
+
+								var_dump($patient_id);die();
 					$concatenated_name = $value->$field_name.$extension_name;
 					$path = $data['path'].'/'.$concatenated_name;
 					$full_path = $this->document_upload_path.'/'.$path;
