@@ -17,6 +17,7 @@ class S3_model extends CI_Model
 				'key'    => 'allbuckets-1752049433202',
 				'secret' => 'khmN7cj+LjWbhq7yaPimpENcTJwSkEEtcsh8gI+fxDk',
 			],
+			'suppress_php_deprecation_warning' => true,  // Suppress PHP deprecation warnings
 		]);
 
 		$subdomain = 'star-dental';//isset($_SERVER['HTTP_HOST']) ? explode('.', $_SERVER['HTTP_HOST'])[0] : '';
